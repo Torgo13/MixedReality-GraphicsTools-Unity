@@ -328,8 +328,8 @@ Varyings VertexStage(Attributes input)
     // Reference: https://patrickbrosset.medium.com/do-you-really-understand-css-linear-gradients-631d9a895caf
     // Translate the angle from degress to radians and default pointing up along the unit circle.
     float angle = _GradientAngle * GT_DEGREES_TO_RADIANS;
-    float cosA = cos(angle);
-    float sinA = sin(angle);
+    float sinA, cosA;
+    sincos(angle, sinA, cosA);
 
     // Calculate the direction vector of the gradient line.
     float2 direction = mul(float2(0.0, 1.0), float2x2(cosA, -sinA, sinA, cosA));
@@ -541,7 +541,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_IRIDESCENCE)
     half4 gradientColor = half4(input.gradient, 1.0h);
 #elif defined(_GRADIENT_FOUR_POINT)
-    half4 gradientColor = GTFourPointGradient(_GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, input.uv);
+    #if defined(_BLUR_TEXTURE) || defined(_BLUR_TEXTURE_2)
+        half4 gradientColor = GTFourPointGradient(_GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, input.uvScreen.xy / input.uvScreen.w);
+    #else
+        half4 gradientColor = GTFourPointGradient(_GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, input.uv);
+    #endif
 #elif defined(_GRADIENT_LINEAR)
     half4 gradientColor = GTLinearGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, _GradientAlpha, _GradientAlphaTime, input.gradient);
 #endif

@@ -10,9 +10,9 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// <summary>
     /// A 2D rounded rectangular mask that allows for clipping / masking of areas outside the mask.
     /// Constraints:
-    /// - Material instancing must be controlled by the user. i.e shared materials may be effected by RoundedRectMask2D.
+    /// - Material instancing must be controlled by the user. i.e. shared materials may be effected by RoundedRectMask2D.
     /// - RoundedRectMask2D only work with Graphics Tools/Canvas/... shaders and the Graphics Tools/Standard Canvas shader.
-    /// - Nested RoundedRectMask's work but are not advised since they will not consider grandparent, great grandparent, etc. radii.
+    /// - Nested RoundedRectMask's work but are not advised since they will not consider grandparent, great-grandparent, etc. radii.
     /// - Plus, same constraints as RectMask2D.
     /// </summary>
     public class RoundedRectMask2D : RectMask2DFast

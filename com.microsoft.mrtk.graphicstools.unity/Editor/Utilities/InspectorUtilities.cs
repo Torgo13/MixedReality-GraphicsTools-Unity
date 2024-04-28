@@ -94,13 +94,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Undo.RecordObject(rt, "Set Canvas Position");
 
             // No GraphicRaycaster by default. Users can add one, if they like.
-            if (canvas.TryGetComponent(out GraphicRaycaster raycaster))
+            if (canvas.TryGetComponent<GraphicRaycaster>(out var raycaster))
             {
                 Undo.DestroyObjectImmediate(raycaster);
             }
 
             // CanvasScaler should be there by default.
-            if (!canvas.TryGetComponent(out CanvasScaler _))
+            if (!canvas.TryGetComponent<CanvasScaler>(out var _))
             {
                 Undo.AddComponent<CanvasScaler>(canvas.gameObject);
             }
@@ -117,7 +117,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             GameObjectUtility.SetParentAndAlign(gameObject, menuCommand.context as GameObject);
 
             // Register the creation in the undo system.
-            Undo.RegisterCreatedObjectUndo(gameObject, "Create " + gameObject.name);
+            Undo.RegisterCreatedObjectUndo(gameObject, $"Create {gameObject.name}");
 
             Selection.activeObject = gameObject;
 
@@ -130,7 +130,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         }
 
         /// <summary>
-        /// Draws a property that is greyed out and non-interactible.
+        /// Draws a property that is greyed out and non-interactable.
         /// </summary>
         public static void DrawReadonlyPropertyField(SerializedProperty property, params GUILayoutOption[] options)
         {

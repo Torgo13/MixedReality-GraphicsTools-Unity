@@ -50,7 +50,7 @@ SubShader {
     Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
     Blend One One
     ZWrite[_ZWrite]
-    ZTest[_ZTest]
+    ZTest[unity_GUIZTestMode]
     Tags {"DisableBatching" = "True"}
     Stencil
     {

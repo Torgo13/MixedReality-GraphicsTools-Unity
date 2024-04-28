@@ -245,11 +245,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// </summary>
         /// <param name="material">The material to apply the settings to.</param>
         /// <param name="mode">The rendering mode.</param>
-        /// <param name="customMode">The sub-categrory of the custome mode.</param>
+        /// <param name="customMode">The sub-category of the custom mode.</param>
         /// <param name="renderQueueOverride">The rendering order override.</param>
         protected static void SetupMaterialWithRenderingMode(Material material, RenderingMode mode, RenderingMode customMode, int renderQueueOverride)
         {
-            // If we aren't switching to Custom, then set default values for all RenderingMode types. Otherwise keep whatever user had before
+            // If we aren't switching to Custom, then set default values for all RenderingMode types. Otherwise, keep whatever user had before
             if (mode != RenderingMode.Custom)
             {
                 material.SetInt(BaseStyles.blendOperationName, (int)BlendOp.Add);
@@ -420,7 +420,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// </summary>
         /// <param name="material">material to check</param>
         /// <param name="propertyName">name of property against material</param>
-        /// <returns>if has property, then value of that property for current material, null otherwise</returns>
+        /// <returns>If it has property, then value of that property for current material, null otherwise</returns>
         protected static float? GetFloatProperty(Material material, string propertyName)
         {
             if (material.HasProperty(propertyName))
@@ -452,7 +452,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// </summary>
         /// <param name="material">material to check</param>
         /// <param name="propertyName">name of property against material</param>
-        /// <returns>if has property, then value of that property for current material, null otherwise</returns>
+        /// <returns>If it has property, then value of that property for current material, null otherwise</returns>
         protected static Color? GetColorProperty(Material material, string propertyName)
         {
             if (material.HasProperty(propertyName))

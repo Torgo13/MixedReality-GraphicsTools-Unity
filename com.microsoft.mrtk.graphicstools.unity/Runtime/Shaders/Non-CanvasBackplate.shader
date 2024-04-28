@@ -76,7 +76,7 @@ SubShader {
     Tags{ "RenderType" = "Opaque" }
     Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
     ZWrite[_ZWrite]
-    ZTest[_ZTest]
+    ZTest[unity_GUIZTestMode]
     Tags {"DisableBatching" = "True"}
     Stencil
     {
@@ -221,8 +221,8 @@ CBUFFER_END
         out float3 Line_Vertex    )
     {
         float angle2 = (Rate*Time) * 2.0 * 3.1416;
-        float sinAngle2 = sin(angle2);
-        float cosAngle2 = cos(angle2);
+        float sinAngle2, cosAngle2;
+        sincos(angle2, sinAngle2, cosAngle2);
         float2 xformUV = UV * Highlight_Transform.xy + Highlight_Transform.zw;
         Line_Vertex.x = 0.0;
         Line_Vertex.y = cosAngle2*xformUV.x-sinAngle2*xformUV.y;
@@ -239,7 +239,9 @@ CBUFFER_END
         out float3 Dir    )
     {
         float a = Degrees*3.14159/180.0;
-        Dir = cos(a)*DirX+sin(a)*DirY;
+        float sa, ca;
+        sincos(a, sa, ca);
+        Dir = ca*DirX+sa*DirY;
     }
     //BLOCK_END PickDir
 

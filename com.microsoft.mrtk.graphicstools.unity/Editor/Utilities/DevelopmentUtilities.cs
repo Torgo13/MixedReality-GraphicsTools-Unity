@@ -63,7 +63,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         if (!IsDirectoryEmpty(visiblePath))
                         {
                             if (EditorUtility.DisplayDialog("Overwrite?",
-                                                            string.Format("\"{0}\" contains files. Would you like to overwrite them?", visiblePath),
+                                                            $"\"{visiblePath}\" contains files. Would you like to overwrite them?",
                                                             "Delete",
                                                             "Cancel"))
                             {
@@ -126,7 +126,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         if (!IsDirectoryEmpty(hiddenPath))
                         {
                             if (EditorUtility.DisplayDialog("Overwrite?",
-                                                            string.Format("\"{0}\" contains files. Would you like to overwrite them?", hiddenPath),
+                                                            $"\"{hiddenPath}\" contains files. Would you like to overwrite them?",
                                                             "Delete",
                                                             "Cancel"))
                             {
@@ -144,7 +144,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
 
                     Directory.Move(visiblePath, hiddenPath);
-                    File.Delete(visiblePath + ".meta"); // Remove the lingering meta files as well.
+                    File.Delete($"{visiblePath}.meta"); // Remove the lingering meta files as well.
 
                     AssetDatabase.Refresh();
                 }
@@ -198,7 +198,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 directory = directory.Remove(startIndex, count);
             }
 
-            var path = directory + "/" + "NewGraphicsToolsMaterial.mat";
+            var path = $"{directory}/NewGraphicsToolsMaterial.mat";
             var uniquePath = AssetDatabase.GenerateUniqueAssetPath(path);
             AssetDatabase.CreateAsset(material, uniquePath);
             AssetDatabase.SaveAssets();

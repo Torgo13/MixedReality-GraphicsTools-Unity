@@ -70,11 +70,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured</param>
         private void DrawAuto(GameObject gameObject)
         {
-            if (gameObject.GetComponent<RectTransform>() != null)
+            if (gameObject.TryGetComponent<RectTransform>(out var _))
             {
                 DrawRectMeasurement(gameObject);
             }
-            else if (gameObject.GetComponent<Renderer>() != null)
+            else if (gameObject.TryGetComponent<Renderer>(out var _))
             {
                 DrawRendererMeasurement(gameObject);
             }
@@ -93,8 +93,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured, requires a RectTransform attached</param>
         private void DrawRectMeasurement(GameObject gameObject)
         {
-            RectTransform rt = gameObject.GetComponent<RectTransform>();
-            if (rt == null) return;
+            if (!gameObject.TryGetComponent<RectTransform>(out var rt))
+            {
+                return;
+            }
 
             Vector3[] v = new Vector3[4];
 
@@ -127,8 +129,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured, requires a 3D collider attached</param>
         private void DrawColliderMeasurement(GameObject gameObject)
         {
-            Collider col = gameObject.GetComponent<Collider>();
-            if (col == null) return;
+            if (!gameObject.TryGetComponent<Collider>(out var col))
+            {
+                return;
+            }
 
             Vector3[] array = VerticesFromBounds(col.bounds);
 
@@ -138,7 +142,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     SphereCollider sphereCollider = (SphereCollider)col;
 
-                    array = VerticesFromSize(sphereCollider.center, Vector3.one * sphereCollider.radius * 2);
+                    array = VerticesFromSize(sphereCollider.center, 2 * sphereCollider.radius * Vector3.one);
                     TransformPoints(gameObject, array);
                 }
                 else if (col.GetType() == typeof(BoxCollider))
@@ -176,8 +180,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         ///<param name = "gameObject" > GameObject to be measured, requires a Renderer attached</param>
         private void DrawRendererMeasurement(GameObject gameObject)
         {
-            Renderer rend = gameObject.GetComponent<Renderer>();
-            if (rend == null) return;
+            if (!gameObject.TryGetComponent<Renderer>(out var rend))
+            {
+                return;
+            }
 
             Handles.color = settings.LineColor;
 
@@ -221,9 +227,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="attachedTransform">Transform required to ensure handles rotate with cube</param>
         private void DrawCubeFromVectorArray(Vector3[] array, Transform attachedTransform)
         {
-            Vector3 zOffset = Vector3.forward * settings.Offset * 10f;
-            Vector3 xOffset = Vector3.right * settings.Offset * 10f;
-            Vector3 diagonalOffset = (Vector3.right + Vector3.forward).normalized * settings.Offset * 10f;
+            Vector3 zOffset = 10f * settings.Offset * Vector3.forward;
+            Vector3 xOffset = 10f * settings.Offset * Vector3.right;
+            Vector3 diagonalOffset = 10f * settings.Offset * (Vector3.right + Vector3.forward).normalized;
 
             DrawLine(array[5], array[1]);
             DrawLine(array[1], array[7]);
@@ -242,9 +248,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (attachedTransform != null)
             {
-                zOffset = attachedTransform.forward * settings.Offset * 10f;
-                xOffset = attachedTransform.right * settings.Offset * 10f;
-                diagonalOffset = (attachedTransform.right + attachedTransform.forward).normalized * settings.Offset * 10f;
+                zOffset = 10f * settings.Offset * attachedTransform.forward;
+                xOffset = 10f * settings.Offset * attachedTransform.right;
+                diagonalOffset = 10f * settings.Offset * (attachedTransform.right + attachedTransform.forward).normalized;
             }
 
             DrawHandle(array[4], array[0], -zOffset, DistanceInUnits(Vector3.Distance(array[4], array[0])), Color.red);
@@ -311,7 +317,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <returns></returns>
         private Vector3[] VerticesFromSize(Vector3 pos, Vector3 size)
         {
-            size = size * 0.5f;
+            size *= 0.5f;
             size = pos + size;
             var vertices = new Vector3[8];
             vertices[0] = new Vector3(-size.x, -size.y, -size.z);
@@ -350,12 +356,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             switch (settings.Unit)
             {
                 case MeasureToolSettings.ToolUnits.Millimeter:
-                    return $"{(val * 1000).ToString("0.##")} mm";
+                    return $"{val * 1000:0.##} mm";
                 case MeasureToolSettings.ToolUnits.Centimeter:
-                    return $"{(val * 100).ToString("0.##")} cm";
+                    return $"{val * 100:0.##} cm";
                 case MeasureToolSettings.ToolUnits.Meter:
                 default:
-                    return $"{val.ToString("0.##")} m";
+                    return $"{val:0.##} m";
             }
         }
 

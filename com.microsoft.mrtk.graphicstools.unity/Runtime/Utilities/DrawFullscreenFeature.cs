@@ -30,7 +30,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
             public Material BlitMaterial = null;
-            public string BlitSourceTextureName = "_SourceTex";
+            public const string BlitSourceTextureName = "_SourceTex";
             public int BlitMaterialPassIndex = -1;
             public BufferType SourceType = BufferType.CameraColor;
             public BufferType DestinationType = BufferType.CameraColor;
@@ -58,7 +58,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (settings.BlitMaterial == null)
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat($"{nameof(DrawFullscreenFeature)} is missing a blit material and will not be queued.");
+#endif
                 return;
             }
 

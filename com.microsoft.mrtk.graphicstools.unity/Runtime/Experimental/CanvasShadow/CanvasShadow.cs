@@ -10,7 +10,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     [RequireComponent(typeof(RectTransform))]
     public class CanvasShadow : MonoBehaviour
     {
-        [Experimental]
+        //[Experimental]
         [SerializeField]
         [Tooltip("Enables real time shadow positioning")]
         private bool Realtime = false;

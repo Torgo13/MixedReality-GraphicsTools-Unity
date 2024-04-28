@@ -140,12 +140,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Shifts a source color in HSV color space.
         /// </summary>
-        public static Color ColorShiftHSV(Color source, float hueOffset, float saturationtOffset, float valueOffset)
+        public static Color ColorShiftHSV(Color source, float hueOffset, float saturationOffset, float valueOffset)
         {
-            float hue, saturation, value;
-            Color.RGBToHSV(source, out hue, out saturation, out value);
-            hue = hue + hueOffset;
-            saturation = Mathf.Clamp01(saturation + saturationtOffset);
+            Color.RGBToHSV(source, out float hue, out float saturation, out float value);
+            hue += hueOffset;
+            saturation = Mathf.Clamp01(saturation + saturationOffset);
             value = Mathf.Clamp01(value + valueOffset);
             Color output = Color.HSVToRGB(hue, saturation, value);
             output.a = source.a;
@@ -182,16 +181,17 @@ namespace Microsoft.MixedReality.GraphicsTools
                 const string postfix = ");";
                 int start = cssGradient.IndexOf(prefix) + prefix.Length;
                 int end = cssGradient.IndexOf(postfix, start);
-                string gradient = cssGradient.Substring(start, end - start);
+                string gradient = cssGradient[start..end];
 
                 string[] parameters = gradient.Split(',');
+                int parametersLength = parameters.Length;
 
                 float angle = defaultCSSAngle;
-                List<Color> colorKeys = new List<Color>();
-                List<float> timeKeys = new List<float>();
+                List<Color> colorKeys = new List<Color>(parametersLength);
+                List<float> timeKeys = new List<float>(parametersLength);
 
                 // Parse each parameter.
-                for (int i = 0; i < parameters.Length; ++i)
+                for (int i = 0; i < parametersLength; ++i)
                 {
                     // Handle degrees.
                     if (parameters[i].Contains("deg"))
@@ -274,17 +274,15 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                 }
 
-                if (timeKeys.Count >= 2)
+                int timeKeysCount = timeKeys.Count;
+                if (timeKeysCount >= 2)
                 {
                     // If no times were provided, assume regular interval.
-                    for (int i = 0; i < timeKeys.Count; ++i)
+                    for (int i = 0; i < timeKeysCount; ++i)
                     {
-                        float time = timeKeys[i];
-
-                        if (time < 0)
+                        if (timeKeys[i] < 0)
                         {
-                            time = (timeKeys.Count != 1) ? (float)i / (timeKeys.Count - 1) : 0.0f;
-                            timeKeys[i] = time;
+                            timeKeys[i] = (timeKeysCount != 1) ? (float)i / (timeKeysCount - 1) : 0.0f;
                         }
                     }
 

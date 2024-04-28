@@ -56,8 +56,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (materialsToFix.Count != 0)
             {
-                EditorGUILayout.HelpBox($"The {typeof(CanvasRenderer).Name} is using a {typeof(Material).Name} which is using the {StandardShaderUtility.GraphicsToolsStandardShaderName} instead of the {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} shader. The {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} is required for some shader features to function.", MessageType.Warning);
-                if (GUILayout.Button($"Change {typeof(Shader).Name} to {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName}"))
+                EditorGUILayout.HelpBox($"The {nameof(CanvasRenderer)} is using a {nameof(Material)} which is using the {StandardShaderUtility.GraphicsToolsStandardShaderName} instead of the {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} shader. The {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} is required for some shader features to function.", MessageType.Warning);
+                if (GUILayout.Button($"Change {nameof(Shader)} to {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName}"))
                 {
                     Undo.RecordObjects(materialsToFix.ToArray(), "Change Shader");
                     foreach (var material in materialsToFix)
@@ -73,8 +73,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (graphicsToFix.Count != 0)
             {
-                EditorGUILayout.HelpBox($"This gameobject requires a {typeof(ScaleMeshEffect).Name} component to work with the {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} or {StandardShaderUtility.GraphicsToolsStandardShaderName} shader.", MessageType.Warning);
-                if (GUILayout.Button($"Add {typeof(ScaleMeshEffect).Name}(s)"))
+                EditorGUILayout.HelpBox($"This gameobject requires a {nameof(ScaleMeshEffect)} component to work with the {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} or {StandardShaderUtility.GraphicsToolsStandardShaderName} shader.", MessageType.Warning);
+                if (GUILayout.Button($"Add {nameof(ScaleMeshEffect)}(s)"))
                 {
                     foreach (var graphic in graphicsToFix)
                     {
@@ -120,7 +120,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 foreach (Graphic graphic in graphics)
                 {
-                    if (StandardShaderUtility.IsUsingGraphicsToolsStandardShader(graphic.material) && graphic.GetComponent<ScaleMeshEffect>() == null)
+                    if (StandardShaderUtility.IsUsingGraphicsToolsStandardShader(graphic.material) && !graphic.TryGetComponent<ScaleMeshEffect>(out var _))
                     {
                         output.Add(graphic);
                     }

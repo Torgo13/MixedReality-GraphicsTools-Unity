@@ -12,7 +12,7 @@ Shader "Graphics Tools/Experimental/Acrylic/Blit Copy"
     {
         Pass 
         {
-            ZTest Always 
+            ZTest [unity_GUIZTestMode] 
             Cull Off 
             ZWrite Off
 

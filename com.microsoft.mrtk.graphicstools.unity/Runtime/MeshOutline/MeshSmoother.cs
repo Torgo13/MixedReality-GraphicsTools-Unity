@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             mesh.SetUVs(smoothNormalUVChannel, result);
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Performs normal smoothing on the current mesh filter associated with this component asynchronously.
         /// This method will not try and re-smooth meshes which have already been smoothed.
         /// </summary>
@@ -108,7 +108,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 mesh.SetUVs(smoothNormalUVChannel, i.Result);
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
-#endif
+#endif*/
 
         #region MonoBehaviour Implementation
 
@@ -122,11 +122,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (smoothNormalsOnAwake)
             {
                 // WebGL doesn't support threaded operations.
-#if UNITY_WEBGL
+//#if UNITY_WEBGL
                 SmoothNormals();
-#else
-                SmoothNormalsAsync();
-#endif
+//#else
+//                SmoothNormalsAsync();
+//#endif
             }
         }
 
@@ -174,13 +174,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <returns>True if the mesh was already processed, false otherwise.</returns>
         private bool AcquirePreprocessedMesh(out UnityEngine.Mesh mesh)
         {
-            if (meshFilter == null)
+            bool meshFilterFound = meshFilter != null;
+            if (!meshFilterFound)
             {
-                meshFilter = GetComponent<MeshFilter>();
+                meshFilterFound = TryGetComponent<MeshFilter>(out meshFilter);
             }
 
             // No mesh filter, mesh cannot be processed, so return a null mesh.
-            if (meshFilter == null)
+            if (!meshFilterFound)
             {
                 mesh = null;
 
@@ -200,7 +201,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             // A non-readable mesh cannot be processed, so return a null mesh.
             if (originalMesh.isReadable == false)
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarning($"Mesh smoothing failed because {originalMesh.name} is not readable. Check \"Read/Write Enabled\" in the mesh's import settings.");
+#endif
 
                 mesh = null;
 
@@ -242,17 +245,17 @@ namespace Microsoft.MixedReality.GraphicsTools
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             // Group all vertices that share the same location in space.
-            var groupedVerticies = new Dictionary<Vector3, List<KeyValuePair<int, Vector3>>>();
+            var groupedVertices = new Dictionary<Vector3, List<KeyValuePair<int, Vector3>>>();
 
             for (int i = 0; i < vertices.Length; ++i)
             {
                 var vertex = vertices[i];
                 List<KeyValuePair<int, Vector3>> group;
 
-                if (!groupedVerticies.TryGetValue(vertex, out group))
+                if (!groupedVertices.TryGetValue(vertex, out group))
                 {
                     group = new List<KeyValuePair<int, Vector3>>();
-                    groupedVerticies[vertex] = group;
+                    groupedVertices[vertex] = group;
                 }
 
                 group.Add(new KeyValuePair<int, Vector3>(i, vertex));
@@ -261,9 +264,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             var smoothNormals = new List<Vector3>(normals);
 
             // If we don't hit the degenerate case of each vertex is its own group (no vertices shared a location), average the normals of each group.
-            if (groupedVerticies.Count != vertices.Length)
+            if (groupedVertices.Count != vertices.Length)
             {
-                foreach (var group in groupedVerticies)
+                foreach (var group in groupedVertices)
                 {
                     var smoothingGroup = group.Value;
 
@@ -287,7 +290,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
+#if UNITY_EDITOR || DEBUG
             Debug.LogFormat("CalculateSmoothNormals took {0} ms on {1} vertices.", watch.ElapsedMilliseconds, vertices.Length);
+#endif
 
             return smoothNormals;
         }

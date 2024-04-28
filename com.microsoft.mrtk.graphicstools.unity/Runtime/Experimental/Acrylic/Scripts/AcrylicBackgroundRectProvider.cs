@@ -14,7 +14,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     [AddComponentMenu("Scripts/GraphicsTools/AcrylicBackgroundRectProvider")]
     public class AcrylicBackgroundRectProvider : BaseMeshEffect
     {
-        [Experimental]
+        //[Experimental]
         [Tooltip("List of materials to apply the _BlurBackgroundRect and _blurTexture to.")]
         [SerializeField]
         private Material[] materials = null;
@@ -92,17 +92,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             get
             {
                 Texture output = null;
-                Image image = GetComponent<Image>();
-
-                if (image != null)
+                if (TryGetComponent<Image>(out var image))
                 {
-                    output = (image.sprite != null) ? image.sprite.texture : null;
+                    if (image.sprite != null)
+                    {
+                        output = image.sprite.texture;
+                    }
                 }
                 else
                 {
-                    RawImage rawImage = GetComponent<RawImage>();
-
-                    if (rawImage != null)
+                    if (TryGetComponent<RawImage>(out var rawImage))
                     {
                         output = rawImage.texture;
                     }
@@ -123,8 +122,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Canvas canvas = null;
         private RenderTexture source = null;
         private RenderTexture destination = null;
-        private int rectNameID = 0;
-        private int textureID = 0;
+        private static readonly int rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
+        private static readonly int textureID = Shader.PropertyToID("_blurTexture");
         private bool hasBlurred = false;
 
         /// <summary>
@@ -168,7 +167,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 destination = null;
             }
 
-            // Restore the blit material to it's initial state in case it was dirtied during BlurImageTexture.
+            // Restore the blit material to its initial state in case it was dirtied during BlurImageTexture.
             MaterialRestorer.Restore(blitMaterial);
         }
 
@@ -190,14 +189,16 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return;
             }
 
-            if (canvas == null)
+            bool canvasFound = canvas != null;
+            if (!canvasFound)
             {
                 canvas = GetComponentInParent<Canvas>();
-                rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
-                textureID = Shader.PropertyToID("_blurTexture");
+                canvasFound = canvas != null;
+                //rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
+                //textureID = Shader.PropertyToID("_blurTexture");
             }
 
-            if (canvas != null)
+            if (canvasFound)
             {
                 var rectTransform = transform as RectTransform;
                 Vector3 minCorner = TransformToCanvas(rectTransform.rect.min);
@@ -206,8 +207,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (materials != null)
                 {
-                    foreach (Material material in materials)
+                    int materialsLength = materials.Length;
+                    for (int i = 0; i < materialsLength; i++)
                     {
+                        Material material = materials[i];
                         if (material != null)
                         {
                             material.SetVector(rectNameID, rect);
@@ -218,8 +221,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (graphics != null)
                 {
-                    foreach (Graphic graphic in graphics)
+                    int graphicsLength = graphics.Length;
+                    for (int i = 0; i < graphicsLength; i++)
                     {
+                        Graphic graphic = graphics[i];
                         if (graphic != null && graphic.materialForRendering != null)
                         {
                             graphic.materialForRendering.SetVector(rectNameID, rect);
@@ -245,7 +250,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (textureToBlur == null)
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("Failed to find a texture to blur on {0} Image or RawImage components.", gameObject.name);
+#endif
                 return false;
             }
 
@@ -283,15 +290,19 @@ namespace Microsoft.MixedReality.GraphicsTools
             // Acquire the AcrylicLayerManager to copy settings from.
             if (AcrylicLayerManager.Instance == null)
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarning("An AcrylicLayerManager does not exist. The image texture will not be blurred.");
+#endif
                 return false;
             }
 
             if (AcrylicLayerManager.Instance.Layers.Count < layerIndex)
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("The AcrylicLayerManager does not contain enough layers. Request layer {0} but contains {1} layers. The image texture will not be blurred.",
                                        layerIndex,
                                        AcrylicLayerManager.Instance.Layers.Count);
+#endif
                 return false;
             }
 
@@ -317,23 +328,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void InstanceGraphicComponents()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || !instanceMaterials || graphics == null)
             {
                 return;
             }
 
-            if (!instanceMaterials)
+            int graphicsLength = graphics.Length;
+            for (int i = 0; i < graphicsLength; i++)
             {
-                return;
-            }
-
-            if (graphics == null)
-            {
-                return;
-            }
-
-            foreach (Graphic graphic in graphics)
-            {
+                Graphic graphic = graphics[i];
                 if (graphic != null)
                 {
                     if (!MaterialInstance.IsInstance(graphic.material))

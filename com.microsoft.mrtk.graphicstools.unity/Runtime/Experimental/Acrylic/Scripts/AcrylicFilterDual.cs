@@ -27,6 +27,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private const int blurOffset = 1;
 
+        private readonly struct ShaderPropertyId
+        {
+            public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
+            public static readonly int AcrylicHalfPixel = Shader.PropertyToID("_AcrylicHalfPixel");
+            public static readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
+        }
+
         public AcrylicFilterDual(Material _material)
         {
             filterMaterial = _material;
@@ -58,11 +65,12 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return;
             }
 
-            cmd.SetGlobalVector("_AcrylicBlurOffset", Vector2.one * blurOffset);
+            cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, Vector2.one * blurOffset);
 
-            for (int i = 0; (i < iterations) && (i < buffers.Count); i++)
+            int buffersCount = Mathf.Min(iterations, buffers.Count);
+            for (int i = 0; i < buffersCount; i++)
             {
-                cmd.SetGlobalVector("_AcrylicHalfPixel", new Vector2(0.5f / buffers[i].width, 0.5f / buffers[i].height));
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicHalfPixel, new Vector2(0.5f / buffers[i].width, 0.5f / buffers[i].height));
                 RenderTexture from = (i == 0) ? image : buffers[i - 1];
                 LocalBlit(cmd, from, buffers[i], filterMaterial, 0);
             }
@@ -70,7 +78,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             for (int i = Mathf.Min(iterations - 1, buffers.Count - 1); i >= 0; i--)
             {
                 RenderTexture to = (i == 0) ? image : buffers[i - 1];
-                cmd.SetGlobalVector("_AcrylicHalfPixel", new Vector2(0.5f / to.width, 0.5f / to.height));
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicHalfPixel, new Vector2(0.5f / to.width, 0.5f / to.height));
                 LocalBlit(cmd, buffers[i], to, filterMaterial, 1);
             }
         }
@@ -108,7 +116,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void LocalBlit(CommandBuffer cmd, RenderTexture source, RenderTexture target, Material material, int pass)
         {
             cmd.SetRenderTarget(target);
-            cmd.SetGlobalTexture("_AcrylicBlurSource", source);
+            cmd.SetGlobalTexture(ShaderPropertyId.AcrylicBlurSource, source);
             cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, pass);
         }
     }

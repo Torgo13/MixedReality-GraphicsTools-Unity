@@ -7,7 +7,6 @@
 
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR;
 
 #if USE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -79,10 +78,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private CameraState targetCameraState = new CameraState();
         private CameraState interpolatingCameraState = new CameraState();
-        private List<XRDisplaySubsystem> xrDisplaySubsystems = new List<XRDisplaySubsystem>();
 
         /// <summary>
-        /// Called when the game object state from from inactive to active.
+        /// Called when the game object state from inactive to active.
         /// </summary>
         private void OnEnable()
         {
@@ -91,19 +89,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Sets up initial state.
-        /// </summary>
-        private void Start()
-        {
-            SubsystemManager.GetInstances(xrDisplaySubsystems);
-        }
-
-        /// <summary>
         /// Called every frame to poll input and update the camera transform.
         /// </summary>
         private void Update()
         {
-            if (!XRDeviceIsPresent() && Application.isFocused)
+            if (Application.isFocused)
             {
                 // Lock cursor when right mouse button pressed.
 #if USE_INPUT_SYSTEM
@@ -179,7 +169,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnGUI()
         {
-            if (!XRDeviceIsPresent() && showControlsText)
+            if (showControlsText)
             {
 #if USE_INPUT_SYSTEM
                 bool gamepadPresent = Gamepad.current != null;
@@ -196,22 +186,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                     GUI.Label(new Rect(10.0f, 10.0f, 256.0f, 128.0f), "Camera Controls\nRight Click + Mouse Move to Rotate\n'W' 'A' 'S' 'D' to Translate");
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns true if an XR device is connected and running. For example a VR headset.
-        /// </summary>
-        private bool XRDeviceIsPresent()
-        {
-            foreach (var xrDisplay in xrDisplaySubsystems)
-            {
-                if (xrDisplay != null && xrDisplay.running)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -250,7 +224,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 direction += new Vector2(delta.x, delta.y * (InvertY ? 1.0f : -1.0f));
             }
 #else
-            // TODO - [Cameron-Micka] is is possible to query the right stick without setting up virtual axes in the legacy input system?
+            // TODO - [Cameron-Micka] is it possible to query the right stick without setting up virtual axes in the legacy input system?
 #endif // USE_INPUT_SYSTEM
 
             return direction;

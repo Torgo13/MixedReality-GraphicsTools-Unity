@@ -272,7 +272,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_StencilOperationID, _StencilOperation);
             material.SetFloat(_ZTestID, _ZTest);
             material.SetFloat(_ZWriteID, _ZWrite);
-            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
+            material.SetTexture(_MainTexID, _MainTex);
             material.SetVector(_ClipRectID, _ClipRect);
             material.SetVector(_ClipRectRadiiID, _ClipRectRadii);
         }

@@ -52,7 +52,7 @@ SubShader {
     Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
     Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
     ZWrite[_ZWrite]
-    ZTest[_ZTest]
+    ZTest[unity_GUIZTestMode]
     Tags {"DisableBatching" = "True"}
     Stencil
     {
@@ -220,8 +220,8 @@ CBUFFER_END
 
     float2 rotate2d(float2 uv, float angle)
     {
-        float cosa = cos(angle);
-        float sina = sin(angle);
+        float sina, cosa;
+        sincos(angle, sina, cosa);
         return float2(cosa*uv.x-sina*uv.y, sina*uv.x+cosa*uv.y);
     }
     

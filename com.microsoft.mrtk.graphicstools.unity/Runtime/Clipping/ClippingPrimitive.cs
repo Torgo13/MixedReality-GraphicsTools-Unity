@@ -98,7 +98,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         cameraMethods.OnCameraPreRender += OnCameraPreRender;
                     }
-                    else if (!value)
+                    else
                     {
                         cameraMethods.OnCameraPreRender -= OnCameraPreRender;
                     }
@@ -176,9 +176,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // in the process of removing.
                 ToggleClippingFeature(AcquireMaterials(_renderer, instance: false), false);
 
-                var materialInstance = _renderer.GetComponent<MaterialInstance>();
-
-                if (materialInstance != null)
+                if (_renderer.TryGetComponent<MaterialInstance>(out var materialInstance))
                 {
                     materialInstance.ReleaseMaterial(this, autoDestroyMaterial);
                 }
@@ -211,7 +209,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (renderers != null)
             {
-                while (renderers.Count != 0)
+                while (renderers.Count > 0)
                 {
                     RemoveRenderer(renderers.Count - 1, autoDestroyMaterial);
                 }
@@ -280,7 +278,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materials != null)
             {
-                while (materials.Count != 0)
+                while (materials.Count > 0)
                 {
                     RemoveMaterial(materials.Count - 1);
                 }
@@ -500,26 +498,24 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (renderers != null)
             {
-                for (var i = 0; i < renderers.Count; ++i)
+                int renderersCount = renderers.Count;
+                for (int i = 0; i < renderersCount; ++i)
                 {
-                    var _renderer = renderers[i];
-
-                    if (_renderer != null)
+                    if (renderers[i] != null)
                     {
-                        ToggleClippingFeature(AcquireMaterials(_renderer), keywordOn);
+                        ToggleClippingFeature(AcquireMaterials(renderers[i]), keywordOn);
                     }
                 }
             }
 
             if (materials != null)
             {
-                for (var i = 0; i < materials.Count; ++i)
+                int materialsCount = materials.Count;
+                for (int i = 0; i < materialsCount; ++i)
                 {
-                    var material = materials[i];
-
-                    if (material != null)
+                    if (materials[i] != null)
                     {
-                        ToggleClippingFeature(material, keywordOn);
+                        ToggleClippingFeature(materials[i], keywordOn);
                     }
                 }
             }
@@ -532,9 +528,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materialsToToggle != null)
             {
-                foreach (var material in materialsToToggle)
+                int materialsToToggleLength = materialsToToggle.Length;
+                for (int i = 0; i < materialsToToggleLength; i++)
                 {
-                    ToggleClippingFeature(material, keywordOn);
+                    ToggleClippingFeature(materialsToToggle[i], keywordOn);
                 }
             }
         }

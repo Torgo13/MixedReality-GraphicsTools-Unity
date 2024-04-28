@@ -30,6 +30,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool blur;
         private AcrylicFilterDual blurFilter;
 
+        private readonly struct ShaderPropertyId
+        {
+            //public static readonly RenderTargetIdentifier ShaderProperty = "_ShaderProperty";
+            public static readonly int AcrylicInfo = Shader.PropertyToID("_AcrylicInfo");
+            public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
+            public static readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
+        }
+
         public AcrylicBlurRenderPass(string _profilerLabel, int _downSamplePasses, int _passes, Material material, string _textureName, bool _blur, RenderTexture _texture, AcrylicFilterDual _blurFilter)
         {
             profilerLabel = _profilerLabel;
@@ -64,8 +72,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             info.z = 1.0f;
             info.w = 1.0f;
 
-            ConfigureTempRenderTarget(ref target1, profilerLabel + "RenderTarget1", width, height, slices, cmd);
-            ConfigureTempRenderTarget(ref target2, profilerLabel + "RenderTarget2", width, height, slices, cmd);
+            ConfigureTempRenderTarget(ref target1, Cysharp.Text.ZString.Concat(profilerLabel, "RenderTarget1"), width, height, slices, cmd);
+            ConfigureTempRenderTarget(ref target2, Cysharp.Text.ZString.Concat(profilerLabel, "RenderTarget2"), width, height, slices, cmd);
 
             if (providedTexture!=null)
             {
@@ -99,21 +107,21 @@ namespace Microsoft.MixedReality.GraphicsTools
             var handle = providedTexture==null ? target1.Identifier() : providedTexture;
             var renderer = renderingData.cameraData.renderer;
 
-            cmd.SetGlobalVector("_AcrylicInfo", info);
+            cmd.SetGlobalVector(ShaderPropertyId.AcrylicInfo, info);
 
-            if (downSample == 1)
+            switch (downSample)
             {
-                cmd.Blit(renderer.cameraColorTarget, handle);
-            }
-            else if (downSample == 2)
-            {
-                cmd.SetGlobalVector("_AcrylicBlurOffset", Vector2.zero);
-                LocalBlit(cmd, renderer.cameraColorTarget, handle, blurMaterial);
-            }
-            else
-            {
-                cmd.SetGlobalVector("_AcrylicBlurOffset", 0.25f * pixelSize);
-                LocalBlit(cmd, renderer.cameraColorTarget, handle, blurMaterial);
+                case 1:
+                    cmd.Blit(renderer.cameraColorTargetHandle, handle);
+                    break;
+                case 2:
+                    cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, Vector2.zero);
+                    LocalBlit(cmd, renderer.cameraColorTargetHandle, handle, blurMaterial);
+                    break;
+                default:
+                    cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, 0.25f * pixelSize);
+                    LocalBlit(cmd, renderer.cameraColorTargetHandle, handle, blurMaterial);
+                    break;
             }
 
             if (blur)
@@ -142,7 +150,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             for (int i = 0; i < widths.Length; i++)
             {
-                cmd.SetGlobalVector("_AcrylicBlurOffset", (0.5f + widths[i]) * pixelSize);
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
                 if (providedTexture!=null && i == widths.Length - 1)
                 {
                     LocalBlit(cmd, target1.Identifier(), providedTexture, blurMaterial);
@@ -163,15 +171,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void LocalBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material material)
         {
             cmd.SetRenderTarget(target);
-            cmd.SetGlobalTexture("_AcrylicBlurSource", source);
+            cmd.SetGlobalTexture(ShaderPropertyId.AcrylicBlurSource, source);
             cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material);
         }
 
         private void SwapTempTargets()
         {
-            var rttmp = target1;
-            target1 = target2;
-            target2 = rttmp;
+            (target1, target2) = (target2, target1);
         }
 
         private void ConfigureTempRenderTarget(ref RenderTargetHandle target, string id, int width, int height, int slices, CommandBuffer cmd)

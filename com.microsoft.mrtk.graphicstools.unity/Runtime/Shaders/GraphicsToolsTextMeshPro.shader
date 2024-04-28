@@ -96,7 +96,7 @@ SubShader {
     ZWrite[_ZWrite]
     Lighting Off
     Fog { Mode Off }
-    ZTest [_ZTest]
+    ZTest [unity_GUIZTestMode]
     Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
     ColorMask [_ColorMask]
 
@@ -333,7 +333,7 @@ CBUFFER_END
             float4 sample1 = tex2D(tex, uv + dx - dy);
             float4 sample2 = tex2D(tex, uv - dx + dy);
             float4 sample3 = tex2D(tex, uv - dx - dy);
-        
+
             return (sample0 + sample1 + sample2 + sample3) * 0.25;
         }
 

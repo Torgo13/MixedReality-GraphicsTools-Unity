@@ -32,7 +32,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public static bool IsInstance(Material material)
         {
-            return ((material != null) && material.name.Contains(InstancePostfix));
+            return (material != null) && material.name.Contains(InstancePostfix);
         }
 
         /// <summary>
@@ -44,11 +44,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 return null;
             }
+            
+#if UNITY_EDITOR || DEBUG
 
             if (IsInstance(source))
             {
                 Debug.LogWarning($"The material ({source.name}) is already instanced and is being instanced multiple times.");
             }
+#endif
 
             Material output = new Material(source);
             output.name += InstancePostfix;
@@ -62,6 +65,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// is no longer needed ReleaseMaterial should be called with the matching owner.
         /// </summary>
         /// <param name="owner">An optional owner to track instance ownership.</param>
+        /// <param name="instance">Should this acquisition attempt to instance materials?</param>
         /// <returns>The first instantiated Material.</returns>
         public Material AcquireMaterial(Object owner = null, bool instance = true)
         {
@@ -75,7 +79,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 AcquireInstances();
             }
 
-            if (instanceMaterials?.Length > 0)
+            if (instanceMaterials != null && instanceMaterials.Length > 0)
             {
                 return instanceMaterials[0];
             }
@@ -111,7 +115,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// after acquire ownership with AcquireMaterial(s).
         /// </summary>
         /// <param name="owner">The same owner which originally acquire ownership via AcquireMaterial(s).</param>
-        /// <param name="instance">Should this acquisition attempt to instance materials?</param>
         /// <param name="autoDestroy">When ownership count hits zero should the MaterialInstance component be destroyed?</param>
         public void ReleaseMaterial(Object owner, bool autoDestroy = true)
         {
@@ -264,7 +267,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void CreateInstances()
         {
-            // Initialize must get called to set the defaultMaterials in case CreateInstances get's invoked before Awake.
+            // Initialize must be called to set the defaultMaterials in case CreateInstances is invoked before Awake.
             Initialize();
 
             DestroyMaterials(instanceMaterials);
@@ -280,12 +283,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static bool MaterialsMatch(List<Material> a, Material[] b)
         {
-            if (a?.Count != b?.Length)
+            if (a == null || b == null || a.Count != b.Length)
             {
                 return false;
             }
 
-            for (int i = 0; i < a?.Count; ++i)
+            int aCount = a.Count;
+            for (int i = 0; i < aCount; ++i)
             {
                 if (a[i] != b[i])
                 {
@@ -328,9 +332,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materials != null)
             {
-                foreach (var material in materials)
+                int materialsLength = materials.Length;
+                for (int i = 0; i < materialsLength; ++i)
                 {
-                    if (material != null)
+                    if (materials[i] != null)
                     {
                         return true;
                     }
@@ -348,9 +353,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     Destroy(toDestroy);
                 }
+#if UNITY_EDITOR
                 else
                 {
-#if UNITY_EDITOR
                     // Let Unity handle unload of unused assets if lifecycle is transitioning from editor to play mode
                     // Deferring the call during this transition would destroy reference only after play mode Awake, leading to possible broken material references on TMPro objects
                     if (!EditorApplication.isPlayingOrWillChangePlaymode)
@@ -363,8 +368,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                             }
                         };
                     }
-#endif
                 }
+#endif
             }
         }
     }

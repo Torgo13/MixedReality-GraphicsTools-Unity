@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
     public class AcrylicBlurFeature : ScriptableRendererFeature
     {
-        [Experimental]
+        //[Experimental]
         [SerializeField]
         public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
 

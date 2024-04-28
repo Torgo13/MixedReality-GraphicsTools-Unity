@@ -85,7 +85,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private UnityEngine.Mesh previousMesh = null;
         private Color previousColor = Color.white;
-        private List<UIVertex> uiVerticies = new List<UIVertex>();
+        private List<UIVertex> uiVertices = new List<UIVertex>();
         private List<int> uiIndices = new List<int>();
 
 #region UIBehaviour Implementation
@@ -139,7 +139,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             RefreshMesh();
 
-            if (Mesh == null || uiVerticies.Count == 0)
+            int uiVerticesCount = uiVertices.Count;
+            if (Mesh == null || uiVerticesCount == 0)
             {
                 return;
             }
@@ -168,20 +169,20 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             Vector3 rectPivot = rectTransform.pivot;
             rectPivot.z = ZPivot;
-            List<UIVertex> uiVerticiesTRS = new List<UIVertex>(uiVerticies);
+            List<UIVertex> uiVerticesTRS = new List<UIVertex>(uiVertices);
 
             // Scale, translate and rotate vertices.
-            for (int i = 0; i < uiVerticiesTRS.Count; i++)
+            for (int i = 0; i < uiVerticesCount; i++)
             {
-                UIVertex vertex = uiVerticiesTRS[i];
+                UIVertex vertex = uiVerticesTRS[i];
 
                 // Scale the vector from the normalized position to the pivot by the rect size.
                 vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
 
-                uiVerticiesTRS[i] = vertex;
+                uiVerticesTRS[i] = vertex;
             }
 
-            vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
+            vh.AddUIVertexStream(uiVerticesTRS, uiIndices);
         }
 
 #endregion Graphic Implementation
@@ -194,9 +195,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (previousMesh != Mesh ||
                 previousColor != color ||
-                uiVerticies.Count == 0)
+                uiVertices.Count == 0)
             {
-                uiVerticies.Clear();
+                uiVertices.Clear();
                 uiIndices.Clear();
 
                 if (Mesh != null)
@@ -225,23 +226,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     float scaler = 0.5f / Mathf.Max(meshSize.x, meshSize.y);
 
-                    for (int i = 0; i < vertices.Count; ++i)
+                    int verticesCount = vertices.Count;
+                    for (int i = 0; i < verticesCount; ++i)
                     {
-                        UIVertex vertex = new UIVertex();
-                        vertex.position = vertices[i];
-
                         // Center the mesh at the origin.
-                        vertex.position -= meshCenter;
-
                         // Normalize the mesh in a 1x1x1 cube.
-                        vertex.position *= scaler;
-
                         // Center the mesh at the pivot.
-                        vertex.position += rectPivot;
-
-                        // Set the other attributes.
-                        vertex.normal = normals[i];
-                        vertex.tangent = tangents[i];
+                        Vector3 position = (vertices[i] - meshCenter) * scaler + rectPivot;
+                        UIVertex vertex = new UIVertex
+                        {
+                            position = position,
+                            normal = normals[i],
+                            tangent = tangents[i]
+                        };
 
                         if (i < colors.Count)
                         {
@@ -272,7 +269,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                             vertex.uv3 = uv3s[i];
                         }
 
-                        uiVerticies.Add(vertex);
+                        uiVertices.Add(vertex);
                     }
 
                     Mesh.GetTriangles(uiIndices, 0);

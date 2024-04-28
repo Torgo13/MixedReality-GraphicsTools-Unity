@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// A implementation of Unity's Random class which is safe to call from multiple threads.
+    /// An implementation of Unity's Random class which is safe to call from multiple threads.
     /// </summary>
     public static class ThreadSafeRandom
     {
@@ -22,7 +22,19 @@ namespace Microsoft.MixedReality.GraphicsTools
             get
             {
                 Initialize();
-                return (float)(local.NextDouble());
+                return (float)local.NextDouble();
+            }
+        }
+
+        /// <summary>
+        /// Returns a random double within [0.0..1.0] (range is inclusive) (Read Only).
+        /// </summary>
+        public static double doubleValue
+        {
+            get
+            {
+                Initialize();
+                return local.NextDouble();
             }
         }
 
@@ -41,6 +53,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         public static float Range(float min, float max)
         {
             return value * (max - min) + min;
+        }
+
+        /// <summary>
+        /// Returns a random double within [minInclusive..maxInclusive] (range is inclusive).
+        /// </summary>
+        public static double Range(double min, double max)
+        {
+            return doubleValue * (max - min) + min;
         }
 
         /// <summary>

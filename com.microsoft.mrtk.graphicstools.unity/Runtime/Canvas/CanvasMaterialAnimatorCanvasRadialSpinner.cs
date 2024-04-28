@@ -281,7 +281,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_Circle_Width_ID, _Circle_Width_);
             material.SetFloat(_Filled_Fraction_ID, _Filled_Fraction_);
             material.SetFloat(_Blur_Circle_ID, _Blur_Circle_);
-            material.SetTexture(_blurTextureID, (Texture2D)_blurTexture);
+            material.SetTexture(_blurTextureID, _blurTexture);
             material.SetVector(_BlurBackgroundRectID, _BlurBackgroundRect);
             material.SetFloat(_SrcBlendID, _SrcBlend);
             material.SetFloat(_DstBlendID, _DstBlend);
@@ -292,7 +292,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_StencilOperationID, _StencilOperation);
             material.SetFloat(_ZTestID, _ZTest);
             material.SetFloat(_ZWriteID, _ZWrite);
-            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
+            material.SetTexture(_MainTexID, _MainTex);
             material.SetVector(_ClipRectID, _ClipRect);
             material.SetVector(_ClipRectRadiiID, _ClipRectRadii);
         }

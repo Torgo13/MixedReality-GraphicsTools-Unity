@@ -451,7 +451,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_Iridescence_Intensity_ID, _Iridescence_Intensity_);
             material.SetFloat(_Iridescence_Edge_Intensity_ID, _Iridescence_Edge_Intensity_);
             material.SetColor(_Iridescence_Tint_ID, _Iridescence_Tint_);
-            material.SetTexture(_Iridescent_Map_ID, (Texture2D)_Iridescent_Map_);
+            material.SetTexture(_Iridescent_Map_ID, _Iridescent_Map_);
             material.SetFloat(_Frequency_ID, _Frequency_);
             material.SetFloat(_Vertical_Offset_ID, _Vertical_Offset_);
             material.SetFloat(_Orthographic_Distance_ID, _Orthographic_Distance_);
@@ -466,7 +466,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_Fade_Out_ID, _Fade_Out_);
             material.SetFloat(_Smooth_Edges_ID, _Smooth_Edges_);
             material.SetFloat(_Occluded_Intensity_ID, _Occluded_Intensity_);
-            material.SetTexture(_OccludedTexID, (Texture2D)_OccludedTex);
+            material.SetTexture(_OccludedTexID, _OccludedTex);
             material.SetColor(_OccludedColorID, _OccludedColor);
             material.SetFloat(_GridScaleID, _GridScale);
             material.SetFloat(_SrcBlendID, _SrcBlend);
@@ -478,7 +478,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_StencilOperationID, _StencilOperation);
             material.SetFloat(_ZTestID, _ZTest);
             material.SetFloat(_ZWriteID, _ZWrite);
-            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
+            material.SetTexture(_MainTexID, _MainTex);
             material.SetVector(_ClipRectID, _ClipRect);
             material.SetVector(_ClipRectRadiiID, _ClipRectRadii);
         }

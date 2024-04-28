@@ -25,6 +25,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private bool isSourceAndDestinationSameTarget;
         private string profilerTag;
+        private const string _TempRT = "_TempRT";
 
         ///<summary>
         /// Constructor.
@@ -56,7 +57,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (isSourceAndDestinationSameTarget)
             {
                 RenderingUtils.ReAllocateIfNeeded(ref destination, blitTargetDescriptor, Settings.FilterMode,
-                                                  TextureWrapMode.Clamp, name: "_TempRT");
+                                                  TextureWrapMode.Clamp, name: _TempRT);
             }
             else if (Settings.DestinationType == BufferType.CameraColor)
             {

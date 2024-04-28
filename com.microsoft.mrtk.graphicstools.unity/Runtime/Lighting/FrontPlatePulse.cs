@@ -53,7 +53,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private PulseState[] states = new PulseState[2]
+        private PulseState[] states = new PulseState[]
         {
             new PulseState("_Use_Global_Left_Index_", "_Blob_Position_", "_Blob_Pulse_", "_Blob_Fade_"),
             new PulseState("_Use_Global_Right_Index_", "_Blob_Position_2_", "_Blob_Pulse_2_", "_Blob_Fade_2_")
@@ -63,25 +63,23 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void Start()
         {
-            _renderer = gameObject.GetComponent<Renderer>();
-
-            if (_renderer != null)
+            if (gameObject.TryGetComponent<Renderer>(out var _renderer))
             {
                 materialProperty = new MaterialPropertyBlock();
             }
             else
             {
-                animator = GetComponent<CanvasMaterialAnimatorCanvasFrontplate>();
-
-                if (animator == null)
+                if (!TryGetComponent<CanvasMaterialAnimatorCanvasFrontplate>(out var _))
                 {
                     graphic = GetComponent<Graphic>();
                     MaterialRestorer.Capture(graphic.material);
                 }
             }
-
+            
+#if UNITY_EDITOR || DEBUG
             Debug.Assert(_renderer != null || animator != null || graphic != null,
                          "The FrontPlatePulse component must have a Renderer, CanvasMaterialAnimatorCanvasFrontplate, or Graphic component.");
+#endif
 
             isInitialized = true;
         }

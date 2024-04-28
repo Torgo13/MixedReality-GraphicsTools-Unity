@@ -48,7 +48,7 @@ SubShader {
     {
 
     ZWrite[_ZWrite]
-    ZTest[_ZTest]
+    ZTest[unity_GUIZTestMode]
 
     CGPROGRAM
 

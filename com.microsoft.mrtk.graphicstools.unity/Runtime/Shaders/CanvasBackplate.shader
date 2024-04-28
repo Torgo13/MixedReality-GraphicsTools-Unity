@@ -219,8 +219,8 @@ CBUFFER_END
         out float4 Line_Vertex    )
     {
         float angle2 = (Rate*Time) * 2.0 * 3.1416;
-        float sinAngle2 = sin(angle2);
-        float cosAngle2 = cos(angle2);
+        float sinAngle2, cosAngle2;
+        sincos(angle2, sinAngle2, cosAngle2);
         float2 xformUV = UV * Highlight_Transform.xy + Highlight_Transform.zw;
         Line_Vertex.x = 0.0;
         Line_Vertex.y = 0.0;
@@ -420,8 +420,8 @@ CBUFFER_END
     Pass
     {
         Name "Default"
-    ZWrite[_ZWrite]
-    ZTest[_ZTest]
+        ZWrite[_ZWrite]
+        ZTest [unity_GUIZTestMode]
 
         CGPROGRAM
         #pragma vertex vert

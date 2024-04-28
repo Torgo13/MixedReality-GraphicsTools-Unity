@@ -160,7 +160,7 @@ Shader "Graphics Tools/Standard"
             LOD 100
             Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
             BlendOp[_BlendOp]
-            ZTest[_ZTest]
+            ZTest[unity_GUIZTestMode]
             ZWrite[_ZWrite]
             Cull[_CullMode]
             Offset[_ZOffsetFactor],[_ZOffsetUnits]
@@ -230,68 +230,6 @@ Shader "Graphics Tools/Standard"
             ENDHLSL
         }
     }
-    
-    /// <summary>
-    /// Sub Shader for the Built-in Render Pipeline.
-    /// </summary>
-    SubShader
-    {
-        Tags
-        { 
-            "RenderType" = "Opaque"
-            "DisableBatching" = "False"
-        }
 
-        // Default pass (only pass outside of the editor).
-        Pass
-        {
-            Name "Main"
-            Tags{ "LightMode" = "ForwardBase" }
-            LOD 100
-            Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
-            BlendOp[_BlendOp]
-            ZTest[_ZTest]
-            ZWrite[_ZWrite]
-            Cull[_CullMode]
-            Offset[_ZOffsetFactor],[_ZOffsetUnits]
-            ColorMask[_ColorWriteMask]
-
-            Stencil
-            {
-                Ref[_StencilReference]
-                Comp[_StencilComparison]
-                Pass[_StencilOperation]
-                ReadMask[_StencilReadMask]
-                WriteMask[_StencilWriteMask]
-            }
-
-            HLSLPROGRAM
-
-            #pragma multi_compile_instancing
-            #pragma multi_compile _ LIGHTMAP_ON
-            #pragma multi_compile_local _ _CLIPPING_PLANE _CLIPPING_SPHERE _CLIPPING_BOX
-
-            #pragma shader_feature_local_fragment _CLIPPING_BORDER
-
-            #include_with_pragmas "GraphicsToolsStandardProgram.hlsl"
-
-            ENDHLSL
-        }
-
-        // Extracts information for lightmapping, GI (emission, albedo, ...)
-        // This pass it not used during regular rendering.
-        Pass
-        {
-            Name "Meta"
-            Tags { "LightMode" = "Meta" }
-
-            HLSLPROGRAM
-
-            #include_with_pragmas "GraphicsToolsStandardMetaProgram.hlsl"
-
-            ENDHLSL
-        }
-    }
-    
     CustomEditor "Microsoft.MixedReality.GraphicsTools.Editor.StandardShaderGUI"
 }

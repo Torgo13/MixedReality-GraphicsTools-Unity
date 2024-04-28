@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// A DistantLight can be used as a replacement for a Unity DirectionalLight. The main purpose of DistantLights is to recreate 
     /// important light sources for environments, i.e. the sun or moon.
     /// 
-    /// By default The Graphics Tools/Standard and Graphics Tools/Standard Canvas shaders use the first Unity DirectionalLight 
+    /// By default, the Graphics Tools/Standard and Graphics Tools/Standard Canvas shaders use the first Unity DirectionalLight 
     /// added to a scene. But, there are some cases where you need a light that is decoupled from the environment (such as 
     /// in user interfaces). Unity normally performs this decoupling with light masks. But, light masks can be expensive on some platforms.
     /// </summary>
@@ -68,10 +68,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         protected override void AddLight()
         {
+#if UNITY_EDITOR || DEBUG
             if (activeDistantLights.Count == distantLightCount)
             {
                 Debug.LogWarningFormat("Max distant light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", distantLightCount, gameObject.name);
             }
+#endif
 
             activeDistantLights.Add(this);
         }
@@ -100,7 +102,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 DistantLight light = (i >= activeDistantLights.Count) ? null : activeDistantLights[i];
                 int dataIndex = i * distantLightDataSize;
 
-                if (light)
+                if (light != null)
                 {
                     Vector4 direction = -light.transform.forward;
                     distantLightData[dataIndex] = new Vector4(direction.x,

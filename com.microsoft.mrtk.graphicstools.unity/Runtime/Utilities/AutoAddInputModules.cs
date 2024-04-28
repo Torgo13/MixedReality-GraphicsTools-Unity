@@ -8,16 +8,14 @@ using UnityEngine.EventSystems;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Ensures that a input system module exists for legacy input system projects. 
+    /// Ensures that an input system module exists for legacy input system projects. 
     /// </summary>
     public class AutoAddInputModules : MonoBehaviour
     {
         private void OnValidate()
         {
             // Check if a valid input module exists.
-            EventSystem eventSystem = GetComponent<EventSystem>();
-
-            if (eventSystem != null)
+            if (TryGetComponent<EventSystem>(out var eventSystem))
             {
                 if (eventSystem.currentInputModule == null)
                 {
@@ -25,7 +23,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     // Then add the default input module.
 #if ENABLE_LEGACY_INPUT_MANAGER && !ENABLE_INPUT_SYSTEM
 
-                    if (gameObject.GetComponent<StandaloneInputModule>() == null)
+                    if (!gameObject.TryGetComponent<StandaloneInputModule>(out var _))
                     {
                         gameObject.AddComponent<StandaloneInputModule>();
                     }

@@ -192,8 +192,8 @@ CBUFFER_END
         float innerd = saturate(deltad*2);
         float outerd = saturate(deltad*2-1);
         float bevelAngle = outerd*3.14159*0.5;
-        float sinb = sin(bevelAngle);
-        float cosb = cos(bevelAngle);
+        float sinb, cosb;
+        sincos(bevelAngle, sinb, cosb);
         float beveld = (1-f)*innerd + f * sinb;
         float br = outerd;
         float2 r2 = 2.0 * float2(Radius / Anisotropy, Radius);
@@ -222,9 +222,11 @@ CBUFFER_END
     {
         half theta = Sun_Theta * 2.0 * 3.14159;
         half phi = Sun_Phi * 3.14159;
-        LightDirX = cos(phi)*cos(theta);
-        LightDirY = sin(phi);
-        LightDirZ = cos(phi)*sin(theta);
+        half st, ct, cp;
+        sincos(theta, st, ct);
+        sincos(phi, LightDirY, cp);
+        LightDirX = cp*ct;
+        LightDirZ = cp*st;
     }
     //BLOCK_END SunDir
 

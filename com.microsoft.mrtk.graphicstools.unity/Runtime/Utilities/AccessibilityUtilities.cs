@@ -15,30 +15,36 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Shader keyword used by the "Graphics Tools/Text Mesh Pro" to conditionally invert text.
         /// </summary>
         private static readonly string InvertTextColorKeyword = "_INVERT_TEXT_COLOR";
+        private static readonly string _SrcBlend = "_SrcBlend";
+        private static readonly string _DstBlend = "_DstBlend";
 
         /// <summary>
         /// Enabling this will instruct a "Graphics Tools/Text Mesh Pro" based material to display a face color which is an inversion of what it is rendering over top of.
         /// </summary>
         public static void SetTextColorInversion(Material textMaterial, bool Invert)
         {
+            if (textMaterial == null) { return; }
+            
             if (!StandardShaderUtility.IsUsingGraphicsToolsTextMeshProShader(textMaterial))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("Failed to set the text color inversion because the material isn't using the {0} shader.", 
                                        StandardShaderUtility.GraphicsToolsTextMeshProShaderName);
+#endif
                 return;
             }
 
             if (Invert)
             {
                 textMaterial.EnableKeyword(InvertTextColorKeyword);
-                textMaterial.SetFloat("_SrcBlend", (float)BlendMode.OneMinusDstColor);
-                textMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcColor);
+                textMaterial.SetFloat(_SrcBlend, (float)BlendMode.OneMinusDstColor);
+                textMaterial.SetFloat(_DstBlend, (float)BlendMode.OneMinusSrcColor);
             }
             else
             {
                 textMaterial.DisableKeyword(InvertTextColorKeyword);
-                textMaterial.SetFloat("_SrcBlend", (float)BlendMode.One);
-                textMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+                textMaterial.SetFloat(_SrcBlend, (float)BlendMode.One);
+                textMaterial.SetFloat(_DstBlend, (float)BlendMode.OneMinusSrcAlpha);
             }
         }
 

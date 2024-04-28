@@ -70,7 +70,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     --materialRef.RefCount;
 
-                    if (materialRef.RefCount == 0)
+                    if (materialRef.RefCount < 1)
                     {
                         if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(material.GetInstanceID(), out string guid, out long _) && !new GUID(guid).Empty())
                         {

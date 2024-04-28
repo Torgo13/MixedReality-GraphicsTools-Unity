@@ -44,7 +44,7 @@ SubShader {
     Tags{ "RenderType" = "AlphaTest" "Queue" = "AlphaTest"}
     Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
     ZWrite[_ZWrite]
-    ZTest[_ZTest]
+    ZTest[unity_GUIZTestMode]
     Tags {"DisableBatching" = "True"}
     Stencil
     {

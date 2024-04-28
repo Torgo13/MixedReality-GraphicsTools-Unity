@@ -20,9 +20,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (gameObject != null)
             {
-                RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
-
-                if (rectTransform != null)
+                if (gameObject.TryGetComponent<RectTransform>(out var rectTransform))
                 {
                     rectTransform.sizeDelta = new Vector2(32, 32);
                 }

@@ -29,7 +29,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        [Tooltip("The name of the global shader property that drives the magnification ammount.")]
+        [Tooltip("The name of the global shader property that drives the magnification amount.")]
         [SerializeField]
         private string magnificationPropertyName = "MagnifierMagnification";
 
@@ -200,9 +200,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 cursorPosition = Input.mousePosition;
 #endif // USE_INPUT_SYSTEM
 
-                Vector3 viewportPostion = Camera.main.ScreenToViewportPoint(cursorPosition);
-                Vector4 viewportPostion4 = new Vector4(viewportPostion.x, viewportPostion.y, 0, 0);
-                Shader.SetGlobalVector(magnifierCenterID, viewportPostion4);
+                Vector3 viewportPosition = Camera.main.ScreenToViewportPoint(cursorPosition);
+                Vector4 viewportPosition4 = new Vector4(viewportPosition.x, viewportPosition.y, 0, 0);
+                Shader.SetGlobalVector(magnifierCenterID, viewportPosition4);
             }
             else
             {
@@ -222,7 +222,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (AutoAddDrawFullscreenFeature)
             {
-                drawFullscreenFeature = CreateMagnifierFullsreenFeature("Magnifier Draw Fullscreen", drawFullscreenSettings);
+                drawFullscreenFeature = CreateMagnifierFullscreenFeature("Magnifier Draw Fullscreen", drawFullscreenSettings);
                 InsertFeature(rendererData.rendererFeatures, drawFullscreenFeature, targetDrawFullscreenFeatureName, targetDrawFullscreenFeatureAddMode);
             }
 
@@ -241,7 +241,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             rendererData.SetDirty();
         }
 
-        private static DrawFullscreenFeature CreateMagnifierFullsreenFeature(string name, DrawFullscreenFeature.Settings settings)
+        private static DrawFullscreenFeature CreateMagnifierFullscreenFeature(string name, DrawFullscreenFeature.Settings settings)
         {
             DrawFullscreenFeature feature = ScriptableObject.CreateInstance<DrawFullscreenFeature>();
             feature.name = name;

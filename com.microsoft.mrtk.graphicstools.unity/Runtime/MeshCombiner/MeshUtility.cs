@@ -66,10 +66,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Normal = 1
             }
 
-            public static readonly Color[] TextureUsageColorDefault = new Color[]
+            public static readonly Color32[] TextureUsageColorDefault = new Color32[]
             {
-                new Color(255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f),
-                new Color(127.0f / 255.0f, 127.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f)
+                new Color32(255, 255, 255, 255),
+                new Color32(127, 127, 255, 255)
             };
 
             [System.Serializable]
@@ -84,7 +84,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 [Range(0, 256)]
                 public int Padding = 4;
                 public bool OverridePaddingColor = false;
-                public Color PaddingColorOverride = TextureUsageColorDefault[0];
+                public Color32 PaddingColorOverride = TextureUsageColorDefault[0];
             }
 
             public List<TextureSetting> TextureSettings = new List<TextureSetting>()
@@ -127,7 +127,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                                 var dimension = 4;
                                 normalTexture = new Texture2D(dimension, dimension);
                                 var normal = TextureUsageColorDefault[(int)usage];
-                                normalTexture.SetPixels(Repeat(new Color(1.0f, normal.g, 1.0f, normal.r), dimension * dimension).ToArray());
+                                normalTexture.SetPixels32(Repeat(new Color32(255, normal.g, 255, normal.r), dimension * dimension).ToArray());
                                 normalTexture.Apply();
                             }
 
@@ -139,37 +139,25 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public static bool CanCombine(MeshFilter meshFilter, int targetLOD)
         {
-            if (meshFilter == null)
+            if (meshFilter == null || meshFilter.sharedMesh == null || meshFilter.sharedMesh.vertexCount == 0)
             {
                 return false;
             }
-
-            if (meshFilter.sharedMesh == null)
-            {
-                return false;
-            }
-
-            if (meshFilter.sharedMesh.vertexCount == 0)
-            {
-                return false;
-            }
-
-            var renderer = meshFilter.GetComponent<Renderer>();
-
-            if (renderer is SkinnedMeshRenderer)
-            {
-                // Don't merge skinned meshes.
-                return false;
-            }
-
+            
             // Don't merge meshes from multiple LOD groups.
-            if (renderer != null)
+            if (meshFilter.TryGetComponent<Renderer>(out var renderer))
             {
+                if (renderer is SkinnedMeshRenderer)
+                {
+                    // Don't merge skinned meshes.
+                    return false;
+                }
+                
                 var lodGroups = meshFilter.GetComponentsInParent<LODGroup>();
 
-                foreach (var lodGroup in lodGroups)
+                for (int j = 0; j < lodGroups.Length; j++)
                 {
-                    var lods = lodGroup.GetLODs();
+                    var lods = lodGroups[j].GetLODs();
 
                     for (int i = 0; i < lods.Length; ++i)
                     {
@@ -200,7 +188,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             var textureToCombineInstanceMappings = new List<Dictionary<Texture2D, List<CombineInstance>>>(settings.TextureSettings.Count);
             Material defaultMaterial = null;
 
-            foreach (var textureSetting in settings.TextureSettings)
+            int textureSettingsCount = settings.TextureSettings.Count;
+            for (int i = 0; i < textureSettingsCount; i++)
             {
                 textureToCombineInstanceMappings.Add(new Dictionary<Texture2D, List<CombineInstance>>());
             }
@@ -214,12 +203,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                 output.Material = new Material(defaultMaterial);
                 output.MeshIDTable = meshIDTable;
             }
+#if UNITY_EDITOR || DEBUG
             else
             {
                 Debug.LogWarning("The MeshCombiner failed to find any meshes to combine.");
             }
 
             Debug.LogFormat("MeshCombine took {0} ms on {1} meshes.", watch.ElapsedMilliseconds, settings.MeshFilters.Count);
+#endif
 
             return output;
         }
@@ -258,9 +249,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (settings.RequiresMaterialData())
                     {
                         Material material = null;
-                        var renderer = meshFilter.GetComponent<Renderer>();
-
-                        if (renderer != null)
+                        if (meshFilter.TryGetComponent<Renderer>(out var renderer))
                         {
                             material = renderer.sharedMaterial;
                         }
@@ -285,7 +274,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                             {
                                 // Map textures to CombineInstances
                                 var texture = material.GetTexture(textureSetting.TextureProperty) as Texture2D;
-                                texture = texture ?? MeshCombineSettings.GetTextureUsageDefault(textureSetting.Usage);
+                                if (texture == null)
+                                {
+                                    texture = MeshCombineSettings.GetTextureUsageDefault(textureSetting.Usage);
+                                }
 
                                 if (textureToCombineInstanceMappings[textureSettingIndex].TryGetValue(texture, out List<CombineInstance> combineInstanceMappings))
                                 {
@@ -316,11 +308,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                                                                                    List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings)
         {
             var output = new List<MeshCombineResult.PropertyTexture2DID>();
-            var uvsAltered = new bool[4] { false, false, false, false };
+            var uvsAltered = new bool[4];
             var textureSettingIndex = 0;
 
-            foreach (var textureSetting in settings.TextureSettings)
+            int textureSettingsCount = settings.TextureSettings.Count;
+            for (int k = 0; k < textureSettingsCount; k++)
             {
+                var textureSetting = settings.TextureSettings[k];
                 var mapping = textureToCombineInstanceMappings[textureSettingIndex];
                 var sourceChannel = (int)textureSetting.SourceUVChannel;
                 var destChannel = (int)textureSetting.DestUVChannel;
@@ -408,7 +402,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static void PostprocessTexture(Texture2D texture, Rect[] usedRects, MeshCombineSettings.TextureSetting settings)
         {
-            var pixels = texture.GetPixels();
+            var pixels = texture.GetPixels32();
             var width = texture.width;
             var height = texture.height;
 
@@ -433,11 +427,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                         if (settings.Usage == MeshCombineSettings.TextureUsage.Normal)
                         {
                             // Apply Unity's UnpackNormalDXT5nm method to go from DXTnm to RGB.
-                            var c = pixels[(y * width) + x];
+                            int index = y * width + x;
+                            var c = pixels[index];
                             c.r = c.a;
-                            Vector2 normal = new Vector2(c.r, c.g);
-                            c.b = (Mathf.Sqrt(1.0f - Mathf.Clamp01(Vector2.Dot(normal, normal))) * 0.5f) + 0.5f;
-                            pixels[(y * width) + x] = c;
+                            double red = c.r / 255.0;
+                            double green = c.g / 255.0;
+                            double dot = red * red + green * green;
+                            c.b = (byte)((System.Math.Sqrt(1.0 - System.Math.Clamp(dot, 0.0, 1.0)) * 0.5 + 0.5) * 255.0);
+                            pixels[index] = c;
                         }
                     }
                     else
@@ -450,7 +447,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            texture.SetPixels(pixels);
+            texture.SetPixels32(pixels);
             texture.Apply();
         }
 

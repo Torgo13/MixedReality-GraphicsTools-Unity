@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 #ifndef GT_COMMON
@@ -273,7 +273,9 @@ half3 GTIridescence(float tangentDotIncident, sampler2D spectrumMap, float thres
 #endif
 
     float2 XY = uv - float2(0.5, 0.5);
-    float s = (cos(angle) * XY.x - sin(angle) * XY.y) / cos(angle);
+    float sa, ca;
+    sincos(angle, sa, ca);
+    float s = (ca * XY.x - sa * XY.y) / ca;
     return (left.rgb + s * (right.rgb - left.rgb)) * intensity;
 }
 

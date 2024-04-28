@@ -30,6 +30,36 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Vector2Int lastSoftness = new Vector2Int();
         private List<RectMask2D> clippers = new List<RectMask2D>();
 
+        #region Reflection
+
+        private static FieldInfo _clipTargets;
+        private static FieldInfo ClipTargets
+        {
+            get
+            {
+                if (_clipTargets == null)
+                {
+                    _clipTargets = typeof(RectMask2D).GetField("m_ClipTargets", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                }
+                return _clipTargets;
+            }
+        }
+
+        private static FieldInfo _maskableTargets;
+        private static FieldInfo MaskableTargets
+        {
+            get
+            {
+                if (_maskableTargets == null)
+                {
+                    _maskableTargets = typeof(RectMask2D).GetField("m_MaskableTargets", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                }
+                return _maskableTargets;
+            }
+        }
+
+        #endregion
+
 #region MonoBehaviour Implementation
 
         /// <inheritdoc />
@@ -202,7 +232,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             set
             {
-                if (value == true)
+                if (value)
                 {
                     lastclipTargetsCount = 0;
                     lastmaskableTargetsCount = 0;
@@ -231,9 +261,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             // Many of the properties we need access to for clipping are not exposed. So, we have to do reflection to get access to them.
-            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-            clipTargets = (HashSet<IClippable>)typeof(RectMask2D).GetField("m_ClipTargets", bindFlags).GetValue(this);
-            maskableTargets = (HashSet<MaskableGraphic>)typeof(RectMask2D).GetField("m_MaskableTargets", bindFlags).GetValue(this);
+            //const BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+            clipTargets = (HashSet<IClippable>)ClipTargets?.GetValue(this);
+            maskableTargets = (HashSet<MaskableGraphic>)MaskableTargets?.GetValue(this);
         }
 
         private Canvas Canvas
@@ -243,19 +273,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (cachedCanvas == null)
                 {
 #if UNITY_2021_1_OR_NEWER
-                    var list = ListPool<Canvas>.Get();
+                    List<Canvas> list = ListPool<Canvas>.Get();
                     gameObject.GetComponentsInParent(false, list);
-                    if (list.Count > 0)
-                        cachedCanvas = list[list.Count - 1];
-                    else
-                        cachedCanvas = null;
+                    cachedCanvas = list.Count > 0 ? list[^1] : null;
+
                     ListPool<Canvas>.Release(list);
 #else
                     var list = gameObject.GetComponentsInParent<Canvas>(false);
-                    if (list.Length > 0)
-                        cachedCanvas = list[list.Length - 1];
-                    else
-                        cachedCanvas = null;
+                    cachedCanvas = list.Count > 0 ? list[^1] : null;
 #endif
                 }
 

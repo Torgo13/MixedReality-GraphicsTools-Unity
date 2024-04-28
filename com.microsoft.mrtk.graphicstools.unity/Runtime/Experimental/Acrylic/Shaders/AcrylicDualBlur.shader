@@ -12,7 +12,7 @@ Shader "Graphics Tools/Experimental/Acrylic/Dual Blur"
 
         Tags { "RenderType"="Opaque" }
         LOD 100
-        ZTest Always
+        ZTest [unity_GUIZTestMode]
         Cull Off
         ZWrite Off
         Blend Off

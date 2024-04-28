@@ -25,7 +25,7 @@ Shader "Graphics Tools/Magnifier"
 
         Pass
         {
-            ZTest Always
+            ZTest [unity_GUIZTestMode]
             Cull Off
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha, One One

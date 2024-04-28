@@ -1,13 +1,12 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
-using UnityEditor.ShortcutManagement;
+using UnityEngine.Rendering.Universal;
 
-namespace Microsoft.MixedReality.GraphicsTools.Editor
+namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
     /// Utility class to aid in taking screenshots via menu items and public APIs. Screenshots can 
@@ -16,52 +15,52 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     /// </summary>
     public class ScreenshotUtilities
     {
-        [Shortcut("Graphics Tools/Take Screenshot 1x", KeyCode.Alpha1, ShortcutModifiers.Alt)]
-        [MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution")]
+        //[Shortcut("Graphics Tools/Take Screenshot 1x", KeyCode.Alpha1, ShortcutModifiers.Alt)]
+        //[MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution")]
         private static void CaptureScreenshot1x()
         {
             CaptureScreenshot(GetScreenshotPath(), 1);
-            EditorUtility.RevealInFinder(GetScreenshotDirectory());
+            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        [Shortcut("Graphics Tools/Take Screenshot 1x Alpha", KeyCode.Alpha1, ShortcutModifiers.Shift)]
-        [MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution (Transparent Background)")]
+        //[Shortcut("Graphics Tools/Take Screenshot 1x Alpha", KeyCode.Alpha1, ShortcutModifiers.Shift)]
+        //[MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution (Transparent Background)")]
         private static void CaptureScreenshot1xAlphaComposite()
         {
             CaptureScreenshot(GetScreenshotPath(), 1, true);
-            EditorUtility.RevealInFinder(GetScreenshotDirectory());
+            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        [Shortcut("Graphics Tools/Take Screenshot 2x", KeyCode.Alpha2, ShortcutModifiers.Alt)]
-        [MenuItem("Window/Graphics Tools/Take Screenshot/2x Resolution")]
+        //[Shortcut("Graphics Tools/Take Screenshot 2x", KeyCode.Alpha2, ShortcutModifiers.Alt)]
+        //[MenuItem("Window/Graphics Tools/Take Screenshot/2x Resolution")]
         private static void CaptureScreenshot2x()
         {
             CaptureScreenshot(GetScreenshotPath(), 2);
-            EditorUtility.RevealInFinder(GetScreenshotDirectory());
+            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        [Shortcut("Graphics Tools/Take Screenshot 2x Alpha", KeyCode.Alpha2, ShortcutModifiers.Shift)]
-        [MenuItem("Window/Graphics Tools/Take Screenshot/2x Resolution (Transparent Background)")]
+        //[Shortcut("Graphics Tools/Take Screenshot 2x Alpha", KeyCode.Alpha2, ShortcutModifiers.Shift)]
+        //[MenuItem("Window/Graphics Tools/Take Screenshot/2x Resolution (Transparent Background)")]
         private static void CaptureScreenshot2xAlphaComposite()
         {
             CaptureScreenshot(GetScreenshotPath(), 2, true);
-            EditorUtility.RevealInFinder(GetScreenshotDirectory());
+            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        [Shortcut("Graphics Tools/Take Screenshot 4x", KeyCode.Alpha4, ShortcutModifiers.Alt)]
-        [MenuItem("Window/Graphics Tools/Take Screenshot/4x Resolution")]
+        //[Shortcut("Graphics Tools/Take Screenshot 4x", KeyCode.Alpha4, ShortcutModifiers.Alt)]
+        //[MenuItem("Window/Graphics Tools/Take Screenshot/4x Resolution")]
         private static void CaptureScreenshot4x()
         {
             CaptureScreenshot(GetScreenshotPath(), 4);
-            EditorUtility.RevealInFinder(GetScreenshotDirectory());
+            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        [Shortcut("Graphics Tools/Take Screenshot 4x Alpha", KeyCode.Alpha4, ShortcutModifiers.Shift)]
-        [MenuItem("Window/Graphics Tools/Take Screenshot/4x Resolution (Transparent Background)")]
+        //[Shortcut("Graphics Tools/Take Screenshot 4x Alpha", KeyCode.Alpha4, ShortcutModifiers.Shift)]
+        //[MenuItem("Window/Graphics Tools/Take Screenshot/4x Resolution (Transparent Background)")]
         private static void CaptureScreenshot4xAlphaComposite()
         {
             CaptureScreenshot(GetScreenshotPath(), 4, true);
-            EditorUtility.RevealInFinder(GetScreenshotDirectory());
+            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
         /// <summary>
@@ -86,43 +85,55 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 if (camera == null)
                 {
-                    camera = GameObject.FindObjectOfType<Camera>();
+                    camera = UnityEngine.Object.FindObjectOfType<Camera>();
 
                     if (camera == null)
                     {
-                        Debug.LogError("Failed to find a any cameras to capture a screenshot from.");
-
+#if UNITY_EDITOR || DEBUG
+                        Debug.LogError("Failed to find any cameras to capture a screenshot from.");
+#endif
                         return false;
                     }
-                    else
-                    {
-                        Debug.LogWarning($"Capturing screenshot from a camera named \"{camera.name}\" because there is no camera tagged \"MainCamera\".");
-                    }
+                    
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning($"Capturing screenshot from a camera named \"{camera.name}\" because there is no camera tagged \"MainCamera\".");
+#endif
                 }
             }
 
             // Create a camera clone.
-            var renderCamera = new GameObject().AddComponent<Camera>();
+            Camera renderCamera = new GameObject().AddComponent<Camera>();
             renderCamera.CopyFrom(camera);
             renderCamera.orthographic = camera.orthographic;
             Transform cameraTransform = camera.transform;
             renderCamera.transform.SetPositionAndRotation(cameraTransform.position, cameraTransform.rotation);
             renderCamera.clearFlags = transparentClearColor ? CameraClearFlags.Color : camera.clearFlags;
-            renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) : 
-                                                                   new Color(camera.backgroundColor.r, camera.backgroundColor.g, camera.backgroundColor.b, 1.0f);
+            Color cameraBackgroundColor = camera.backgroundColor;
+            renderCamera.backgroundColor = transparentClearColor
+                ? Color.black
+                : new Color(cameraBackgroundColor.r, cameraBackgroundColor.g, cameraBackgroundColor.b, 1.0f);
+
+            UniversalAdditionalCameraData renderCameraData = renderCamera.GetUniversalAdditionalCameraData();
+            UniversalAdditionalCameraData cameraData = camera.GetUniversalAdditionalCameraData();
+            renderCameraData.renderPostProcessing = cameraData.renderPostProcessing;
+            renderCameraData.allowHDROutput = cameraData.allowHDROutput;
+            renderCameraData.dithering = cameraData.dithering;
+            renderCameraData.antialiasing = AntialiasingMode.None;
 
             // Create a render texture for the camera clone to render into.
-            var width = Screen.width * superSize;
-            var height = Screen.height * superSize;
-            var renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
-            renderTexture.antiAliasing = 8;
+            int width = Screen.width * superSize;
+            int height = Screen.height * superSize;
+            RenderTexture renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32)
+            {
+                antiAliasing = 8
+            };
             renderCamera.targetTexture = renderTexture;
 
             // Render from the camera clone.
             renderCamera.Render();
 
             // Copy the render from the camera and save it to disk.
-            var outputTexture = new Texture2D(width, height, TextureFormat.ARGB32, false);
+            Texture2D outputTexture = new Texture2D(width, height, TextureFormat.ARGB32, false);
             RenderTexture previousRenderTexture = RenderTexture.active;
             RenderTexture.active = renderTexture;
             outputTexture.ReadPixels(new Rect(0.0f, 0.0f, width, height), 0, 0);
@@ -136,7 +147,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             catch (Exception e)
             {
                 Debug.LogException(e);
-
                 return false;
             }
             finally
@@ -146,8 +156,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 UnityEngine.Object.DestroyImmediate(renderTexture);
             }
 
+#if UNITY_EDITOR
             Debug.LogFormat("Screenshot captured to: {0}", path);
-
+#endif
             return true;
         }
 
@@ -157,7 +168,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <returns>A directory safe for saving screenshots.</returns>
         public static string GetScreenshotDirectory()
         {
-            return Application.temporaryCachePath;
+            //return Application.temporaryCachePath;
+            return Application.persistentDataPath;
         }
 
         /// <summary>
@@ -166,7 +178,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <returns>A unique screenshot path.</returns>
         public static string GetScreenshotPath()
         {
-            return Path.Combine(GetScreenshotDirectory(), $"Screenshot_{DateTime.Now:yyyy-MM-dd_hh-mm-ss-tt}_{GUID.Generate()}.png");
+            //return Path.Combine(GetScreenshotDirectory(), $"Screenshot_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
+            return Path.Combine(GetScreenshotDirectory(), $"{Application.productName} {DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
         }
     }
 }

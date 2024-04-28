@@ -130,7 +130,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
                     else
                     {
-                        GUILayout.Box(string.Format("Combinable Mesh Count: {0}", combinableMeshCount), EditorStyles.helpBox, new GUILayoutOption[0]);
+                        GUILayout.Box($"Combinable Mesh Count: {combinableMeshCount}", EditorStyles.helpBox, System.Array.Empty<GUILayoutOption>());
                     }
                 }
                 EditorGUILayout.EndVertical();
@@ -224,7 +224,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var path = AssetDatabase.GetAssetPath(targetHierarchy);
             path = string.IsNullOrEmpty(path) ? PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(targetHierarchy) : path;
             var directory = string.IsNullOrEmpty(path) ? Application.dataPath : Path.GetDirectoryName(path);
-            var filename = string.Format("{0}{1}", string.IsNullOrEmpty(path) ? targetHierarchy.name : Path.GetFileNameWithoutExtension(path), "Combined");
+            var filename = $"{(string.IsNullOrEmpty(path) ? targetHierarchy.name : Path.GetFileNameWithoutExtension(path))}Combined";
 
             path = EditorUtility.SaveFilePanelInProject("Save Combined Mesh", filename, "prefab", "Please enter a file name.", directory);
 

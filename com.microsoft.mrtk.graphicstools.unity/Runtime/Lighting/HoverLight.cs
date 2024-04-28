@@ -60,10 +60,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         protected override void AddLight()
         {
+#if UNITY_EDITOR || DEBUG
             if (activeHoverLights.Count == hoverLightCount)
             {
                 Debug.LogWarningFormat("Max hover light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", hoverLightCount, gameObject.name);
             }
+#endif
 
             activeHoverLights.Add(this);
         }
@@ -92,7 +94,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 HoverLight light = (i >= activeHoverLights.Count) ? null : activeHoverLights[i];
                 int dataIndex = i * hoverLightDataSize;
 
-                if (light)
+                if (light != null)
                 {
                     hoverLightData[dataIndex] = new Vector4(light.transform.position.x,
                                                             light.transform.position.y,

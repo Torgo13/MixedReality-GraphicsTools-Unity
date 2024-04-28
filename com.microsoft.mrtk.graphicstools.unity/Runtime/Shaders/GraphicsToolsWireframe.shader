@@ -39,7 +39,7 @@ Shader "Graphics Tools/Wireframe"
             Name "Main"
             Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
             BlendOp[_BlendOp]
-            ZTest[_ZTest]
+            ZTest[unity_GUIZTestMode]
             ZWrite[_ZWrite]
             Cull[_CullMode]
             Offset[_ZOffsetFactor],[_ZOffsetUnits]

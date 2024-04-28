@@ -182,23 +182,22 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             EditorGUILayout.BeginVertical("Box");
             {
-                List<string> displayedOptions = new List<string>(themeCollection.Themes.Count);
+                int themesCount = themeCollection.Themes.Count;
+                List<string> displayedOptions = new List<string>(themesCount);
 
-                for (int i = 0; i < themeCollection.Themes.Count; ++i)
+                for (int i = 0; i < themesCount; ++i)
                 {
-                    var theme = themeCollection.Themes[i];
-                    displayedOptions.Add(GetThemeName(theme, i));
+                    displayedOptions.Add(GetThemeName(themeCollection.Themes[i], i));
                 }
 
                 selectedThemeIndex = EditorGUILayout.Popup("Selected Theme", selectedThemeIndex, displayedOptions.ToArray());
                 selectionMode = (SelectionMode)EditorGUILayout.EnumPopup("Selection Mode", selectionMode);
 
-                string warning;
-                GUI.enabled = ValidateThemeCollection(themeCollection, out warning);
+                GUI.enabled = ValidateThemeCollection(themeCollection, out string warning);
 
                 GameObject[] gameObjects = null;
 
-                if (GUI.enabled == true)
+                if (GUI.enabled)
                 {
                     GUI.enabled = ValidateSelection(selectionMode, out gameObjects, out warning);
                 }
@@ -207,9 +206,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (GUILayout.Button("Apply"))
                 {
-                    Apply(gameObjects, 
-                          themeCollection, 
-                          themeCollection.Themes[selectedThemeIndex], 
+                    Apply(gameObjects,
+                          themeCollection,
+                          themeCollection.Themes[selectedThemeIndex],
                           selectionMode != SelectionMode.SelectionWithoutChildren);
                 }
 
@@ -225,11 +224,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static bool ValidateThemeCollection(ThemeCollection themeCollection, out string warning)
         {
             // Make sure all themes have valid assets and each row contains similar types.
-            for (int i  = 0; i < themeCollection.Themes[0].Assets.Count ; ++i)
+            int assetsCount = themeCollection.Themes[0].Assets.Count;
+            for (int i = 0; i < assetsCount; ++i)
             {
                 System.Type type = null;
-
-                for (int j = 0; j < themeCollection.Themes.Count; ++j)
+                int themesCount = themeCollection.Themes.Count;
+                for (int j = 0; j < themesCount; ++j)
                 {
                     if (themeCollection.Themes[j].Assets[i] == null)
                     {
@@ -243,7 +243,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         type = currentType;
                     }
-                    else if(currentType != type)
+                    else if (currentType != type)
                     {
                         warning = $"Theme \"{GetThemeName(themeCollection.Themes[j], j)}\" asset index {i} is of mismatched type. Expected \"{type}\" and got \"{currentType}\".";
                         return false;
@@ -306,7 +306,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     SwapObjectReferences(gameObject, themeCollection, selectedTheme);
                 }
 
-                ++progress; 
+                ++progress;
             }
 
             EditorUtility.ClearProgressBar();
@@ -361,7 +361,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                 }
 
-                if (modified == true)
+                if (modified)
                 {
                     property.serializedObject.ApplyModifiedProperties();
                 }

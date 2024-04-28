@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.CSharp;
 using System;
 using System.IO;
 using System.Linq;
@@ -118,22 +117,22 @@ namespace Microsoft.MixedReality.GraphicsTools
                     properties += string.Format(PropertyIDBody, nameID, name);
 
                     fromMaterial += Environment.NewLine;
-                    fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGettor(type), nameID, typeName);
+                    fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGetter(type), nameID, typeName);
 
                     toMaterial += Environment.NewLine;
-                    toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSettor(type), nameID, name, typeName);
+                    toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSetter(type), nameID, name, typeName);
                 }
                 else  // All other types. Colors, floats, vectors, etc.
                 {
                     string defaultValue, minValue = null, maxValue = null;
                     if (type == ShaderUtil.ShaderPropertyType.Float)
                     {
-                        defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0).ToString() + FloatPostfix;
+                        defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0) + FloatPostfix;
                     }
                     else if (type == ShaderUtil.ShaderPropertyType.Range)
                     {
-                        defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0).ToString() + FloatPostfix;
-                        minValue = ShaderUtil.GetRangeLimits(shader, i, 1).ToString() + FloatPostfix;
+                        defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0) + FloatPostfix;
+                        minValue = ShaderUtil.GetRangeLimits(shader, i, 1) + FloatPostfix;
                         maxValue = ShaderUtil.GetRangeLimits(shader, i, 2) + FloatPostfix;
                     }
                     else
@@ -156,20 +155,20 @@ namespace Microsoft.MixedReality.GraphicsTools
                     properties += string.Format(PropertyIDBody, nameID, name);
 
                     fromMaterial += Environment.NewLine;
-                    fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGettor(type), nameID);
+                    fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGetter(type), nameID);
 
                     toMaterial += Environment.NewLine;
-                    toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSettor(type), nameID, name);
+                    toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSetter(type), nameID, name);
                 }
             }
 
             try
             {
                 // Save a new component out as a C# class.
-                string version = "0.1.0";
+                const string version = "0.1.0";
                 string assetPath = AssetDatabase.GetAssetPath(shader);
 
-                string className = SanitizeIdentifier("CanvasMaterialAnimator" + Path.GetFileNameWithoutExtension(assetPath));
+                string className = SanitizeIdentifier($"CanvasMaterialAnimator{Path.GetFileNameWithoutExtension(assetPath)}");
 
                 string classText = string.Format(ClassBody, version, className, properties, fromMaterial, toMaterial, targetShaderName);
 
@@ -187,7 +186,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     Directory.CreateDirectory(directory);
                 }
 
-                string path = Path.Combine(directory, string.Format("{0}.cs", className));
+                string path = Path.Combine(directory, $"{className}.cs");
 
                 File.WriteAllText(path, classText);
 
@@ -227,7 +226,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             foreach (UnityEngine.Object selection in Selection.objects)
             {
-                if (selection.GetType() == typeof(Shader))
+                if (selection is Shader)
                 {
                     return true;
                 }
@@ -279,7 +278,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         [MenuItem("Window/Graphics Tools/Canvas Material Animators/Generate All")]
         private static void CanvasMaterialAnimatorsGenerateAll()
         {
-            string[] paths = Directory.GetFiles(string.Format("Packages/{0}/Runtime/Shaders", DevelopmentUtilities.PackageName), "*.shader");
+            string[] paths = Directory.GetFiles($"Packages/{DevelopmentUtilities.PackageName}/Runtime/Shaders", "*.shader");
 
             foreach (string path in paths)
             {
@@ -318,9 +317,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// ShaderPropertyType to Unity material gettor method.
+        /// ShaderPropertyType to Unity material getter method.
         /// </summary>
-        private static string ShaderPropertyTypeToGettor(ShaderUtil.ShaderPropertyType type)
+        private static string ShaderPropertyTypeToGetter(ShaderUtil.ShaderPropertyType type)
         {
             switch (type)
             {
@@ -334,9 +333,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// ShaderPropertyType to Unity material settor method.
+        /// ShaderPropertyType to Unity material setter method.
         /// </summary>
-        private static string ShaderPropertyTypeToSettor(ShaderUtil.ShaderPropertyType type)
+        private static string ShaderPropertyTypeToSetter(ShaderUtil.ShaderPropertyType type)
         {
             switch (type)
             {
@@ -386,7 +385,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string SanitizeIdentifier(string input)
         {
-            bool isValid = CSharpCodeProvider.CreateProvider("C#").IsValidIdentifier(input);
+            bool isValid = System.CodeDom.Compiler.CodeDomProvider.CreateProvider("C#").IsValidIdentifier(input);
 
             if (!isValid)
             {

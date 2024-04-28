@@ -88,7 +88,7 @@ SubShader {
     Blend[_SrcBlend][_DstBlend]
     Cull Off
     ZWrite[_ZWrite]
-    ZTest[_ZTest]
+    ZTest[unity_GUIZTestMode]
     Tags {"DisableBatching" = "True"}
     Stencil
     {

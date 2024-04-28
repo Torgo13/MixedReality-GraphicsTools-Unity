@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
     /// The base class for all CanvasMaterialAnimators generated via Assets > Graphics Tools > Generate Canvas Material Animator.
-    /// This behavior will expose all material properties of a Graphic's material so they can animated by Unity's animation system.
+    /// This behavior will expose all material properties of a Graphic's material so they can be animated by Unity's animation system.
     /// </summary>
     [ExecuteInEditMode]
 #if GT_USE_UGUI
@@ -42,14 +42,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             get { return instanceMaterials; }
             set 
             { 
-                if (isInitialized)
-                {
-                    Debug.LogError("Cannot toggle UseInstanceMaterials after initialization.");
-                }
-                else
+                if (!isInitialized)
                 {
                     instanceMaterials = value;
                 }
+#if UNITY_EDITOR || DEBUG
+                else
+                {
+                    Debug.LogError("Cannot toggle UseInstanceMaterials after initialization.");
+                }
+#endif
             }
         }
 
@@ -197,10 +199,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     isInitialized = true;
                 }
+#if UNITY_EDITOR || DEBUG
                 else
                 {
                     Debug.LogErrorFormat("Failed to initialize CanvasMaterialAnimator. Expected shader {0} but using {1}.", GetTargetShaderName(), material.shader.name);
                 }
+#endif
             }
 #endif // GT_USE_UGUI
         }

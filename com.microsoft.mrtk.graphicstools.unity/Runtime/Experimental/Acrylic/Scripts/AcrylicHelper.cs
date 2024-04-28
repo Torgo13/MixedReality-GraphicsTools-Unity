@@ -17,7 +17,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
     public class AcrylicHelper : MonoBehaviour
     {
-        [Experimental]
+        //[Experimental]
         [SerializeField]
         [Range(0, 1)]
         private int blurLayer = 0;
@@ -25,6 +25,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool useAcrylic = false;
         private Graphic cachedGraphic = null;
         private Coroutine initCoroutine = null;
+        private const string _BLUR_TEXTURE_ENABLE_ = "_BLUR_TEXTURE_ENABLE_";
+        private const string _BLUR_TEXTURE_2_ENABLE_ = "_BLUR_TEXTURE_2_ENABLE_";
 
 #region Monobehavior methods
 
@@ -78,16 +80,17 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void UpdateMaterialState()
         {
-            if (cachedGraphic == null)
+            bool cachedGraphicFound = cachedGraphic != null;
+            if (!cachedGraphicFound)
             {
-                cachedGraphic = GetComponent<Graphic>();
+                cachedGraphicFound = TryGetComponent<Graphic>(out cachedGraphic);
             }
 
-            if (cachedGraphic != null)
+            if (cachedGraphicFound)
             {
                 useAcrylic = AcrylicLayerManager.Instance != null && AcrylicLayerManager.Instance.AcrylicActive;
-                SetMaterialState(cachedGraphic.material, "_BLUR_TEXTURE_ENABLE_", useAcrylic && blurLayer == 0);
-                SetMaterialState(cachedGraphic.material, "_BLUR_TEXTURE_2_ENABLE_", useAcrylic && blurLayer == 1);
+                SetMaterialState(cachedGraphic.material, _BLUR_TEXTURE_ENABLE_, useAcrylic && blurLayer == 0);
+                SetMaterialState(cachedGraphic.material, _BLUR_TEXTURE_2_ENABLE_, useAcrylic && blurLayer == 1);
                 cachedGraphic.SetMaterialDirty();
             }
         }
@@ -106,7 +109,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private IEnumerator WaitForAcrylicLayerManager()
         {
-            // wait for the AcylicLayerManager to exist
+            // wait for the AcrylicLayerManager to exist
             while (AcrylicLayerManager.Instance == null)
             {
                 yield return null;

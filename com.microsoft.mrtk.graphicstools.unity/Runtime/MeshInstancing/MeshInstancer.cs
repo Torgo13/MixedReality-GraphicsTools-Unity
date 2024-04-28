@@ -53,7 +53,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Determines whether the Meshes should receive shadows.
         /// </summary>
         [Tooltip("Determines whether the Meshes should receive shadows.")]
-        public bool RecieveShadows = false;
+        public bool ReceiveShadows = false;
 
         [Serializable]
         private class FloatMaterialProperty
@@ -183,7 +183,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public bool DisableParallelUpdate = false;
 
         /// <summary>
-        /// An object that represents a instance to be drawn. Akin to a Unity GameObject.
+        /// An object that represents an instance to be drawn. Akin to a Unity GameObject.
         /// </summary>
         public class Instance
         {
@@ -200,7 +200,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             public int InstanceBucketIndex { get; private set; }
 
             /// <summary>
-            /// Pointer to any custom data the developer wishes to store on a per instance basis.
+            /// Pointer to any custom data the developer wishes to store on a per-instance basis.
             /// NOTE: Thread safe.
             /// NOTE: This data should be a value type to avoid allocations when boxing and unboxing.
             /// </summary>
@@ -281,12 +281,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public Matrix4x4 LocalTransformation
             {
-                get { return meshInstancer.instanceBuckets[InstanceBucketIndex].Matricies[InstanceIndex]; }
-                set { meshInstancer.instanceBuckets[InstanceBucketIndex].Matricies[InstanceIndex] = value; }
+                get { return meshInstancer.instanceBuckets[InstanceBucketIndex].Matrices[InstanceIndex]; }
+                set { meshInstancer.instanceBuckets[InstanceBucketIndex].Matrices[InstanceIndex] = value; }
             }
 
             /// <summary>
-            /// True if this instance has been destoryed (removed) from the parent MeshInstancer.
+            /// True if this instance has been destroyed (removed) from the parent MeshInstancer.
             /// NOTE: Thread safe.
             /// </summary>
             public bool Destroyed
@@ -311,12 +311,18 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             /// <summary>
-            /// Call this method to destory an instance so it no longer renders or updates.
+            /// Call this method to destroy an instance so it no longer renders or updates.
             /// NOTE: Not thread safe.
             /// </summary>
             public void Destroy()
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to double destroy a MeshInstancer instance."); return; }
+                if (Destroyed)
+                {
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning("Attempting to double destroy a MeshInstancer instance.");
+#endif
+                    return;
+                }
 
                 meshInstancer.Destroy(this);
 
@@ -340,7 +346,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetFloat(int nameID, float value)
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to SetFloat on a destroyed MeshInstancer instance."); return; }
+                if (Destroyed)
+                {
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning("Attempting to SetFloat on a destroyed MeshInstancer instance.");
+#endif
+                    return;
+                }
 
                 meshInstancer.SetFloat(this, nameID, value);
             }
@@ -360,7 +372,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public float GetFloat(int nameID)
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to GetFloat on a destroyed MeshInstancer instance."); return 0.0f; }
+                if (Destroyed)
+                {
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning("Attempting to GetFloat on a destroyed MeshInstancer instance.");
+#endif
+                    return 0.0f;
+                }
 
                 return meshInstancer.GetFloat(this, nameID);
             }
@@ -380,7 +398,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetVector(int nameID, Vector4 value)
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to SetVector on a destroyed MeshInstancer instance."); return; }
+                if (Destroyed)
+                {
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning("Attempting to SetVector on a destroyed MeshInstancer instance.");
+#endif
+                    return;
+                }
 
                 meshInstancer.SetVector(this, nameID, value);
             }
@@ -400,7 +424,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public Vector4 GetVector(int nameID)
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to GetVector on a destroyed MeshInstancer instance."); return Vector4.zero; }
+                if (Destroyed)
+                {
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning("Attempting to GetVector on a destroyed MeshInstancer instance.");
+#endif
+                    return Vector4.zero;
+                }
 
                 return meshInstancer.GetVector(this, nameID);
             }
@@ -420,7 +450,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetMatrix(int nameID, Matrix4x4 value)
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to SetMatrix on a destroyed MeshInstancer instance."); return; }
+                if (Destroyed)
+                {
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning("Attempting to SetMatrix on a destroyed MeshInstancer instance.");
+#endif
+                    return;
+                }
 
                 meshInstancer.SetMatrix(this, nameID, value);
             }
@@ -440,7 +476,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public Matrix4x4 GetMatrix(int nameID)
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to v on a destroyed MeshInstancer instance."); return Matrix4x4.identity; }
+                if (Destroyed)
+                {
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning("Attempting to v on a destroyed MeshInstancer instance.");
+#endif
+                    return Matrix4x4.identity;
+                }
 
                 return meshInstancer.GetMatrix(this, nameID);
             }
@@ -451,7 +493,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetParallelUpdate(ParallelUpdate parallelUpdate)
             {
-                if (Destroyed) { Debug.LogWarning("Attempting to set the ParallelUpdate method on a destroyed MeshInstancer instance."); return; }
+                if (Destroyed)
+                {
+#if UNITY_EDITOR || DEBUG
+                    Debug.LogWarning("Attempting to set the ParallelUpdate method on a destroyed MeshInstancer instance.");
+#endif
+                    return;
+                }
 
                 meshInstancer.instanceBuckets[InstanceBucketIndex].ParallelUpdates[InstanceIndex] = parallelUpdate;
             }
@@ -461,7 +509,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             public int InstanceCount = 0;
             public Instance[] Instances = new Instance[UNITY_MAX_INSTANCE_COUNT];
-            public Matrix4x4[] Matricies = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
+            public Matrix4x4[] Matrices = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
             public MaterialPropertyBlock Properties = new MaterialPropertyBlock();
             public ParallelUpdate[] ParallelUpdates = new ParallelUpdate[UNITY_MAX_INSTANCE_COUNT];
 #if UNITY_WEBGL
@@ -514,7 +562,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     ParallelUpdates[i]?.Invoke(deltaTime, Instances[i]);
 
                     // Calculate the final transformation matrix.
-                    matrixScratchBuffer[i] = localToWorld * Matricies[i];
+                    matrixScratchBuffer[i] = localToWorld * Matrices[i];
                 }
             }
 
@@ -531,7 +579,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     ParallelUpdates[i]?.Invoke(deltaTime, Instances[i]);
 
                     // Calculate the final transformation matrix.
-                    matrixScratchBuffer[i] = localToWorld * Matricies[i];
+                    matrixScratchBuffer[i] = localToWorld * Matrices[i];
 
                     // Perform a ray cast against the current instance. First do a coarse test against a sphere then a fine test against the OOBB.
                     // TODO - [Cameron-Micka] accelerate this with spatial partitioning?
@@ -549,9 +597,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            public void Draw(UnityEngine.Mesh mesh, int submeshIndex, Material material, UnityEngine.Rendering.ShadowCastingMode shadowCastingMode, bool recieveShadows)
+            public void Draw(UnityEngine.Mesh mesh, int submeshIndex, Material material, UnityEngine.Rendering.ShadowCastingMode shadowCastingMode, bool receiveShadows)
             {
-                Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, recieveShadows);
+                Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, receiveShadows);
             }
 
             private static T[] Repeat<T>(T element, int count)
@@ -672,7 +720,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             foreach (var bucket in instanceBuckets)
             {
                 // Draw each instance bucket.
-                bucket.Draw(InstanceMesh, InstanceSubMeshIndex, InstanceMaterial, ShadowCastingMode, RecieveShadows);
+                bucket.Draw(InstanceMesh, InstanceSubMeshIndex, InstanceMaterial, ShadowCastingMode, ReceiveShadows);
 
                 // Collect the aggregate raycast hits.
                 if (RaycastInstances)
@@ -703,7 +751,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     ++stopwatchSampleIndex;
                 }
 
-                string label = string.Format("MeshInstancer Update: {0} instances @ {1:f2} ms", InstanceCount, averageElapsedMilliseconds);
+                string label = $"MeshInstancer Update: {InstanceCount} instances @ {averageElapsedMilliseconds:f2} ms";
                 GUI.Label(new Rect(10.0f, Screen.height - 24.0f, Screen.height, 128.0f), label);
             }
         }
@@ -782,7 +830,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         bucket.UpdateJob(deltaTime, localToWorld, 0, bucket.InstanceCount);
                     }
-                };
+                }
             }
             else if (processorCount > instanceBuckets.Count)  // More processors than buckets so split up the work within buckets.
             {
@@ -869,7 +917,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 else if (InstanceMaterial)
                 {
                     // Using Graphics.DrawMeshInstanced instead of Gizmos.DrawMesh because Gizmos.DrawMesh requires that a mesh has normals.
-                    Graphics.DrawMeshInstanced(InstanceMesh, InstanceSubMeshIndex, InstanceMaterial, new Matrix4x4[1] { Gizmos.matrix }, 1, null, ShadowCastingMode, RecieveShadows);
+                    Graphics.DrawMeshInstanced(InstanceMesh, InstanceSubMeshIndex, InstanceMaterial, new Matrix4x4[1] { Gizmos.matrix }, 1, null, ShadowCastingMode, ReceiveShadows);
                 }
 
                 if (RaycastInstances)
@@ -916,7 +964,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             InstanceBucket bucket = instanceBuckets[instanceBucketIndex];
             bucket.Instances[instanceIndex] = new Instance(instanceIndex, instanceBucketIndex, null, this);
-            bucket.Matricies[instanceIndex] = (instantiateInWorldSpace) ? transform.worldToLocalMatrix * transformation : transformation;
+            bucket.Matrices[instanceIndex] = (instantiateInWorldSpace) ? transform.worldToLocalMatrix * transformation : transformation;
 
             ++InstanceCount;
 
@@ -989,7 +1037,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Returns the hit thats the smallest distance away from the DeferredRayQuery origin.
+        /// Returns the hit that's the smallest distance away from the DeferredRayQuery origin.
         /// </summary>
         public bool GetClosestRaycastHit(ref RaycastHit hit)
         {
@@ -1017,7 +1065,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
+#endif
 
                 return false;
             }
@@ -1041,7 +1091,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
+#endif
 
                 return false;
             }
@@ -1065,7 +1117,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
+#endif
 
                 return false;
             }
@@ -1086,7 +1140,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("SetFloat failed because {0} is not a registered material property on the MeshInstancer.", nameID);
+#endif
 
                 return;
             }
@@ -1103,7 +1159,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("GetFloat failed because {0} is not a registered material property on the MeshInstancer.", nameID);
+#endif
 
                 return 0.0f;
             }
@@ -1119,7 +1177,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("SetVector failed because {0} is not a registered material property on the MeshInstancer.", nameID);
+#endif
 
                 return;
             }
@@ -1136,7 +1196,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("GetVector failed because {0} is not a registered material property on the MeshInstancer.", nameID);
+#endif
 
                 return Vector4.zero;
             }
@@ -1152,7 +1214,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("SetMatrix failed because {0} is not a registered material property on the MeshInstancer.", nameID);
+#endif
 
                 return;
             }
@@ -1169,7 +1233,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
+#if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("GetMatrix failed because {0} is not a registered material property on the MeshInstancer.", nameID);
+#endif
 
                 return Matrix4x4.identity;
             }
@@ -1200,7 +1266,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (newInstanceCount != instance.InstanceIndex)
             {
                 // Update the transformation and instance reference.
-                bucket.Matricies[instance.InstanceIndex] = bucket.Matricies[newInstanceCount];
+                bucket.Matrices[instance.InstanceIndex] = bucket.Matrices[newInstanceCount];
                 bucket.Instances[instance.InstanceIndex] = new Instance(instance.InstanceIndex, 
                                                                         bucket.Instances[newInstanceCount].InstanceBucketIndex, 
                                                                         bucket.Instances[newInstanceCount].UserData, 
@@ -1242,7 +1308,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             for (int i = 0; i < instanceBuckets.Count; ++i)
             {
-                if (instanceBuckets[i].InstanceCount < instanceBuckets[i].Matricies.Length)
+                if (instanceBuckets[i].InstanceCount < instanceBuckets[i].Matrices.Length)
                 {
                     return i;
                 }

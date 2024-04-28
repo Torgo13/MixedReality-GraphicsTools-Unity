@@ -532,7 +532,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_Gaze_Intensity_ID, _Gaze_Intensity_);
             material.SetFloat(_Gaze_Focus_ID, _Gaze_Focus_);
             material.SetFloat(_Pinched_ID, _Pinched_);
-            material.SetTexture(_Blob_Texture_ID, (Texture2D)_Blob_Texture_);
+            material.SetTexture(_Blob_Texture_ID, _Blob_Texture_);
             material.SetFloat(_Selection_Fuzz_ID, _Selection_Fuzz_);
             material.SetFloat(_Selected_ID, _Selected_);
             material.SetFloat(_Selection_Fade_ID, _Selection_Fade_);
@@ -552,7 +552,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_StencilOperationID, _StencilOperation);
             material.SetFloat(_ZTestID, _ZTest);
             material.SetFloat(_ZWriteID, _ZWrite);
-            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
+            material.SetTexture(_MainTexID, _MainTex);
             material.SetVector(_ClipRectID, _ClipRect);
             material.SetVector(_ClipRectRadiiID, _ClipRectRadii);
         }
