@@ -19,8 +19,13 @@ namespace Microsoft.MixedReality.GraphicsTools
     {   
         public bool setMaterialTexture = false;
         private string profilerLabel;
+#if UNITY_2022_1_OR_NEWER
+        private RTHandle target1;
+        private RTHandle target2;
+#else
         private RenderTargetHandle target1;
         private RenderTargetHandle target2;
+#endif
         private int downSample;
         private int passes;
         private string textureName;
@@ -99,29 +104,48 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+#if UNITY_2022_1_OR_NEWER
+        private static RenderTargetIdentifier GetIdentifier(RTHandle target)
+        {
+            return Shader.PropertyToID(target.name);
+        }
+
+#else
+        private static RenderTargetIdentifier GetIdentifier(RenderTargetHandle target)
+        {
+            return target.Identifier();
+        }
+
+#endif
+
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             CommandBuffer cmd = CommandBufferPool.Get(profilerLabel);
             cmd.Clear();
 
-            var handle = providedTexture==null ? target1.Identifier() : providedTexture;
+            var handle = providedTexture==null ? GetIdentifier(target1) : providedTexture;
             var renderer = renderingData.cameraData.renderer;
+#if UNITY_2022_1_OR_NEWER
+            var colorTargetHandle = renderer.cameraColorTargetHandle;
+#else
+            var colorTargetHandle = renderer.cameraColorTarget;
+#endif
 
             cmd.SetGlobalVector(ShaderPropertyId.AcrylicInfo, info);
 
-            switch (downSample)
+            if (downSample == 1)
             {
-                case 1:
-                    cmd.Blit(renderer.cameraColorTargetHandle, handle);
-                    break;
-                case 2:
-                    cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, Vector2.zero);
-                    LocalBlit(cmd, renderer.cameraColorTargetHandle, handle, blurMaterial);
-                    break;
-                default:
-                    cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, 0.25f * pixelSize);
-                    LocalBlit(cmd, renderer.cameraColorTargetHandle, handle, blurMaterial);
-                    break;
+                cmd.Blit(colorTargetHandle, handle);
+            }
+            else if (downSample == 2)
+            {
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, Vector2.zero);
+                LocalBlit(cmd, colorTargetHandle, handle, blurMaterial);
+            }
+            else
+            {
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, 0.25f * pixelSize);
+                LocalBlit(cmd, colorTargetHandle, handle, blurMaterial);
             }
 
             if (blur)
@@ -138,7 +162,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (providedTexture==null && setMaterialTexture)
             {
-                cmd.SetGlobalTexture(textureName, target1.Identifier());
+                cmd.SetGlobalTexture(textureName, GetIdentifier(target1));
             }
 
             context.ExecuteCommandBuffer(cmd);
@@ -153,15 +177,15 @@ namespace Microsoft.MixedReality.GraphicsTools
                 cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
                 if (providedTexture!=null && i == widths.Length - 1)
                 {
-                    LocalBlit(cmd, target1.Identifier(), providedTexture, blurMaterial);
+                    LocalBlit(cmd, GetIdentifier(target1), providedTexture, blurMaterial);
                 }
                 else if (providedTexture!=null && i == 0)
                 {
-                    LocalBlit(cmd, providedTexture, target1.Identifier(), blurMaterial);
+                    LocalBlit(cmd, providedTexture, GetIdentifier(target1), blurMaterial);
                 }
                 else
                 {
-                    LocalBlit(cmd, target1.Identifier(), target2.Identifier(), blurMaterial);
+                    LocalBlit(cmd, GetIdentifier(target1), GetIdentifier(target2), blurMaterial);
                     SwapTempTargets();
                 }
             }
@@ -180,6 +204,22 @@ namespace Microsoft.MixedReality.GraphicsTools
             (target1, target2) = (target2, target1);
         }
 
+#if UNITY_2022_1_OR_NEWER
+        private void ConfigureTempRenderTarget(ref RTHandle target, string id, int width, int height, int slices, CommandBuffer cmd)
+        {
+            target = RTHandles.Alloc(id, name: id);
+            if (slices > 1)
+            {
+                cmd.GetTemporaryRTArray(Shader.PropertyToID(target.name), width, height, slices, 0, FilterMode.Bilinear);
+            }
+            else
+            {
+                cmd.GetTemporaryRT(Shader.PropertyToID(target.name), width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32);
+            }
+
+            ConfigureTarget(target);
+        }
+#else
         private void ConfigureTempRenderTarget(ref RenderTargetHandle target, string id, int width, int height, int slices, CommandBuffer cmd)
         {
             target.Init(id);
@@ -194,6 +234,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             ConfigureTarget(target.Identifier());
         }
+#endif
 
 
         public static float[] BlurWidths(int passes)
