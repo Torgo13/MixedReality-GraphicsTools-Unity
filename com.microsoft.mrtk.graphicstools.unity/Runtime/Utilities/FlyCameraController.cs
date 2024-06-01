@@ -7,6 +7,9 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+#if ENABLE_VR && ENABLE_XR_MODULE
+using UnityEngine.XR;
+#endif
 
 #if USE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -78,6 +81,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private CameraState targetCameraState = new CameraState();
         private CameraState interpolatingCameraState = new CameraState();
+#if ENABLE_VR && ENABLE_XR_MODULE
+        private List<XRDisplaySubsystem> xrDisplaySubsystems = new List<XRDisplaySubsystem>();
+#endif
 
         /// <summary>
         /// Called when the game object state from inactive to active.
@@ -87,13 +93,31 @@ namespace Microsoft.MixedReality.GraphicsTools
             targetCameraState.SetFromTransform(transform);
             interpolatingCameraState.SetFromTransform(transform);
         }
+        
+#if ENABLE_VR && ENABLE_XR_MODULE
+        /// <summary>
+        /// Sets up initial state.
+        /// </summary>
+        private void Start()
+        {
+    #if UNITY_2023_1_OR_NEWER
+            SubsystemManager.GetSubsystems(xrDisplaySubsystems);
+    #else
+            SubsystemManager.GetInstances(xrDisplaySubsystems);
+    #endif
+        }
+#endif
 
         /// <summary>
         /// Called every frame to poll input and update the camera transform.
         /// </summary>
         private void Update()
         {
+#if ENABLE_VR && ENABLE_XR_MODULE
+            if (!XRDeviceIsPresent() && Application.isFocused)
+#else
             if (Application.isFocused)
+#endif
             {
                 // Lock cursor when right mouse button pressed.
 #if USE_INPUT_SYSTEM
@@ -169,7 +193,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnGUI()
         {
+#if ENABLE_VR && ENABLE_XR_MODULE
+            if (!XRDeviceIsPresent() && showControlsText)
+#else
             if (showControlsText)
+#endif
             {
 #if USE_INPUT_SYSTEM
                 bool gamepadPresent = Gamepad.current != null;
@@ -187,6 +215,24 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
         }
+        
+#if ENABLE_VR && ENABLE_XR_MODULE
+        /// <summary>
+        /// Returns true if an XR device is connected and running. For example a VR headset.
+        /// </summary>
+        private bool XRDeviceIsPresent()
+        {
+            foreach (var xrDisplay in xrDisplaySubsystems)
+            {
+                if (xrDisplay != null && xrDisplay.running)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+#endif
 
         /// <summary>
         /// Turns mouse/stick controls into an input vector.
