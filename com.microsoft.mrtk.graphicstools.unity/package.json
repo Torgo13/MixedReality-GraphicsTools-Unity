@@ -9,6 +9,9 @@
   "unityRelease": "26f1",
   "author": "Microsoft",
   "license": "MIT",
+  "dependencies": {
+    "com.cysharp.zstring": "2.6.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/microsoft/MixedReality-GraphicsTools-Unity"
