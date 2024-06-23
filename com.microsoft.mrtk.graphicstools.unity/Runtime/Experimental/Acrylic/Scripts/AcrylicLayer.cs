@@ -413,14 +413,16 @@ namespace Microsoft.MixedReality.GraphicsTools
                 int height = source.height;
                 Vector2 pixelSize = new Vector2(1.0f / width, 1.0f / height);
 
-                float[] widths = AcrylicBlurRenderPass.BlurWidths(settings.blurPasses);
-                for (int i = 0; i < widths.Length; i++)
+                var widths = UnityEngine.Pool.ListPool<float>.Get();
+                AcrylicBlurRenderPass.BlurWidths(ref widths, settings.blurPasses);
+                for (int i = 0, widthsCount = widths.Count; i < widthsCount; i++)
                 {
                     cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
                     LocalBlit(cmd, source, destination, kawaseBlur);
 
                     (source, destination) = (destination, source);
                 }
+                UnityEngine.Pool.ListPool<float>.Release(widths);
                 Graphics.ExecuteCommandBuffer(cmd);
 #if ENABLE_PROFILER
                 Profiler.EndSample();

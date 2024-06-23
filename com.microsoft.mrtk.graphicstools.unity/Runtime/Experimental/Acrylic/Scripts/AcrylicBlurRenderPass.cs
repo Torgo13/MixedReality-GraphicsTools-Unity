@@ -260,6 +260,57 @@ namespace Microsoft.MixedReality.GraphicsTools
                     return new float[] { 0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 7.0f, 8.0f, 9.0f, 10.0f };
             }
         }
+        
+        public static void BlurWidths(ref System.Collections.Generic.List<float> widths, int passes)
+        {
+            switch (passes)
+            {
+                case 2:
+                    widths.Add(0.0f);
+                    widths.Add(0.0f);
+                    break;
+                case 3:
+                    widths.Add(0.0f);
+                    widths.Add(1.0f);
+                    widths.Add(1.0f);
+                    break;
+                case 4:
+                    widths.Add(0.0f);
+                    widths.Add(1.0f);
+                    widths.Add(1.0f);
+                    widths.Add(2.0f);
+                    break;
+
+                case 5:
+                    widths.Add(0.0f);
+                    widths.Add(1.0f);
+                    widths.Add(2.0f);
+                    widths.Add(2.0f);
+                    widths.Add(3.0f);
+                    break;
+                case 6:
+                    widths.Add(0.0f);
+                    widths.Add(1.0f);
+                    widths.Add(2.0f);
+                    widths.Add(3.0f);
+                    widths.Add(4.0f);
+                    widths.Add(4.0f);
+                    widths.Add(5.0f);
+                    break;
+                default:
+                    widths.Add(0.0f);
+                    widths.Add(1.0f);
+                    widths.Add(2.0f);
+                    widths.Add(3.0f);
+                    widths.Add(4.0f);
+                    widths.Add(5.0f);
+                    widths.Add(7.0f);
+                    widths.Add(8.0f);
+                    widths.Add(9.0f);
+                    widths.Add(10.0f);
+                    break;
+            }
+        }
     }
 }
 #endif // GT_USE_URP
