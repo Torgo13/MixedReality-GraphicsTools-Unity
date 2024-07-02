@@ -153,23 +153,26 @@ namespace Microsoft.MixedReality.GraphicsTools
                     return false;
                 }
                 
-                var lodGroups = meshFilter.GetComponentsInParent<LODGroup>();
-
-                for (int j = 0; j < lodGroups.Length; j++)
+                using (UnityEngine.Pool.ListPool<LODGroup>.Get(out var lodGroups))
                 {
-                    var lods = lodGroups[j].GetLODs();
+                    meshFilter.GetComponentsInParent<LODGroup>(false, lodGroups);
 
-                    for (int i = 0; i < lods.Length; ++i)
+                    for (int j = 0, lodGroupsCount = lodGroups.Count; j < lodGroupsCount; j++)
                     {
-                        if (i == targetLOD)
-                        {
-                            continue;
-                        }
+                        var lods = lodGroups[j].GetLODs();
 
-                        // If this renderer is contained in a parent LOD group which is not being merged, ignore it.
-                        if (Array.Exists(lods[i].renderers, element => element == renderer))
+                        for (int i = 0; i < lods.Length; ++i)
                         {
-                            return false;
+                            if (i == targetLOD)
+                            {
+                                continue;
+                            }
+
+                            // If this renderer is contained in a parent LOD group which is not being merged, ignore it.
+                            if (Array.Exists(lods[i].renderers, element => element == renderer))
+                            {
+                                return false;
+                            }
                         }
                     }
                 }
