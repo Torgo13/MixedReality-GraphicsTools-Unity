@@ -425,8 +425,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string GetHeaderName(string headerAttribute)
         {
-            int startPosition = headerAttribute.IndexOf("(") + 1;
-            int wordLength = headerAttribute.IndexOf(")", startPosition) - startPosition;
+            int startPosition = headerAttribute.IndexOf("(", StringComparison.Ordinal) + 1;
+            int wordLength = headerAttribute.IndexOf(")", startPosition, StringComparison.Ordinal) - startPosition;
 
             return headerAttribute.Substring(startPosition, wordLength);
         }

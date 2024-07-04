@@ -193,7 +193,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             if (!string.IsNullOrEmpty(extension))
             {
                 var filename = Path.GetFileName(directory);
-                var startIndex = directory.LastIndexOf(filename) - 1;
+                var startIndex = directory.LastIndexOf(filename, StringComparison.Ordinal) - 1;
                 var count = filename.Length + 1;
                 directory = directory.Remove(startIndex, count);
             }

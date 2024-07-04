@@ -467,7 +467,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 foreach (var line in File.ReadAllLines(file))
                 {
-                    var index = line.IndexOf(guidPrefix);
+                    var index = line.IndexOf(guidPrefix, StringComparison.Ordinal);
 
                     if (index > 0)
                     {
