@@ -12,7 +12,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     {
         [System.ThreadStatic]
         private static System.Random local;
-        private static System.Random global = new System.Random();
+        private static readonly System.Random global = new System.Random();
 
         /// <summary>
         /// Returns a random float within [0.0..1.0] (range is inclusive) (Read Only).

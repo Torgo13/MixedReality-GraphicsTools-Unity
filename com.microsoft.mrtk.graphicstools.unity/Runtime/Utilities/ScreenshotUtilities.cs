@@ -9,58 +9,40 @@ using UnityEngine.Rendering.Universal;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Utility class to aid in taking screenshots via menu items and public APIs. Screenshots can 
-    /// be capture at various resolutions and with the current camera's clear color or a transparent 
+    /// Utility class to aid in taking screenshots via menu items and public APIs. Screenshots can
+    /// be capture at various resolutions and with the current camera's clear color or a transparent
     /// clear color for use in easy post compositing of images.
     /// </summary>
-    public class ScreenshotUtilities
+    public static class ScreenshotUtilities
     {
-        //[Shortcut("Graphics Tools/Take Screenshot 1x", KeyCode.Alpha1, ShortcutModifiers.Alt)]
-        //[MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution")]
         private static void CaptureScreenshot1x()
         {
             CaptureScreenshot(GetScreenshotPath(), 1);
-            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        //[Shortcut("Graphics Tools/Take Screenshot 1x Alpha", KeyCode.Alpha1, ShortcutModifiers.Shift)]
-        //[MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution (Transparent Background)")]
         private static void CaptureScreenshot1xAlphaComposite()
         {
             CaptureScreenshot(GetScreenshotPath(), 1, true);
-            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        //[Shortcut("Graphics Tools/Take Screenshot 2x", KeyCode.Alpha2, ShortcutModifiers.Alt)]
-        //[MenuItem("Window/Graphics Tools/Take Screenshot/2x Resolution")]
         private static void CaptureScreenshot2x()
         {
             CaptureScreenshot(GetScreenshotPath(), 2);
-            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        //[Shortcut("Graphics Tools/Take Screenshot 2x Alpha", KeyCode.Alpha2, ShortcutModifiers.Shift)]
-        //[MenuItem("Window/Graphics Tools/Take Screenshot/2x Resolution (Transparent Background)")]
         private static void CaptureScreenshot2xAlphaComposite()
         {
             CaptureScreenshot(GetScreenshotPath(), 2, true);
-            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        //[Shortcut("Graphics Tools/Take Screenshot 4x", KeyCode.Alpha4, ShortcutModifiers.Alt)]
-        //[MenuItem("Window/Graphics Tools/Take Screenshot/4x Resolution")]
         private static void CaptureScreenshot4x()
         {
             CaptureScreenshot(GetScreenshotPath(), 4);
-            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
-        //[Shortcut("Graphics Tools/Take Screenshot 4x Alpha", KeyCode.Alpha4, ShortcutModifiers.Shift)]
-        //[MenuItem("Window/Graphics Tools/Take Screenshot/4x Resolution (Transparent Background)")]
         private static void CaptureScreenshot4xAlphaComposite()
         {
             CaptureScreenshot(GetScreenshotPath(), 4, true);
-            //EditorUtility.RevealInFinder(GetScreenshotDirectory());
         }
 
         /// <summary>
@@ -94,7 +76,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif
                         return false;
                     }
-                    
+
 #if UNITY_EDITOR || DEBUG
                     Debug.LogWarning($"Capturing screenshot from a camera named \"{camera.name}\" because there is no camera tagged \"MainCamera\".");
 #endif
@@ -168,7 +150,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <returns>A directory safe for saving screenshots.</returns>
         public static string GetScreenshotDirectory()
         {
-            //return Application.temporaryCachePath;
             return Application.persistentDataPath;
         }
 
@@ -178,7 +159,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <returns>A unique screenshot path.</returns>
         public static string GetScreenshotPath()
         {
-            //return Path.Combine(GetScreenshotDirectory(), $"Screenshot_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
             return Path.Combine(GetScreenshotDirectory(), $"{Application.productName} {DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
         }
     }

@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Component which can be used to automatically generate smoothed normals on a mesh and pack 
-    /// those normals into a UV set. Smoothed normals can be used for a variety of effects including 
-    /// extruding disjoint meshes along a vertex normal. This behavior is designed to be used in conjunction 
+    /// Component which can be used to automatically generate smoothed normals on a mesh and pack
+    /// those normals into a UV set. Smoothed normals can be used for a variety of effects including
+    /// extruding disjoint meshes along a vertex normal. This behavior is designed to be used in conjunction
     /// with the Graphics Tools/Standard shader which assumes smoothed normals are packed into the 3rd UV set.
     /// </summary>
     [RequireComponent(typeof(MeshFilter))]
@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             mesh.SetUVs(smoothNormalUVChannel, result);
         }
 
-        /*/// <summary>
+        /// <summary>
         /// Performs normal smoothing on the current mesh filter associated with this component asynchronously.
         /// This method will not try and re-smooth meshes which have already been smoothed.
         /// </summary>
@@ -108,7 +108,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 mesh.SetUVs(smoothNormalUVChannel, i.Result);
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
-#endif*/
+#endif
 
         #region MonoBehaviour Implementation
 
@@ -122,11 +122,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (smoothNormalsOnAwake)
             {
                 // WebGL doesn't support threaded operations.
-//#if UNITY_WEBGL
+#if UNITY_WEBGL
                 SmoothNormals();
-//#else
-//                SmoothNormalsAsync();
-//#endif
+#else
+                SmoothNormalsAsync();
+#endif
             }
         }
 
@@ -199,7 +199,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             // A non-readable mesh cannot be processed, so return a null mesh.
-            if (originalMesh.isReadable == false)
+            if (!originalMesh.isReadable)
             {
 #if UNITY_EDITOR || DEBUG
                 Debug.LogWarning($"Mesh smoothing failed because {originalMesh.name} is not readable. Check \"Read/Write Enabled\" in the mesh's import settings.");
@@ -233,8 +233,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         /// <summary>
         /// This method groups vertices in a mesh that share the same location in space then averages the normals of those vertices.
-        /// For example, if you imagine the 3 vertices that make up one corner of a cube. Normally there will be 3 normals facing in the direction 
-        /// of each face that touches that corner. This method will take those 3 normals and average them into a normal that points in the 
+        /// For example, if you imagine the 3 vertices that make up one corner of a cube. Normally there will be 3 normals facing in the direction
+        /// of each face that touches that corner. This method will take those 3 normals and average them into a normal that points in the
         /// direction from the center of the cube to the corner of the cube.
         /// </summary>
         /// <param name="vertices">A list of vertices that represent a mesh.</param>

@@ -41,7 +41,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void Update()
         {
-            if (Realtime == false)
+            if (!Realtime)
             {
                 return;
             }

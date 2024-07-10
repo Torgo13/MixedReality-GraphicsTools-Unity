@@ -41,7 +41,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         [Tooltip("Whether and how to exclude objects from the outline hierarchy.")]
-        [SerializeField, HideInInspector] 
+        [SerializeField, HideInInspector]
         private ExclusionMode exclusionMode = ExclusionMode.None;
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         [Tooltip("When exclusionMode is set to \"NameStartsWith\" or \"NameContains\" what string to match against.")]
-        [SerializeField, HideInInspector] 
+        [SerializeField, HideInInspector]
         private string exclusionString = string.Empty;
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         [Tooltip("When exclusionMode is set to \"Tag\" what tag to compare against.")]
-        [SerializeField, HideInInspector] 
+        [SerializeField, HideInInspector]
         private string exclusionTag = "Untagged";
 
         private List<MeshOutline> meshOutlines = new List<MeshOutline>();
@@ -177,18 +177,24 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Create()
         {
-            var meshRenderers = GetComponentsInChildren<MeshRenderer>();
-
-            for (int i = 0; i < meshRenderers.Length; ++i)
+            using (UnityEngine.Pool.ListPool<MeshRenderer>.Get(out var meshRenderers))
             {
-                AddMeshOutline(meshRenderers[i]);
+                GetComponentsInChildren<MeshRenderer>(meshRenderers);
+
+                for (int i = 0, meshRenderersCount = meshRenderers.Count; i < meshRenderersCount; ++i)
+                {
+                    AddMeshOutline(meshRenderers[i]);
+                }
             }
 
-            var skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
-
-            for (int i = 0; i < skinnedMeshRenderers.Length; ++i)
+            using (UnityEngine.Pool.ListPool<SkinnedMeshRenderer>.Get(out var skinnedMeshRenderers))
             {
-                AddMeshOutline(skinnedMeshRenderers[i]);
+                GetComponentsInChildren<SkinnedMeshRenderer>(skinnedMeshRenderers);
+
+                for (int i = 0, skinnedMeshRenderersCount = skinnedMeshRenderers.Count; i < skinnedMeshRenderersCount; ++i)
+                {
+                    AddMeshOutline(skinnedMeshRenderers[i]);
+                }
             }
         }
 

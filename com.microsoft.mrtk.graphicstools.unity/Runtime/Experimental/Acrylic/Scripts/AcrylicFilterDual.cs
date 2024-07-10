@@ -18,7 +18,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Methods to perform dual filter bluring.
     /// </summary>
     public class AcrylicFilterDual : IDisposable
-    {   
+    {
         private int lastWidth;
         private int lastHeight;
         private int lastIterations;
@@ -44,6 +44,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             FreeBuffers();
         }

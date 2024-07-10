@@ -24,11 +24,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         public static void SetTextColorInversion(Material textMaterial, bool Invert)
         {
             if (textMaterial == null) { return; }
-            
+
             if (!StandardShaderUtility.IsUsingGraphicsToolsTextMeshProShader(textMaterial))
             {
 #if UNITY_EDITOR || DEBUG
-                Debug.LogWarningFormat("Failed to set the text color inversion because the material isn't using the {0} shader.", 
+                Debug.LogWarningFormat("Failed to set the text color inversion because the material isn't using the {0} shader.",
                                        StandardShaderUtility.GraphicsToolsTextMeshProShaderName);
 #endif
                 return;
@@ -49,11 +49,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// If the "Graphics Tools/Text Mesh Pro" based material is already inverted this method disables inversion, else this method enables inversion. 
+        /// If the "Graphics Tools/Text Mesh Pro" based material is already inverted this method disables inversion, else this method enables inversion.
         /// </summary>
         public static void ToggleTextColorInversion(Material textMaterial)
         {
-            bool Invert = textMaterial ? textMaterial.IsKeywordEnabled(InvertTextColorKeyword) : false;
+            bool Invert = textMaterial && textMaterial.IsKeywordEnabled(InvertTextColorKeyword);
             SetTextColorInversion(textMaterial, !Invert);
         }
     }

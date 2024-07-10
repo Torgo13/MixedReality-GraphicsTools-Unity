@@ -22,7 +22,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     {
         [System.Serializable]
         public class Settings
-        {   
+        {
             [Tooltip("When to copy the framebuffer in the rendering pipeline. No effect when render-to-texture is used.")]
             public RenderPassEvent captureEvent = RenderPassEvent.AfterRenderingPostProcessing;
             [Tooltip("If not nothing, creates render object features for the specified layers.")]
@@ -81,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             public const string RenderTarget2 = "RenderTarget2";
         }
 
-#region Public methods
+        #region Public methods
         public AcrylicLayer(Camera _targetCamera, Settings _settings, int _index, int _depthBits, bool _useDualBlur, Material _kawaseBlur, Material _dualBlur)
         {
             activeCount = 0;
@@ -108,6 +108,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             if (blur != null)
             {
                 DestroyScriptableObject(blur);
@@ -130,7 +136,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 dualBlur.Dispose();
                 dualBlur = null;
-            }    
+            }
         }
 
 #if UNITY_2021_2_OR_NEWER
@@ -272,7 +278,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (!blurred && copyFramebuffer && blur.rendered)
                 {
                     blurred = immediateBlur;
-                    if (blurred) 
+                    if (blurred)
                         SwapRenderTargets();
                 }
 
@@ -324,8 +330,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             int newWidth = camWidth / downSample;
             int newHeight = camHeight / downSample;
 
-            //Vector2 pixelSize = new Vector2(1.0f / newWidth, 1.0f / newHeight);
-
             InitRenderTargets(newWidth, newHeight, depthBits);
 
             LayerMask previousCullingMask = mainCamera.cullingMask;
@@ -356,7 +360,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             if (!firstFrameRendered)
                 firstFrameRendered = true;
-                
+
 #if ENABLE_PROFILER
             Profiler.EndSample();
 #endif
@@ -381,7 +385,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 #endregion
 
-#region Blur and blend methods
+        #region Blur and blend methods
         public void ApplyBlur()
         {
             ApplyBlur(ref renderTarget1, ref renderTarget2);
@@ -490,7 +494,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (cmd == null)
             {
                 cmd = new CommandBuffer();
-                cmd.name = "AcrylicBlurPasses";
+                cmd.name = ShaderPropertyId.AcrylicBlurPasses;
             }
         }
 
@@ -565,7 +569,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (rendererData != null && feature != null)
             {
                 UnityEditor.AssetDatabase.AddObjectToAsset(feature, rendererData);
-                UnityEditor.AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out var guide, out long localId);
+                UnityEditor.AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out string _, out long _);
             }
 #endif
         }
@@ -575,7 +579,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             cmd.SetRenderTarget(target);
             blitProperties.SetTexture(ShaderPropertyId.AcrylicBlurSource, source);
-            //cmd.SetGlobalTexture("_MainTex", source);
             cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, 0, blitProperties);
         }
 

@@ -16,7 +16,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
 
     class AcrylicBlurRenderPass : ScriptableRenderPass
-    {   
+    {
         public bool setMaterialTexture = false;
         private string profilerLabel;
 #if UNITY_2022_1_OR_NEWER
@@ -37,7 +37,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private readonly struct ShaderPropertyId
         {
-            //public static readonly RenderTargetIdentifier ShaderProperty = "_ShaderProperty";
             public static readonly int AcrylicInfo = Shader.PropertyToID("_AcrylicInfo");
             public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
             public static readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
@@ -80,27 +79,25 @@ namespace Microsoft.MixedReality.GraphicsTools
             ConfigureTempRenderTarget(ref target1, Cysharp.Text.ZString.Concat(profilerLabel, "RenderTarget1"), width, height, slices, cmd);
             ConfigureTempRenderTarget(ref target2, Cysharp.Text.ZString.Concat(profilerLabel, "RenderTarget2"), width, height, slices, cmd);
 
-            if (providedTexture!=null)
+            if (providedTexture == null)
             {
-                if (providedTexture == null)
+                providedTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+                providedTexture.filterMode = FilterMode.Bilinear;
+            }
+            else
+            {
+                if (width != providedTexture.width || height != providedTexture.height)
                 {
-                    providedTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
-                    providedTexture.filterMode = FilterMode.Bilinear;
+                    providedTexture.Release();
+                    providedTexture.width = width;
+                    providedTexture.height = height;
+                    providedTexture.Create();
                 }
-                else
-                {
-                    if (width != providedTexture.width || height != providedTexture.height)
-                    {
-                        providedTexture.Release();
-                        providedTexture.width = width;
-                        providedTexture.height = height;
-                        providedTexture.Create();
-                    }
-                }
-                if (setMaterialTexture)
-                {
-                    cmd.SetGlobalTexture(textureName, providedTexture);
-                }
+            }
+
+            if (setMaterialTexture)
+            {
+                cmd.SetGlobalTexture(textureName, providedTexture);
             }
         }
 
@@ -153,9 +150,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (blurFilter == null || providedTexture==null)
                 {
                     QueueBlurPasses(cmd, BlurWidths(passes));
-                } 
+                }
                 else
-                {                    
+                {
                     blurFilter.QueueBlur(cmd, providedTexture, passes);
                 }
             }
@@ -260,7 +257,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     return new float[] { 0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 7.0f, 8.0f, 9.0f, 10.0f };
             }
         }
-        
+
         public static void BlurWidths(ref System.Collections.Generic.List<float> widths, int passes)
         {
             switch (passes)

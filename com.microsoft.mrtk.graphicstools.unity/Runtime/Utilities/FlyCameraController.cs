@@ -93,7 +93,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             targetCameraState.SetFromTransform(transform);
             interpolatingCameraState.SetFromTransform(transform);
         }
-        
+
 #if ENABLE_VR && ENABLE_XR_MODULE
         /// <summary>
         /// Sets up initial state.
@@ -200,22 +200,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif
             {
 #if USE_INPUT_SYSTEM
-                bool gamepadPresent = Gamepad.current != null;
-#else
-                bool gamepadPresent = false;
-#endif // USE_INPUT_SYSTEM
-
-                if (gamepadPresent)
-                {
+                if (Gamepad.current != null)
                     GUI.Label(new Rect(10.0f, 10.0f, 256.0f, 128.0f), "Camera Controls\nRight Stick to Rotate\nLeft Stick to Translate");
-                }
                 else
-                {
+#endif // USE_INPUT_SYSTEM
                     GUI.Label(new Rect(10.0f, 10.0f, 256.0f, 128.0f), "Camera Controls\nRight Click + Mouse Move to Rotate\n'W' 'A' 'S' 'D' to Translate");
-                }
             }
         }
-        
+
 #if ENABLE_VR && ENABLE_XR_MODULE
         /// <summary>
         /// Returns true if an XR device is connected and running. For example a VR headset.
@@ -250,7 +242,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if USE_INPUT_SYSTEM
                 // Magical value to feel like the editor.
                 const float rotationScaler = 0.075f;
-                Vector2 delta = Mouse.current.delta.ReadValue() * rotationScaler; 
+                Vector2 delta = Mouse.current.delta.ReadValue() * rotationScaler;
                 direction += new Vector2(delta.x, delta.y * (InvertY ? 1.0f : -1.0f));
 #else
                 direction += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y") * (InvertY ? 1.0f : -1.0f));

@@ -85,7 +85,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Color blitColor = Color.black;
 
         /// <summary>
-        /// Access to the pre-blurred texture. 
+        /// Access to the pre-blurred texture.
         /// </summary>
         public Texture SourceTexture
         {
@@ -194,21 +194,17 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 canvas = GetComponentInParent<Canvas>();
                 canvasFound = canvas != null;
-                //rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
-                //textureID = Shader.PropertyToID("_blurTexture");
             }
 
-            if (canvasFound)
+            if (canvasFound && transform is RectTransform rectTransform)
             {
-                var rectTransform = transform as RectTransform;
                 Vector3 minCorner = TransformToCanvas(rectTransform.rect.min);
                 Vector3 maxCorner = TransformToCanvas(rectTransform.rect.max);
                 Vector4 rect = new Vector4(minCorner.x, minCorner.y, maxCorner.x, maxCorner.y);
 
                 if (materials != null)
                 {
-                    int materialsLength = materials.Length;
-                    for (int i = 0; i < materialsLength; i++)
+                    for (int i = 0, materialsLength = materials.Length; i < materialsLength; i++)
                     {
                         Material material = materials[i];
                         if (material != null)
@@ -221,8 +217,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (graphics != null)
                 {
-                    int graphicsLength = graphics.Length;
-                    for (int i = 0; i < graphicsLength; i++)
+                    for (int i = 0, graphicsLength = graphics.Length; i < graphicsLength; i++)
                     {
                         Graphic graphic = graphics[i];
                         if (graphic != null && graphic.materialForRendering != null)

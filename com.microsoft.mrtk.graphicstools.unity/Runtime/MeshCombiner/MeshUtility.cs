@@ -239,7 +239,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 for (int i = 0; i < meshFilter.sharedMesh.subMeshCount; ++i)
                 {
                     var combineInstance = new CombineInstance();
-                    combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh) as UnityEngine.Mesh;
+                    combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh);
                     combineInstance.subMeshIndex = i;
 
                     if (settings.BakeMeshIDIntoUVChannel)

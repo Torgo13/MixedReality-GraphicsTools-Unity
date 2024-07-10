@@ -77,8 +77,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public override void ApplyOutlineMaterial()
         {
-            if (enabled == false ||
-                gameObject.activeInHierarchy == false ||
+            if (!enabled ||
+                !gameObject.activeInHierarchy ||
                 baseRenderer == null ||
                 outlineMaterial == null)
             {

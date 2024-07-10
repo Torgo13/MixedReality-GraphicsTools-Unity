@@ -10,11 +10,11 @@ using UnityEditor.ShortcutManagement;
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
     /// <summary>
-    /// Utility class to aid in taking screenshots via menu items and public APIs. Screenshots can 
-    /// be capture at various resolutions and with the current camera's clear color or a transparent 
+    /// Utility class to aid in taking screenshots via menu items and public APIs. Screenshots can
+    /// be capture at various resolutions and with the current camera's clear color or a transparent
     /// clear color for use in easy post compositing of images.
     /// </summary>
-    public class ScreenshotUtilities
+    public static class ScreenshotUtilities
     {
         [Shortcut("Graphics Tools/Take Screenshot 1x", KeyCode.Alpha1, ShortcutModifiers.Alt)]
         [MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution")]
@@ -112,7 +112,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Transform cameraTransform = camera.transform;
             renderCamera.transform.SetPositionAndRotation(cameraTransform.position, cameraTransform.rotation);
             renderCamera.clearFlags = transparentClearColor ? CameraClearFlags.Color : camera.clearFlags;
-            renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) : 
+            renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) :
                                                                    new Color(camera.backgroundColor.r, camera.backgroundColor.g, camera.backgroundColor.b, 1.0f);
 
             // Create a render texture for the camera clone to render into.

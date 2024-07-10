@@ -13,7 +13,7 @@ using UnityEngine.UI;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Overrides the RectMask2D.PerformClipping method to add extra checks before doing exhaustive culling on 
+    /// Overrides the RectMask2D.PerformClipping method to add extra checks before doing exhaustive culling on
     /// each maskable target.
     /// </summary>
     public class RectMask2DFast : RectMask2D
@@ -116,7 +116,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         public override void PerformClipping()
         {
             // Not calling the base class method intentionally to provide a more optimal version.
-            //base.PerformClipping();
 
             Initialize();
 
@@ -138,7 +137,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // get the compound rects from
             // the clippers that are valid
-            bool validRect = true;
+            bool validRect;
             Rect clipRect = Clipping.FindCullAndClipWorldRect(clippers, out validRect);
 
             // If the mask is in ScreenSpaceOverlay/Camera render mode, its content is only rendered when its rect
@@ -199,7 +198,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 foreach (MaskableGraphic maskableTarget in maskableTargets)
                 {
                     // Added check back from https://github.com/Unity-Technologies/uGUI/blob/2019.1/UnityEngine.UI/UI/Core/RectMask2D.cs#L227
-                    // even though case 1170399 says this can be an issue - hasMoved is not a valid check when animating on pivot of the object 
+                    // even though case 1170399 says this can be an issue - hasMoved is not a valid check when animating on pivot of the object
                     if (!maskableTarget.canvasRenderer.hasMoved)
                     {
                         continue;
@@ -217,8 +216,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endregion RectMask2D Implementation
 
         /// <summary>
-        /// Checks if all clip/mask targets needs to be re-culled. 
-        /// Setting this to true will force all clip/mask targets to update their culling state next frame. 
+        /// Checks if all clip/mask targets needs to be re-culled.
+        /// Setting this to true will force all clip/mask targets to update their culling state next frame.
         /// </summary>
         public bool ForceClip
         {
@@ -261,7 +260,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             // Many of the properties we need access to for clipping are not exposed. So, we have to do reflection to get access to them.
-            //const BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
             clipTargets = (HashSet<IClippable>)ClipTargets?.GetValue(this);
             maskableTargets = (HashSet<MaskableGraphic>)MaskableTargets?.GetValue(this);
         }

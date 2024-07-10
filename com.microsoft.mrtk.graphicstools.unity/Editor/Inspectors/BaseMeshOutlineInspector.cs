@@ -264,7 +264,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                     return false;
                                 }
                             }
-                            else if (material.GetFloat(x.Key) != (float)x.Value.Item1)
+                            else if (!Mathf.Approximately(material.GetFloat(x.Key), (float)x.Value.Item1))
                             {
                                 return false;
                             }

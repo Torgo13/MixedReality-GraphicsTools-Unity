@@ -13,7 +13,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Forked from: https://github.com/Unity-Technologies/UniversalRenderingExamples/tree/master/Assets/Scripts/Runtime/RenderPasses
     /// </summary>
     class DrawFullscreenPass : ScriptableRenderPass
-    { 
+    {
         ///<summary>
         /// Pass configuration settings.
         ///</summary>
@@ -97,6 +97,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@14.0/manual/upgrade-guide-2022-1.html
         /// </summary>
         private void Dispose()
+        {
+            Dispose(true);
+            System.GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             source?.Release();
             destination?.Release();

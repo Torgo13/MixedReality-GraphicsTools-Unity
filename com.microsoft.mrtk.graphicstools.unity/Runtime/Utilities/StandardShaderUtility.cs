@@ -164,7 +164,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Attempts to parse a CSS gradient (https://developer.mozilla.org/en-US/docs/Web/CSS/gradient) into an array of colors and times. 
+        /// Attempts to parse a CSS gradient (https://developer.mozilla.org/en-US/docs/Web/CSS/gradient) into an array of colors and times.
         /// Note, only linear gradients are supported at the moment. And, not all CSS gradient features are supported.
         /// An example input sting is: background: background: linear-gradient(90deg, #0380FD 0%, #406FC8 19.05%, #2B398F 49.48%, #FF77C1 100%);
         /// </summary>
@@ -213,7 +213,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                                 return channel;
                             }
 
-                            float red, green, blue, alpha = 1.0f;
+                            float red, green, blue, alpha;
 
                             if (float.TryParse(parameters[i].Replace("rgba(", string.Empty), out red))
                             {
@@ -282,7 +282,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         if (timeKeys[i] < 0)
                         {
-                            timeKeys[i] = (timeKeysCount != 1) ? (float)i / (timeKeysCount - 1) : 0.0f;
+                            timeKeys[i] = (float)i / (timeKeysCount - 1);
                         }
                     }
 
