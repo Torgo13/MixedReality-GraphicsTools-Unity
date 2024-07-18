@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -182,15 +182,16 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             EditorGUILayout.BeginVertical("Box");
             {
-                int themesCount = themeCollection.Themes.Count;
-                List<string> displayedOptions = new List<string>(themesCount);
-
-                for (int i = 0; i < themesCount; ++i)
+                using (UnityEngine.Pool.ListPool<string>.Get(out var displayedOptions))
                 {
-                    displayedOptions.Add(GetThemeName(themeCollection.Themes[i], i));
-                }
+                    for (int i = 0, themesCount = themeCollection.Themes.Count; i < themesCount; ++i)
+                    {
+                        displayedOptions.Add(GetThemeName(themeCollection.Themes[i], i));
+                    }
 
-                selectedThemeIndex = EditorGUILayout.Popup("Selected Theme", selectedThemeIndex, displayedOptions.ToArray());
+                    selectedThemeIndex = EditorGUILayout.Popup("Selected Theme", selectedThemeIndex, displayedOptions.ToArray());
+                }
+                
                 selectionMode = (SelectionMode)EditorGUILayout.EnumPopup("Selection Mode", selectionMode);
 
                 GUI.enabled = ValidateThemeCollection(themeCollection, out string warning);
@@ -212,7 +213,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                           selectionMode != SelectionMode.SelectionWithoutChildren);
                 }
 
-                if (GUI.enabled == false)
+                if (!GUI.enabled)
                 {
                     EditorGUILayout.HelpBox(warning, MessageType.Warning);
                     GUI.enabled = true;
@@ -224,12 +225,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static bool ValidateThemeCollection(ThemeCollection themeCollection, out string warning)
         {
             // Make sure all themes have valid assets and each row contains similar types.
-            int assetsCount = themeCollection.Themes[0].Assets.Count;
-            for (int i = 0; i < assetsCount; ++i)
+            for (int i = 0, assetsCount = themeCollection.Themes[0].Assets.Count; i < assetsCount; ++i)
             {
                 System.Type type = null;
-                int themesCount = themeCollection.Themes.Count;
-                for (int j = 0; j < themesCount; ++j)
+                for (int j = 0, themesCount = themeCollection.Themes.Count; j < themesCount; ++j)
                 {
                     if (themeCollection.Themes[j].Assets[i] == null)
                     {

@@ -3,6 +3,7 @@
 
 #if GT_USE_URP
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 namespace Microsoft.MixedReality.GraphicsTools
@@ -157,13 +158,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (source != null)
             {
-                source.Release();
+                //source.Release();
+                RenderTexture.ReleaseTemporary(source);
                 source = null;
             }
 
             if (destination != null)
             {
-                destination.Release();
+                //destination.Release();
+                RenderTexture.ReleaseTemporary(destination);
                 destination = null;
             }
 
@@ -255,18 +258,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             int width = textureToBlur.width;
             int height = textureToBlur.height;
 
-            if (source == null)
-            {
-                source = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
-                source.name = gameObject.name;
-            }
-            else if (source.width != width || source.height != height)
-            {
-                source.Release();
-                source.width = width;
-                source.height = height;
-                source.Create();
-            }
+            AcrylicLayer.InitRenderTexture(ref source, width, height, 0, gameObject.name);
 
             // Blit the texture into the source render texture.
             // Note, using Blit rather than CopyTexture because the source texture is often compressed.
@@ -327,9 +319,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 return;
             }
-
-            int graphicsLength = graphics.Length;
-            for (int i = 0; i < graphicsLength; i++)
+            
+            for (int i = 0, graphicsLength = graphics.Length; i < graphicsLength; i++)
             {
                 Graphic graphic = graphics[i];
                 if (graphic != null)

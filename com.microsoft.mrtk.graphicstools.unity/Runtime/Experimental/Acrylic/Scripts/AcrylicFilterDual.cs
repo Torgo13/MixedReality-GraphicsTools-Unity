@@ -27,7 +27,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private const int blurOffset = 1;
 
-        private readonly struct ShaderPropertyId
+        private struct ShaderPropertyId
         {
             public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
             public static readonly int AcrylicHalfPixel = Shader.PropertyToID("_AcrylicHalfPixel");
@@ -72,9 +72,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, Vector2.one * blurOffset);
-
-            int buffersCount = Mathf.Min(iterations, buffers.Count);
-            for (int i = 0; i < buffersCount; i++)
+            
+            for (int i = 0, buffersCount = Mathf.Min(iterations, buffers.Count); i < buffersCount; i++)
             {
                 cmd.SetGlobalVector(ShaderPropertyId.AcrylicHalfPixel, new Vector2(0.5f / buffers[i].width, 0.5f / buffers[i].height));
                 RenderTexture from = (i == 0) ? image : buffers[i - 1];
@@ -104,7 +103,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             int nextHeight = (height + 1) / 2;
             for (int i = 0; i < iterations && nextWidth > 1 && nextHeight > 1; i++)
             {
-                buffers.Add(new RenderTexture(nextWidth, nextHeight, 0, RenderTextureFormat.ARGB32));
+                buffers.Add(RenderTexture.GetTemporary(nextWidth, nextHeight, 0, RenderTextureFormat.ARGB32));
                 nextWidth = (nextWidth + 1) / 2;
                 nextHeight = (nextHeight + 1) / 2;
             }
@@ -114,8 +113,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             for (int i = 0; i < buffers.Count; i++)
             {
-                UnityEngine.Object.Destroy(buffers[i]);
+                RenderTexture.ReleaseTemporary(buffers[i]);
             }
+
             buffers.Clear();
         }
 

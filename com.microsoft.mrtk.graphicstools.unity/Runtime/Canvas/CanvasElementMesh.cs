@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 #if GT_USE_UGUI
@@ -169,20 +169,24 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             Vector3 rectPivot = rectTransform.pivot;
             rectPivot.z = ZPivot;
-            List<UIVertex> uiVerticesTRS = new List<UIVertex>(uiVertices);
 
-            // Scale, translate and rotate vertices.
-            for (int i = 0; i < uiVerticesCount; i++)
+            using (UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticesTRS))
             {
-                UIVertex vertex = uiVerticesTRS[i];
+                uiVerticesTRS.AddRange(uiVertices);
 
-                // Scale the vector from the normalized position to the pivot by the rect size.
-                vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
+                // Scale, translate and rotate vertices.
+                for (int i = 0; i < uiVerticesCount; i++)
+                {
+                    UIVertex vertex = uiVerticesTRS[i];
 
-                uiVerticesTRS[i] = vertex;
+                    // Scale the vector from the normalized position to the pivot by the rect size.
+                    vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
+
+                    uiVerticesTRS[i] = vertex;
+                }
+
+                vh.AddUIVertexStream(uiVerticesTRS, uiIndices);
             }
-
-            vh.AddUIVertexStream(uiVerticesTRS, uiIndices);
         }
 
 #endregion Graphic Implementation
@@ -202,32 +206,31 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (Mesh != null)
                 {
-                    List<Vector3> vertices = new List<Vector3>();
+                    List<Vector3> vertices = UnityEngine.Pool.ListPool<Vector3>.Get();
                     Mesh.GetVertices(vertices);
-                    List<Color> colors = new List<Color>();
+                    List<Color> colors = UnityEngine.Pool.ListPool<Color>.Get();
                     Mesh.GetColors(colors);
-                    List<Vector2> uv0s = new List<Vector2>();
+                    List<Vector2> uv0s = UnityEngine.Pool.ListPool<Vector2>.Get();
                     Mesh.GetUVs(0, uv0s);
-                    List<Vector2> uv1s = new List<Vector2>();
+                    List<Vector2> uv1s = UnityEngine.Pool.ListPool<Vector2>.Get();
                     Mesh.GetUVs(1, uv1s);
-                    List<Vector2> uv2s = new List<Vector2>();
+                    List<Vector2> uv2s = UnityEngine.Pool.ListPool<Vector2>.Get();
                     Mesh.GetUVs(2, uv2s);
-                    List<Vector2> uv3s = new List<Vector2>();
+                    List<Vector2> uv3s = UnityEngine.Pool.ListPool<Vector2>.Get();
                     Mesh.GetUVs(3, uv3s);
-                    List<Vector3> normals = new List<Vector3>();
+                    List<Vector3> normals = UnityEngine.Pool.ListPool<Vector3>.Get();
                     Mesh.GetNormals(normals);
-                    List<Vector4> tangents = new List<Vector4>();
+                    List<Vector4> tangents = UnityEngine.Pool.ListPool<Vector4>.Get();
                     Mesh.GetTangents(tangents);
 
                     Vector3 rectPivot = new Vector3(0.5f, 0.5f, 0);
-
-                    Vector3 meshCenter = Mesh.bounds.center;
-                    Vector3 meshSize = Mesh.bounds.extents;
+                    var bounds = Mesh.bounds;
+                    Vector3 meshCenter = bounds.center;
+                    Vector3 meshSize = bounds.extents;
 
                     float scaler = 0.5f / Mathf.Max(meshSize.x, meshSize.y);
-
-                    int verticesCount = vertices.Count;
-                    for (int i = 0; i < verticesCount; ++i)
+                    
+                    for (int i = 0, verticesCount = vertices.Count; i < verticesCount; ++i)
                     {
                         // Center the mesh at the origin.
                         // Normalize the mesh in a 1x1x1 cube.
@@ -271,6 +274,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                         uiVertices.Add(vertex);
                     }
+
+                    UnityEngine.Pool.ListPool<Vector3>.Release(vertices);
+                    UnityEngine.Pool.ListPool<Color>.Release(colors);
+                    UnityEngine.Pool.ListPool<Vector2>.Release(uv0s);
+                    UnityEngine.Pool.ListPool<Vector2>.Release(uv1s);
+                    UnityEngine.Pool.ListPool<Vector2>.Release(uv2s);
+                    UnityEngine.Pool.ListPool<Vector2>.Release(uv3s);
+                    UnityEngine.Pool.ListPool<Vector3>.Release(normals);
+                    UnityEngine.Pool.ListPool<Vector4>.Release(tangents);
 
                     Mesh.GetTriangles(uiIndices, 0);
                 }

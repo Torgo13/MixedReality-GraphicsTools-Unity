@@ -280,7 +280,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             Vector2 lastuv = uvCenter + ur * xaxis;
             for (int i = 1; i <= wedges; i++)
             {
-                float angle = i / (float)wedges * 3.14159f * 0.5f;
+                float angle = (float)i / (float)wedges * 3.14159f * 0.5f;
                 float cosa = Mathf.Cos(angle);
                 float sina = Mathf.Sin(angle);
 
@@ -307,7 +307,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             Vector2 tangent;
             for (int i = 1; i < wedges; i++)
             {
-                float angle = i / (float)wedges * 3.14159f * 0.5f;
+                float angle = (float)i / (float)wedges * 3.14159f * 0.5f;
                 float cosa = Mathf.Cos(angle);
                 float sina = Mathf.Sin(angle);
 

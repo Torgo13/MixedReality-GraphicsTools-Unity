@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -186,13 +186,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var output = new MeshCombineResult();
 
-            var combineInstances = new List<CombineInstance>();
-            var meshIDTable = new List<MeshCombineResult.MeshID>();
-            var textureToCombineInstanceMappings = new List<Dictionary<Texture2D, List<CombineInstance>>>(settings.TextureSettings.Count);
+            var combineInstances = UnityEngine.Pool.ListPool<CombineInstance>.Get();
+            var meshIDTable = UnityEngine.Pool.ListPool<MeshCombineResult.MeshID>.Get();
+            var textureToCombineInstanceMappings = UnityEngine.Pool.ListPool<Dictionary<Texture2D, List<CombineInstance>>>.Get();
             Material defaultMaterial = null;
 
-            int textureSettingsCount = settings.TextureSettings.Count;
-            for (int i = 0; i < textureSettingsCount; i++)
+            for (int i = 0, textureSettingsCount = settings.TextureSettings.Count; i < textureSettingsCount; i++)
             {
                 textureToCombineInstanceMappings.Add(new Dictionary<Texture2D, List<CombineInstance>>());
             }
@@ -214,6 +213,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             Debug.LogFormat("MeshCombine took {0} ms on {1} meshes.", watch.ElapsedMilliseconds, settings.MeshFilters.Count);
 #endif
+
+            UnityEngine.Pool.ListPool<Dictionary<Texture2D, List<CombineInstance>>>.Release(textureToCombineInstanceMappings);
+            UnityEngine.Pool.ListPool<MeshCombineResult.MeshID>.Release(meshIDTable);
+            UnityEngine.Pool.ListPool<CombineInstance>.Release(combineInstances);
 
             return output;
         }
@@ -314,8 +317,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             var uvsAltered = new bool[4];
             var textureSettingIndex = 0;
 
-            int textureSettingsCount = settings.TextureSettings.Count;
-            for (int k = 0; k < textureSettingsCount; k++)
+            for (int k = 0, textureSettingsCount = settings.TextureSettings.Count; k < textureSettingsCount; k++)
             {
                 var textureSetting = settings.TextureSettings[k];
                 var mapping = textureToCombineInstanceMappings[textureSettingIndex];
@@ -365,17 +367,20 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                                 foreach (var combineInstance in mapping[textures[i]])
                                 {
-                                    var uvs = new List<Vector2>();
-                                    combineInstance.mesh.GetUVs(sourceChannel, uvs);
-                                    var remappedUvs = new List<Vector2>(uvs.Count);
-
-                                    for (var j = 0; j < uvs.Count; ++j)
+                                    using (UnityEngine.Pool.ListPool<Vector2>.Get(out var uvs))
                                     {
-                                        remappedUvs.Add(new Vector2(Mathf.Lerp(rect.xMin, rect.xMax, uvs[j].x),
-                                                                    Mathf.Lerp(rect.yMin, rect.yMax, uvs[j].y)));
-                                    }
+                                        combineInstance.mesh.GetUVs(sourceChannel, uvs);
+                                        using (UnityEngine.Pool.ListPool<Vector2>.Get(out var remappedUvs))
+                                        {
+                                            for (int j = 0, uvsCount = uvs.Count; j < uvsCount; ++j)
+                                            {
+                                                remappedUvs.Add(new Vector2(Mathf.Lerp(rect.xMin, rect.xMax, uvs[j].x),
+                                                                            Mathf.Lerp(rect.yMin, rect.yMax, uvs[j].y)));
+                                            }
 
-                                    combineInstance.mesh.SetUVs(destChannel, remappedUvs);
+                                            combineInstance.mesh.SetUVs(destChannel, remappedUvs);
+                                        }
+                                    }
                                 }
                             }
 
@@ -405,7 +410,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static void PostprocessTexture(Texture2D texture, Rect[] usedRects, MeshCombineSettings.TextureSetting settings)
         {
-            var pixels = texture.GetPixels32();
+            var pixels = texture.GetRawTextureData<Color32>();
             var width = texture.width;
             var height = texture.height;
 
@@ -450,7 +455,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            texture.SetPixels32(pixels);
             texture.Apply();
         }
 

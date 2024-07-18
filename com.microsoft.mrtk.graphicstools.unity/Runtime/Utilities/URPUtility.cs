@@ -84,9 +84,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// The universal render pipeline can have multiple renderers, this method returns the 
         /// ScriptableRendererData (features and settings) for a renderer at a given index.
-        /// 
-        /// Note, this data is not public so our only resort is brittle reflection to access 
-        /// the data programmatically.
         /// </summary>
 #if UNITY_2021_2_OR_NEWER
         public static UniversalRendererData GetRendererData(int rendererIndex)
@@ -96,7 +93,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset pipeline)
             {
-                var renderers = pipeline.m_RendererDataList;
+                var renderers = pipeline.rendererDataList;
                 if (rendererIndex < renderers.Length)
                 {
 #if UNITY_2021_2_OR_NEWER

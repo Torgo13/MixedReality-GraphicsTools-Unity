@@ -243,7 +243,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     if (pair.Texture != null && !AssetDatabase.Contains(pair.Texture))
                     {
                         var decompressedTexture = new Texture2D(pair.Texture.width, pair.Texture.height, GetUncompressedEquivalent(pair.Texture.format), true);
-                        decompressedTexture.SetPixels(pair.Texture.GetPixels());
+                        decompressedTexture.SetPixelData<Color32>(pair.Texture.GetPixelData<Color32>(0), 0);
                         decompressedTexture.Apply();
 
                         // Don't destroy textures we don't own.

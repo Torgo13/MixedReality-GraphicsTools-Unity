@@ -49,7 +49,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if UNITY_EDITOR || DEBUG
                 else
                 {
-                    Debug.LogError("Cannot toggle UseInstanceMaterials after initialization.");
+                    Debug.LogError("Cannot toggle UseInstanceMaterials after initialisation.");
                 }
 #endif
             }

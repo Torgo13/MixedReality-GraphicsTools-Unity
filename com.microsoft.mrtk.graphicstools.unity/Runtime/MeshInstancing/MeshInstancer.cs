@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -1306,7 +1306,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private int AllocateInstanceBucketIndex()
         {
-            for (int i = 0; i < instanceBuckets.Count; ++i)
+            for (int i = 0, instanceBucketsCount = instanceBuckets.Count; i < instanceBucketsCount; ++i)
             {
                 if (instanceBuckets[i].InstanceCount < instanceBuckets[i].Matrices.Length)
                 {

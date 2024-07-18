@@ -35,7 +35,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool blur;
         private AcrylicFilterDual blurFilter;
 
-        private readonly struct ShaderPropertyId
+        private struct ShaderPropertyId
         {
             public static readonly int AcrylicInfo = Shader.PropertyToID("_AcrylicInfo");
             public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
@@ -95,6 +95,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
+            // TODO Release providedTexture
+            //AcrylicLayer.InitRenderTexture(ref providedTexture, width, height, 0);
+
             if (setMaterialTexture)
             {
                 cmd.SetGlobalTexture(textureName, providedTexture);
@@ -106,13 +109,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             return Shader.PropertyToID(target.name);
         }
-
 #else
         private static RenderTargetIdentifier GetIdentifier(RenderTargetHandle target)
         {
             return target.Identifier();
         }
-
 #endif
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -120,7 +121,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             CommandBuffer cmd = CommandBufferPool.Get(profilerLabel);
             cmd.Clear();
 
-            var handle = providedTexture==null ? GetIdentifier(target1) : providedTexture;
+            var handle = providedTexture == null ? GetIdentifier(target1) : providedTexture;
             var renderer = renderingData.cameraData.renderer;
 #if UNITY_2022_1_OR_NEWER
             var colorTargetHandle = renderer.cameraColorTargetHandle;
@@ -147,7 +148,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (blur)
             {
-                if (blurFilter == null || providedTexture==null)
+                if (blurFilter == null || providedTexture == null)
                 {
                     QueueBlurPasses(cmd, BlurWidths(passes));
                 }
@@ -157,7 +158,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-            if (providedTexture==null && setMaterialTexture)
+            if (providedTexture == null && setMaterialTexture)
             {
                 cmd.SetGlobalTexture(textureName, GetIdentifier(target1));
             }
@@ -172,11 +173,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             for (int i = 0; i < widths.Length; i++)
             {
                 cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
-                if (providedTexture!=null && i == widths.Length - 1)
+                if (providedTexture != null && i == widths.Length - 1)
                 {
                     LocalBlit(cmd, GetIdentifier(target1), providedTexture, blurMaterial);
                 }
-                else if (providedTexture!=null && i == 0)
+                else if (providedTexture != null && i == 0)
                 {
                     LocalBlit(cmd, providedTexture, GetIdentifier(target1), blurMaterial);
                 }
@@ -188,7 +189,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        //TODO:  replace with new URP Blit() when that's working with multiview
+        //TODO: replace with new URP Blit() when that's working with multiview
         private void LocalBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material material)
         {
             cmd.SetRenderTarget(target);

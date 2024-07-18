@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -35,6 +35,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         throw new InvalidOperationException("Cannot change material applied to after renderers have been added.");
                     }
+
                     applyToSharedMaterial = value;
                 }
             }
@@ -498,8 +499,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (renderers != null)
             {
-                int renderersCount = renderers.Count;
-                for (int i = 0; i < renderersCount; ++i)
+                for (int i = 0, renderersCount = renderers.Count; i < renderersCount; ++i)
                 {
                     if (renderers[i] != null)
                     {
@@ -510,8 +510,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (materials != null)
             {
-                int materialsCount = materials.Count;
-                for (int i = 0; i < materialsCount; ++i)
+                for (int i = 0, materialsCount = materials.Count; i < materialsCount; ++i)
                 {
                     if (materials[i] != null)
                     {
@@ -528,8 +527,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materialsToToggle != null)
             {
-                int materialsToToggleLength = materialsToToggle.Length;
-                for (int i = 0; i < materialsToToggleLength; i++)
+                for (int i = 0, materialsToToggleLength = materialsToToggle.Length; i < materialsToToggleLength; i++)
                 {
                     ToggleClippingFeature(materialsToToggle[i], keywordOn);
                 }

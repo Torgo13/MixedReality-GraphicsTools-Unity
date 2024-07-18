@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -142,7 +142,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public static Color ColorShiftHSV(Color source, float hueOffset, float saturationOffset, float valueOffset)
         {
-            Color.RGBToHSV(source, out float hue, out float saturation, out float value);
+            float hue, saturation, value;
+            Color.RGBToHSV(source, out hue, out saturation, out value);
             hue += hueOffset;
             saturation = Mathf.Clamp01(saturation + saturationOffset);
             value = Mathf.Clamp01(value + valueOffset);
@@ -187,8 +188,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 int parametersLength = parameters.Length;
 
                 float angle = defaultCSSAngle;
-                List<Color> colorKeys = new List<Color>(parametersLength);
-                List<float> timeKeys = new List<float>(parametersLength);
+                List<Color> colorKeys = UnityEngine.Pool.ListPool<Color>.Get();
+                List<float> timeKeys = UnityEngine.Pool.ListPool<float>.Get();
 
                 // Parse each parameter.
                 for (int i = 0; i < parametersLength; ++i)
@@ -297,7 +298,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 gradientColors = colorKeys.ToArray();
+                UnityEngine.Pool.ListPool<Color>.Release(colorKeys);
                 gradientTimes = timeKeys.ToArray();
+                UnityEngine.Pool.ListPool<float>.Release(timeKeys);
                 gradientAngle = angle;
             }
             catch

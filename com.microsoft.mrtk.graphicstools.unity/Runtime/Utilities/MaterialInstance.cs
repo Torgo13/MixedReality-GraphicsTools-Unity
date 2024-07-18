@@ -32,7 +32,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public static bool IsInstance(Material material)
         {
-            return (material != null) && material.name.Contains(InstancePostfix);
+            return ((material != null) && material.name.Contains(InstancePostfix));
         }
 
         /// <summary>
@@ -287,9 +287,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 return false;
             }
-
-            int aCount = a.Count;
-            for (int i = 0; i < aCount; ++i)
+            
+            for (int i = 0, aCount = a.Count; i < aCount; ++i)
             {
                 if (a[i] != b[i])
                 {
@@ -332,8 +331,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materials != null)
             {
-                int materialsLength = materials.Length;
-                for (int i = 0; i < materialsLength; ++i)
+                for (int i = 0, materialsLength = materials.Length; i < materialsLength; ++i)
                 {
                     if (materials[i] != null)
                     {

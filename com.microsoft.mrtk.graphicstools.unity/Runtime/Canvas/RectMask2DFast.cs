@@ -41,6 +41,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     _clipTargets = typeof(RectMask2D).GetField("m_ClipTargets", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 }
+                
                 return _clipTargets;
             }
         }
@@ -54,6 +55,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     _maskableTargets = typeof(RectMask2D).GetField("m_MaskableTargets", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
                 }
+                
                 return _maskableTargets;
             }
         }
@@ -271,11 +273,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (cachedCanvas == null)
                 {
 #if UNITY_2021_1_OR_NEWER
-                    List<Canvas> list = ListPool<Canvas>.Get();
-                    gameObject.GetComponentsInParent(false, list);
-                    cachedCanvas = list.Count > 0 ? list[^1] : null;
-
-                    ListPool<Canvas>.Release(list);
+                    using (ListPool<Canvas>.Get(out var list))
+                    {
+                        gameObject.GetComponentsInParent(false, list);
+                        cachedCanvas = list.Count > 0 ? list[^1] : null;
+                    }
 #else
                     var list = gameObject.GetComponentsInParent<Canvas>(false);
                     cachedCanvas = list.Count > 0 ? list[^1] : null;

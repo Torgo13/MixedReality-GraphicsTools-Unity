@@ -25,8 +25,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool useAcrylic = false;
         private Graphic cachedGraphic = null;
         private Coroutine initCoroutine = null;
-        private const string _BLUR_TEXTURE_ENABLE_ = "_BLUR_TEXTURE_ENABLE_";
-        private const string _BLUR_TEXTURE_2_ENABLE_ = "_BLUR_TEXTURE_2_ENABLE_";
 
 #region Monobehavior methods
 
@@ -89,8 +87,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (cachedGraphicFound)
             {
                 useAcrylic = AcrylicLayerManager.Instance != null && AcrylicLayerManager.Instance.AcrylicActive;
-                SetMaterialState(cachedGraphic.material, _BLUR_TEXTURE_ENABLE_, useAcrylic && blurLayer == 0);
-                SetMaterialState(cachedGraphic.material, _BLUR_TEXTURE_2_ENABLE_, useAcrylic && blurLayer == 1);
+                SetMaterialState(cachedGraphic.material, "_BLUR_TEXTURE_ENABLE_", useAcrylic && blurLayer == 0);
+                SetMaterialState(cachedGraphic.material, "_BLUR_TEXTURE_2_ENABLE_", useAcrylic && blurLayer == 1);
                 cachedGraphic.SetMaterialDirty();
             }
         }

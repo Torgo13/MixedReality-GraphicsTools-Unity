@@ -73,12 +73,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             public static readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
             public static readonly int AcrylicBlendTexture = Shader.PropertyToID("_AcrylicBlendTexture");
             public static readonly int AcrylicBlendFraction = Shader.PropertyToID("_AcrylicBlendFraction");
-            public const string AcrylicBlurPasses = "AcrylicBlurPasses";
-            public const string BlendSource = "BlendSource";
-            public const string BlendTarget = "BlendTarget";
-            public const string Destination = "Destination";
-            public const string RenderTarget1 = "RenderTarget1";
-            public const string RenderTarget2 = "RenderTarget2";
         }
 
         #region Public methods
@@ -227,6 +221,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 opaqueMask |= settings.renderLayers;
                 rendererData.opaqueLayerMask = opaqueMask;
             }
+
             if (renderTransparent != null)
             {
                 LayerMask transparentMask = rendererData.transparentLayerMask;
@@ -249,11 +244,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public void CreateRendererFeatures()
         {
-            blur = CreateBlurFeature(Cysharp.Text.ZString.Concat("Acrylic Blur", index), settings.captureEvent, kawaseBlur, targetCamera);
+            blur = CreateBlurFeature(Cysharp.Text.ZString.Concat("Acrylic Blur ", index), settings.captureEvent, kawaseBlur, targetCamera);
 
             if (settings.renderLayers.value != 0)
             {
-                renderOpaque = CreateRenderObjectsFeature(Cysharp.Text.ZString.Concat("Post Acrylic Blur  Opaque ", index), RenderQueueType.Opaque, settings.captureEvent);
+                renderOpaque = CreateRenderObjectsFeature(Cysharp.Text.ZString.Concat("Post Acrylic Blur Opaque ", index), RenderQueueType.Opaque, settings.captureEvent);
                 renderTransparent = CreateRenderObjectsFeature(Cysharp.Text.ZString.Concat("Post Acrylic Blur Transparent ", index), RenderQueueType.Transparent, settings.captureEvent);
             }
         }
@@ -269,7 +264,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (!firstFrameRendered && copyFramebuffer && blur.rendered)
             {
                 firstFrameRendered = true;
-                if (blendFrames > 0 && updatePeriod>1 && renderTarget1!=null && autoUpdate)
+                if (blendFrames > 0 && updatePeriod > 1 && renderTarget1 != null && autoUpdate)
                     SetBlendSource(renderTarget1, true);
             }
 
@@ -377,6 +372,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 MakeFeaturePersistent(rendererData, renderOpaque);
             }
+
             if (renderTransparent != null)
             {
                 MakeFeaturePersistent(rendererData, renderTransparent);
@@ -406,7 +402,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             else
             {
-                InitRenderTexture(ref destination, source.width, source.height, depthBits, ShaderPropertyId.Destination);
+                InitRenderTexture(ref destination, source.width, source.height, depthBits, "Destination");
                 InitCommandBuffer();
 #if ENABLE_PROFILER
                 Profiler.BeginSample(Cysharp.Text.ZString.Concat("AcrylicLayer", index, "_Blur"));
@@ -417,16 +413,18 @@ namespace Microsoft.MixedReality.GraphicsTools
                 int height = source.height;
                 Vector2 pixelSize = new Vector2(1.0f / width, 1.0f / height);
 
-                var widths = UnityEngine.Pool.ListPool<float>.Get();
-                AcrylicBlurRenderPass.BlurWidths(ref widths, settings.blurPasses);
-                for (int i = 0, widthsCount = widths.Count; i < widthsCount; i++)
+                using (UnityEngine.Pool.ListPool<float>.Get(out var widths))
                 {
-                    cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
-                    LocalBlit(cmd, source, destination, kawaseBlur);
+                    AcrylicBlurRenderPass.BlurWidths(ref widths, settings.blurPasses);
+                    for (int i = 0, widthsCount = widths.Count; i < widthsCount; i++)
+                    {
+                        cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
+                        LocalBlit(cmd, source, destination, kawaseBlur);
 
-                    (source, destination) = (destination, source);
+                        (source, destination) = (destination, source);
+                    }
                 }
-                UnityEngine.Pool.ListPool<float>.Release(widths);
+
                 Graphics.ExecuteCommandBuffer(cmd);
 #if ENABLE_PROFILER
                 Profiler.EndSample();
@@ -436,13 +434,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public void SetBlendSource(RenderTexture input, bool both)
         {
-            InitRenderTexture(ref blendSource[blendSourceIndex], input.width, input.height, 0, ShaderPropertyId.BlendSource);
+            InitRenderTexture(ref blendSource[blendSourceIndex], input.width, input.height, 0, "BlendSource");
             InitCommandBuffer();
             cmd.Clear();
             cmd.Blit(input, blendSource[blendSourceIndex]);
             if (both)
             {
-                InitRenderTexture(ref blendSource[1 - blendSourceIndex], input.width, input.height, 0, ShaderPropertyId.BlendSource);
+                InitRenderTexture(ref blendSource[1 - blendSourceIndex], input.width, input.height, 0, "BlendSource");
                 cmd.Blit(input, blendSource[1 - blendSourceIndex]);
             }
             Graphics.ExecuteCommandBuffer(cmd);
@@ -464,7 +462,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             else
             {
-                InitRenderTexture(ref blendTarget, blendSource[src1].width, blendSource[src1].height, 0, ShaderPropertyId.BlendTarget);
+                InitRenderTexture(ref blendTarget, blendSource[src1].width, blendSource[src1].height, 0, "BlendTarget");
                 InitCommandBuffer();
                 cmd.Clear();
                 cmd.SetGlobalTexture(ShaderPropertyId.AcrylicBlendTexture, blendSource[src1]);
@@ -494,7 +492,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (cmd == null)
             {
                 cmd = new CommandBuffer();
-                cmd.name = ShaderPropertyId.AcrylicBlurPasses;
+                cmd.name = "AcrylicBlurPasses";
             }
         }
 
@@ -511,23 +509,24 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void InitRenderTargets(int newWidth, int newHeight, int depth)
         {
-            InitRenderTexture(ref renderTarget1, newWidth, newHeight, depth, ShaderPropertyId.RenderTarget1);
-            InitRenderTexture(ref renderTarget2, newWidth, newHeight, depth, ShaderPropertyId.RenderTarget2);
+            InitRenderTexture(ref renderTarget1, newWidth, newHeight, depth, "RenderTarget1");
+            InitRenderTexture(ref renderTarget2, newWidth, newHeight, depth, "RenderTarget2");
         }
 
-        private static void InitRenderTexture(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name)
+        public static void InitRenderTexture(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name = "")
         {
             if (texture == null)
             {
-                texture = new RenderTexture(newWidth, newHeight, depth, RenderTextureFormat.ARGB32);
-                texture.name = name;
+                texture = RenderTexture.GetTemporary(newWidth, newHeight, depth, RenderTextureFormat.ARGB32);
+                if (name != null && name.Length > 0)
+                {
+                    texture.name = name;
+                }
             }
             else if (texture.width != newWidth || texture.height != newHeight)
             {
-                texture.Release();
-                texture.width = newWidth;
-                texture.height = newHeight;
-                texture.Create();
+                RenderTexture.ReleaseTemporary(texture);
+                texture = RenderTexture.GetTemporary(newWidth, newHeight, depth, RenderTextureFormat.ARGB32);
             }
         }
 
@@ -546,6 +545,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 blur.targetCamera = targetCamera;
                 if (useDualBlur) blur.SetBlurMethod(dualBlur);
             }
+
             return blur;
         }
 
