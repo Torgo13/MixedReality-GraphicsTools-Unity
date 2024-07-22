@@ -214,6 +214,29 @@ Shader "Graphics Tools/Standard"
             ENDHLSL
         }
 
+        Pass
+        {
+            Name "DepthOnly"
+            Tags{"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask R
+            Cull[_CullMode]
+
+            HLSLPROGRAM
+        
+            #define _URP
+            #define _SHADOW_PASS
+
+            #pragma multi_compile_instancing
+        
+            #pragma shader_feature_local_fragment _CLIPPING_BORDER
+
+            #include_with_pragmas "GraphicsToolsStandardProgram.hlsl"
+
+            ENDHLSL
+        }
+
         // Extracts information for lightmapping, GI (emission, albedo, ...)
         // This pass it not used during regular rendering.
         Pass
