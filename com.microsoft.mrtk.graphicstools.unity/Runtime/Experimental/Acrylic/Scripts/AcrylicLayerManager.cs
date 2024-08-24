@@ -5,6 +5,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
@@ -157,6 +158,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             private set { layers = value; }
         }
 
+        [SerializeField]
+        [Tooltip("Event called before manager initilizaion.")]
+        private UnityEvent onPreInitializeEvent;
+
+        public UnityEvent OnPreInitializeEvent
+        {
+            get { return onPreInitializeEvent; }
+            private set { onPreInitializeEvent = value; }
+        }
+
 #region private properties
 
         private List<AcrylicLayer> layerData = new List<AcrylicLayer>();
@@ -173,7 +184,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #endregion
 
-        #region Monobehavior methods
+#region Monobehavior methods
 
         private void OnDestroy()
         {
@@ -219,6 +230,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             instance = this;
+
+            if (onPreInitializeEvent != null)
+            {
+                onPreInitializeEvent.Invoke();
+            }
 
             InitializeBlurTexturesToBlack();
         }
