@@ -17,7 +17,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
     public class AcrylicHelper : MonoBehaviour
     {
-        //[Experimental]
+#if CUSTOM
+#else
+        [Experimental]
+#endif // CUSTOM
         [SerializeField]
         [Range(0, 1)]
         private int blurLayer = 0;
@@ -78,6 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void UpdateMaterialState()
         {
+#if OPTIMISATION_TRYGET
             bool cachedGraphicFound = cachedGraphic != null;
             if (!cachedGraphicFound)
             {
@@ -85,6 +89,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             if (cachedGraphicFound)
+#else
+            if (cachedGraphic == null)
+            {
+                cachedGraphic = GetComponent<Graphic>();
+            }
+
+            if (cachedGraphic != null)
+#endif // OPTIMISATION_TRYGET
             {
                 useAcrylic = AcrylicLayerManager.Instance != null && AcrylicLayerManager.Instance.AcrylicActive;
                 SetMaterialState(cachedGraphic.material, "_BLUR_TEXTURE_ENABLE_", useAcrylic && blurLayer == 0);

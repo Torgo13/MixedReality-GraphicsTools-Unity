@@ -23,7 +23,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             get { return instance; }
         }
 
-        //[Experimental]
+#if CUSTOM
+#else
+        [Experimental]
+#endif // CUSTOM
         [Tooltip("Whether this platforms supports creating a blurred acrylic map")]
         [SerializeField]
         private bool acrylicSupported = true;
@@ -67,7 +70,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
 #if UNITY_EDITOR || DEBUG
                     Debug.LogWarning("Failed to set the render index because the layer manager is already initialized.");
-#endif
+#endif // UNITY_EDITOR || DEBUG
+
                     return;
                 }
 
@@ -95,7 +99,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
 #if UNITY_EDITOR || DEBUG
                     Debug.LogWarning("Failed to set the filter method because the layer manager is already initialized.");
-#endif
+#endif // UNITY_EDITOR || DEBUG
+
                     return;
                 }
 
@@ -178,6 +183,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif
         private bool initialized = false;
         private bool acrylicActive = true;
+#if OPTIMISATION
+#else
+        private const string namePrefix = "AcrylicBlur";
+#endif // OPTIMISATION
         private bool ExecuteBeforeRenderAdded = false;
         private Coroutine updateRoutine = null;
         private IntermediateTextureMode previousIntermediateTextureMode;
@@ -211,7 +220,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                     break;
             }
 
+#if OPTIMISATION
             for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; ++i)
+#else
+            for (int i = 0; i < layerData.Count; ++i)
+#endif // OPTIMISATION
             {
                 layerData[i].Dispose();
             }
@@ -225,7 +238,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
 #if UNITY_EDITOR || DEBUG
                 Debug.LogErrorFormat("An instance of the AcrylicLayerManager already exists on gameobject {0}", instance.name);
-#endif
+#endif // UNITY_EDITOR || DEBUG
+
                 return;
             }
 
@@ -322,10 +336,17 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 targetCamera = newtargetCamera;
 
+#if OPTIMISATION
                 for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
                 {
                     layerData[i].SetTargetCamera(newtargetCamera);
                 }
+#else
+                foreach (AcrylicLayer layer in layerData)
+                {
+                    layer.SetTargetCamera(newtargetCamera);
+                }
+#endif // OPTIMISATION
             }
         }
 
@@ -363,6 +384,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (layers != null)
             {
+#if OPTIMISATION
                 for (int i = 0, layersCount = layers.Count; i < layersCount; i++)
                 {
                     if (!string.IsNullOrEmpty(layers[i].blurTextureName))
@@ -370,12 +392,25 @@ namespace Microsoft.MixedReality.GraphicsTools
                         Shader.SetGlobalTexture(layers[i].blurTextureName, Texture2D.blackTexture);
                     }
                 }
+#else
+                foreach (AcrylicLayer.Settings layer in layers)
+                {
+                    if (!string.IsNullOrEmpty(layer.blurTextureName))
+                    {
+                        Shader.SetGlobalTexture(layer.blurTextureName, Texture2D.blackTexture);
+                    }
+                }
+#endif // OPTIMISATION
             }
         }
 
         private void CreateLayers()
         {
+#if OPTIMISATION
             for (int i = 0, layersCount = layers.Count; i < layersCount; i++)
+#else
+            for (int i = 0; i < layers.Count; i++)
+#endif // OPTIMISATION
             {
                 layerData.Add(CreateLayer(layers[i], i));
             }
@@ -385,7 +420,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (rendererData != null)
             {
+#if OPTIMISATION
                 for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
+#else
+                for (int i = 0; i < layerData.Count; i++)
+#endif // OPTIMISATION
                 {
                     EnableLayer(i);
                 }
@@ -417,7 +456,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 if (passes[i].name.Contains("Acrylic"))
                 {
-#if UNITY_EDITOR
+#if (UNITY_EDITOR)
                     UnityEditor.AssetDatabase.RemoveObjectFromAsset(passes[i]);
 #endif
                     rendererData.rendererFeatures.Remove(passes[i]);
@@ -443,6 +482,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private bool AnyLayersNeedUpdating()
         {
+#if OPTIMISATION
             for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
             {
                 if (layerData[i] != null && layerData[i].activeCount > 0 && (autoUpdateBlurMap || !layerData[i].FirstFrameGenerated))
@@ -450,6 +490,15 @@ namespace Microsoft.MixedReality.GraphicsTools
                     return true;
                 }
             }
+#else
+            for (int i = 0; i < layerData.Count; i++)
+            {
+                if (layerData[i].activeCount > 0)
+                {
+                    if (autoUpdateBlurMap || !layerData[i].FirstFrameGenerated) return true;
+                }
+            }
+#endif // OPTIMISATION
 
             return false;
         }
@@ -462,9 +511,15 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (captureMethod == AcrylicMethod.RenderToTexture)
             {
+#if OPTIMISATION
                 for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
                 {
                     if (layerData[i] != null && layerData[i].activeCount > 0 && layerData[i].frameCount == 0)
+#else
+                for (int i = 0; i < layerData.Count; i++)
+                {
+                    if (layerData[i].activeCount > 0 && layerData[i].frameCount == 0)
+#endif // OPTIMISATION
                     {
                         layerData[i].RenderToTexture(context, camera, updatePeriod, blendFrames, CumulativeLayerMask(i));
                     }
@@ -476,7 +531,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         private LayerMask CumulativeLayerMask(int layer)
         {
             LayerMask mask = layers[layer].renderLayers;
+#if OPTIMISATION
             for (int i = layer + 1, layersCount = layers.Count; i < layersCount; i++)
+#else
+            for (int i = layer + 1; i < layers.Count; i++)
+#endif // OPTIMISATION
             {
                 mask |= layers[i].renderLayers;
             }
@@ -501,6 +560,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             while (AnyLayersNeedUpdating())
             {
                 bool updateActiveFeatures = false;
+#if OPTIMISATION
                 for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
                 {
                     AcrylicLayer t = layerData[i];
@@ -542,6 +602,34 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     UpdateActiveLayers();
                 }
+#else
+                for (int i = 0; i < layerData.Count; i++)
+                {
+                    if (layerData[i].activeCount > 0)
+                    {
+                        if (UseOnlyMainCamera)
+                        {
+                            layerData[i].SetTargetCamera(Camera.main);
+                        }
+
+                        layerData[i].UpdateFrame(rendererData, captureMethod == AcrylicMethod.CopyFramebuffer, updatePeriod, blendFrames, blendMaterial, autoUpdateBlurMap);
+                        if (captureMethod==AcrylicMethod.CopyFramebuffer)
+                        {
+                            bool inList = layerData[i].InFeaturesList(rendererData);
+                            if (layerData[i].CaptureNextFrame)
+                            {
+                                if (!inList) updateActiveFeatures = true;
+                                if (updatePeriod == 1 && autoUpdateBlurMap) layerData[i].ForceCaptureNextFrame();  //needed if updatePeriod changed in editor
+                            }
+                            else
+                            {
+                                if (inList) updateActiveFeatures = true;
+                            }
+                        }
+                    }
+                }
+                if (updateActiveFeatures) UpdateActiveLayers();
+#endif // OPTIMISATION
                 
                 yield return null;
             }
@@ -556,7 +644,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (captureMethod != AcrylicMethod.CopyFramebuffer) return;
 
+#if OPTIMISATION
             for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
+#else
+            for (int i = 0; i < layerData.Count; i++)
+#endif // OPTIMISATION
             {
                 if (layerData[i].activeCount > 0 && layerData[i].CaptureNextFrame)
                 {
@@ -569,7 +661,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (captureMethod != AcrylicMethod.CopyFramebuffer) return;
 
+#if OPTIMISATION
             for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
+#else
+            for (int i = 0; i < layerData.Count; i++)
+#endif // OPTIMISATION
             {
                 layerData[i].RemoveLayerRendererFeatures(rendererData);
             }

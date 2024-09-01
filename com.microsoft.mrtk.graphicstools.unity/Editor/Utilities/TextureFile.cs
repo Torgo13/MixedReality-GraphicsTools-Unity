@@ -57,6 +57,6 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             }
         }
 
-        private static readonly string[] extensions = Array.ConvertAll(Enum.GetNames(typeof(Format)), s => $".{s.ToLower()}");
+        private static readonly string[] extensions = Array.ConvertAll(Enum.GetNames(typeof(Format)), s => '.' + s.ToLower());
     }
 }

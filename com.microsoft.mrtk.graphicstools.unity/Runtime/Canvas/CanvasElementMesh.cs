@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 #if GT_USE_UGUI
@@ -85,7 +85,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private UnityEngine.Mesh previousMesh = null;
         private Color previousColor = Color.white;
+#if SPELLING
         private List<UIVertex> uiVertices = new List<UIVertex>();
+#else
+        private List<UIVertex> uiVerticies = new List<UIVertex>();
+#endif // SPELLING
         private List<int> uiIndices = new List<int>();
 
 #region UIBehaviour Implementation
@@ -139,8 +143,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             RefreshMesh();
 
+#if SPELLING
             int uiVerticesCount = uiVertices.Count;
             if (Mesh == null || uiVerticesCount == 0)
+#else
+            if (Mesh == null || uiVerticies.Count == 0)
+#endif // SPELLING
             {
                 return;
             }
@@ -170,11 +178,21 @@ namespace Microsoft.MixedReality.GraphicsTools
             Vector3 rectPivot = rectTransform.pivot;
             rectPivot.z = ZPivot;
 
+#if OPTIMISATION_LISTPOOL && SPELLING
             using (UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticesTRS))
             {
                 uiVerticesTRS.AddRange(uiVertices);
-
+#elif OPTIMISATION_LISTPOOL
+            using (UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticiesTRS))
+            {
+                uiVerticiesTRS.AddRange(uiVerticies);
+#elif SPELLING
+                List<UIVertex> uiVerticesTRS = new List<UIVertex>(uiVertices);
+#else
+                List<UIVertex> uiVerticiesTRS = new List<UIVertex>(uiVerticies);
+#endif // OPTIMISATION_LISTPOOL && SPELLING
                 // Scale, translate and rotate vertices.
+#if SPELLING
                 for (int i = 0; i < uiVerticesCount; i++)
                 {
                     UIVertex vertex = uiVerticesTRS[i];
@@ -186,7 +204,23 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 vh.AddUIVertexStream(uiVerticesTRS, uiIndices);
+#else
+                for (int i = 0; i < uiVerticiesTRS.Count; i++)
+                {
+                    UIVertex vertex = uiVerticiesTRS[i];
+
+                    // Scale the vector from the normalized position to the pivot by the rect size.
+                    vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
+
+                    uiVerticiesTRS[i] = vertex;
+                }
+
+                vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
+#endif // SPELLING
+                
+#if OPTIMISATION_LISTPOOL
             }
+#endif // OPTIMISATION_LISTPOOL
         }
 
 #endregion Graphic Implementation
@@ -199,13 +233,22 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (previousMesh != Mesh ||
                 previousColor != color ||
+#if SPELLING
                 uiVertices.Count == 0)
+#else
+                uiVerticies.Count == 0)
+#endif // SPELLING
             {
+#if SPELLING
                 uiVertices.Clear();
+#else
+                uiVerticies.Clear();
+#endif // SPELLING
                 uiIndices.Clear();
 
                 if (Mesh != null)
                 {
+#if OPTIMISATION_LISTPOOL
                     List<Vector3> vertices = UnityEngine.Pool.ListPool<Vector3>.Get();
                     Mesh.GetVertices(vertices);
                     List<Color> colors = UnityEngine.Pool.ListPool<Color>.Get();
@@ -222,16 +265,45 @@ namespace Microsoft.MixedReality.GraphicsTools
                     Mesh.GetNormals(normals);
                     List<Vector4> tangents = UnityEngine.Pool.ListPool<Vector4>.Get();
                     Mesh.GetTangents(tangents);
+#else
+                    List<Vector3> vertices = new List<Vector3>();
+                    Mesh.GetVertices(vertices);
+                    List<Color> colors = new List<Color>();
+                    Mesh.GetColors(colors);
+                    List<Vector2> uv0s = new List<Vector2>();
+                    Mesh.GetUVs(0, uv0s);
+                    List<Vector2> uv1s = new List<Vector2>();
+                    Mesh.GetUVs(1, uv1s);
+                    List<Vector2> uv2s = new List<Vector2>();
+                    Mesh.GetUVs(2, uv2s);
+                    List<Vector2> uv3s = new List<Vector2>();
+                    Mesh.GetUVs(3, uv3s);
+                    List<Vector3> normals = new List<Vector3>();
+                    Mesh.GetNormals(normals);
+                    List<Vector4> tangents = new List<Vector4>();
+                    Mesh.GetTangents(tangents);
+#endif // OPTIMISATION_LISTPOOL
 
                     Vector3 rectPivot = new Vector3(0.5f, 0.5f, 0);
+
+#if OPTIMISATION
                     var bounds = Mesh.bounds;
                     Vector3 meshCenter = bounds.center;
                     Vector3 meshSize = bounds.extents;
+#else
+                    Vector3 meshCenter = Mesh.bounds.center;
+                    Vector3 meshSize = Mesh.bounds.extents;
+#endif // OPTIMISATION
 
                     float scaler = 0.5f / Mathf.Max(meshSize.x, meshSize.y);
                     
+#if OPTIMISATION
                     for (int i = 0, verticesCount = vertices.Count; i < verticesCount; ++i)
+#else
+                    for (int i = 0; i < vertices.Count; ++i)
+#endif // OPTIMISATION
                     {
+#if OPTIMISATION
                         // Center the mesh at the origin.
                         // Normalize the mesh in a 1x1x1 cube.
                         // Center the mesh at the pivot.
@@ -242,6 +314,23 @@ namespace Microsoft.MixedReality.GraphicsTools
                             normal = normals[i],
                             tangent = tangents[i]
                         };
+#else
+                        UIVertex vertex = new UIVertex();
+                        vertex.position = vertices[i];
+
+                        // Center the mesh at the origin.
+                        vertex.position -= meshCenter;
+
+                        // Normalize the mesh in a 1x1x1 cube.
+                        vertex.position *= scaler;
+
+                        // Center the mesh at the pivot.
+                        vertex.position += rectPivot;
+
+                        // Set the other attributes.
+                        vertex.normal = normals[i];
+                        vertex.tangent = tangents[i];
+#endif // OPTIMISATION
 
                         if (i < colors.Count)
                         {
@@ -272,9 +361,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                             vertex.uv3 = uv3s[i];
                         }
 
+#if SPELLING
                         uiVertices.Add(vertex);
+#else
+                        uiVerticies.Add(vertex);
+#endif // SPELLING
                     }
 
+#if OPTIMISATION_LISTPOOL
                     UnityEngine.Pool.ListPool<Vector3>.Release(vertices);
                     UnityEngine.Pool.ListPool<Color>.Release(colors);
                     UnityEngine.Pool.ListPool<Vector2>.Release(uv0s);
@@ -283,6 +377,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     UnityEngine.Pool.ListPool<Vector2>.Release(uv3s);
                     UnityEngine.Pool.ListPool<Vector3>.Release(normals);
                     UnityEngine.Pool.ListPool<Vector4>.Release(tangents);
+#endif // OPTIMISATION_LISTPOOL
 
                     Mesh.GetTriangles(uiIndices, 0);
                 }

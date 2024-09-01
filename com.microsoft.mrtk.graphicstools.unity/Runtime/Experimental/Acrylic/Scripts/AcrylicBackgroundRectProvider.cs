@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#define OPTIMISATION
+
 #if GT_USE_URP
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 namespace Microsoft.MixedReality.GraphicsTools
@@ -15,7 +16,10 @@ namespace Microsoft.MixedReality.GraphicsTools
     [AddComponentMenu("Scripts/GraphicsTools/AcrylicBackgroundRectProvider")]
     public class AcrylicBackgroundRectProvider : BaseMeshEffect
     {
-        //[Experimental]
+#if CUSTOM
+#else
+        [Experimental]
+#endif // CUSTOM
         [Tooltip("List of materials to apply the _BlurBackgroundRect and _blurTexture to.")]
         [SerializeField]
         private Material[] materials = null;
@@ -93,16 +97,32 @@ namespace Microsoft.MixedReality.GraphicsTools
             get
             {
                 Texture output = null;
+#if OPTIMISATION_TRYGET
                 if (TryGetComponent<Image>(out var image))
+#else
+                Image image = GetComponent<Image>();
+
+                if (image != null)
+#endif // OPTIMISATION_TRYGET
                 {
+#if OPTIMISATION
                     if (image.sprite != null)
                     {
                         output = image.sprite.texture;
                     }
+#else
+                    output = (image.sprite != null) ? image.sprite.texture : null;
+#endif // OPTIMISATION
                 }
                 else
                 {
+#if OPTIMISATION_TRYGET
                     if (TryGetComponent<RawImage>(out var rawImage))
+#else
+                    RawImage rawImage = GetComponent<RawImage>();
+
+                    if (rawImage != null)
+#endif // OPTIMISATION_TRYGET
                     {
                         output = rawImage.texture;
                     }
@@ -123,8 +143,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Canvas canvas = null;
         private RenderTexture source = null;
         private RenderTexture destination = null;
+#if OPTIMISATION_SHADERPARAMS
         private static readonly int rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
         private static readonly int textureID = Shader.PropertyToID("_blurTexture");
+#else
+        private int rectNameID = 0;
+        private int textureID = 0;
+#endif // OPTIMISATION_SHADERPARAMS
         private bool hasBlurred = false;
 
         /// <summary>
@@ -158,15 +183,21 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (source != null)
             {
-                //source.Release();
+#if OPTIMISATION
                 RenderTexture.ReleaseTemporary(source);
+#else
+                source.Release();
+#endif // OPTIMISATION
                 source = null;
             }
 
             if (destination != null)
             {
-                //destination.Release();
+#if OPTIMISATION
                 RenderTexture.ReleaseTemporary(destination);
+#else
+                destination.Release();
+#endif // OPTIMISATION
                 destination = null;
             }
 
@@ -192,24 +223,44 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return;
             }
 
+#if OPTIMISATION
             bool canvasFound = canvas != null;
             if (!canvasFound)
+#else
+            if (canvas == null)
+#endif // OPTIMISATION
             {
                 canvas = GetComponentInParent<Canvas>();
                 canvasFound = canvas != null;
+#if OPTIMISATION_SHADERPARAMS
+#else
+                rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
+                textureID = Shader.PropertyToID("_blurTexture");
+#endif // OPTIMISATION_SHADERPARAMS
             }
 
+#if OPTIMISATION
             if (canvasFound && transform is RectTransform rectTransform)
             {
+#else
+            if (canvas != null)
+            {
+                var rectTransform = transform as RectTransform;
+#endif // OPTIMISATION
                 Vector3 minCorner = TransformToCanvas(rectTransform.rect.min);
                 Vector3 maxCorner = TransformToCanvas(rectTransform.rect.max);
                 Vector4 rect = new Vector4(minCorner.x, minCorner.y, maxCorner.x, maxCorner.y);
 
                 if (materials != null)
                 {
+#if OPTIMISATION
                     for (int i = 0, materialsLength = materials.Length; i < materialsLength; i++)
                     {
                         Material material = materials[i];
+#else
+                    foreach (Material material in materials)
+                    {
+#endif // OPTIMISATION
                         if (material != null)
                         {
                             material.SetVector(rectNameID, rect);
@@ -220,9 +271,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (graphics != null)
                 {
+#if OPTIMISATION
                     for (int i = 0, graphicsLength = graphics.Length; i < graphicsLength; i++)
                     {
                         Graphic graphic = graphics[i];
+#else
+                    foreach (Graphic graphic in graphics)
+                    {
+#endif // OPTIMISATION
                         if (graphic != null && graphic.materialForRendering != null)
                         {
                             graphic.materialForRendering.SetVector(rectNameID, rect);
@@ -250,7 +306,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
 #if UNITY_EDITOR || DEBUG
                 Debug.LogWarningFormat("Failed to find a texture to blur on {0} Image or RawImage components.", gameObject.name);
-#endif
+#endif // UNITY_EDITOR || DEBUG
+
                 return false;
             }
 
@@ -258,7 +315,22 @@ namespace Microsoft.MixedReality.GraphicsTools
             int width = textureToBlur.width;
             int height = textureToBlur.height;
 
+#if OPTIMISATION
             AcrylicLayer.InitRenderTexture(ref source, width, height, 0, gameObject.name);
+#else
+            if (source == null)
+            {
+                source = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+                source.name = gameObject.name;
+            }
+            else if (source.width != width || source.height != height)
+            {
+                source.Release();
+                source.width = width;
+                source.height = height;
+                source.Create();
+            }
+#endif // OPTIMISATION
 
             // Blit the texture into the source render texture.
             // Note, using Blit rather than CopyTexture because the source texture is often compressed.
@@ -279,7 +351,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
 #if UNITY_EDITOR || DEBUG
                 Debug.LogWarning("An AcrylicLayerManager does not exist. The image texture will not be blurred.");
-#endif
+#endif // UNITY_EDITOR || DEBUG
+
                 return false;
             }
 
@@ -289,7 +362,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Debug.LogWarningFormat("The AcrylicLayerManager does not contain enough layers. Request layer {0} but contains {1} layers. The image texture will not be blurred.",
                                        layerIndex,
                                        AcrylicLayerManager.Instance.Layers.Count);
-#endif
+#endif // UNITY_EDITOR || DEBUG
+
                 return false;
             }
 
@@ -315,14 +389,29 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void InstanceGraphicComponents()
         {
-            if (!Application.isPlaying || !instanceMaterials || graphics == null)
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            if (!instanceMaterials)
+            {
+                return;
+            }
+
+            if (graphics == null)
             {
                 return;
             }
             
+#if OPTIMISATION
             for (int i = 0, graphicsLength = graphics.Length; i < graphicsLength; i++)
             {
                 Graphic graphic = graphics[i];
+#else
+            foreach (Graphic graphic in graphics)
+            {
+#endif // OPTIMISATION
                 if (graphic != null)
                 {
                     if (!MaterialInstance.IsInstance(graphic.material))

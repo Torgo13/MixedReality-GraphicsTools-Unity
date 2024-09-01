@@ -392,21 +392,21 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetColor(_Ground_Color_ID, _Ground_Color_);
             material.SetFloat(_Horizon_Power_ID, _Horizon_Power_);
             material.SetFloat(_Mapped_Environment_Enabled_ID, _Mapped_Environment_Enabled_);
-            material.SetTexture(_Reflection_Map_ID, _Reflection_Map_);
-            material.SetTexture(_Indirect_Environment_ID, _Indirect_Environment_);
+            material.SetTexture(_Reflection_Map_ID, (Cubemap)_Reflection_Map_);
+            material.SetTexture(_Indirect_Environment_ID, (Cubemap)_Indirect_Environment_);
             material.SetFloat(_Decal_Enable_ID, _Decal_Enable_);
-            material.SetTexture(_Decal_ID, _Decal_);
+            material.SetTexture(_Decal_ID, (Texture2D)_Decal_);
             material.SetVector(_Decal_Scale_XY_ID, _Decal_Scale_XY_);
             material.SetFloat(_Decal_Front_Only_ID, _Decal_Front_Only_);
             material.SetFloat(_Iridescence_Enabled_ID, _Iridescence_Enabled_);
             material.SetFloat(_Iridescence_Intensity_ID, _Iridescence_Intensity_);
-            material.SetTexture(_Iridescence_Texture_ID, _Iridescence_Texture_);
+            material.SetTexture(_Iridescence_Texture_ID, (Texture2D)_Iridescence_Texture_);
             material.SetFloat(_ZTestID, _ZTest);
             material.SetFloat(_ZWriteID, _ZWrite);
             material.SetFloat(_StencilReferenceID, _StencilReference);
             material.SetFloat(_StencilComparisonID, _StencilComparison);
             material.SetFloat(_StencilOperationID, _StencilOperation);
-            material.SetTexture(_MainTexID, _MainTex);
+            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
             material.SetVector(_ClipRectID, _ClipRect);
             material.SetVector(_ClipRectRadiiID, _ClipRectRadii);
         }

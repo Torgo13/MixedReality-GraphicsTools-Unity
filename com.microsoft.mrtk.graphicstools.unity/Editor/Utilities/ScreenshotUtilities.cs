@@ -14,7 +14,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     /// be capture at various resolutions and with the current camera's clear color or a transparent
     /// clear color for use in easy post compositing of images.
     /// </summary>
+#if CUSTOM
     public static class ScreenshotUtilities
+#else
+    public class ScreenshotUtilities
+#endif // CUSTOM
     {
         [Shortcut("Graphics Tools/Take Screenshot 1x", KeyCode.Alpha1, ShortcutModifiers.Alt)]
         [MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution")]
@@ -86,7 +90,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 if (camera == null)
                 {
-#if UNITY_2022_3_OR_NEWER
+#if UNITY_2023_1_OR_NEWER
+                    camera = GameObject.FindFirstObjectByType<Camera>();
+#elif UNITY_2022_3_OR_NEWER
                     camera = GameObject.FindFirstObjectByType<Camera>();
 #else
                     camera = GameObject.FindObjectOfType<Camera>();
@@ -109,8 +115,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var renderCamera = new GameObject().AddComponent<Camera>();
             renderCamera.CopyFrom(camera);
             renderCamera.orthographic = camera.orthographic;
-            Transform cameraTransform = camera.transform;
-            renderCamera.transform.SetPositionAndRotation(cameraTransform.position, cameraTransform.rotation);
+#if OPTIMISATION_TRANSFORM
+            camera.transform.GetPositionAndRotation(out var position, out var rotation);
+            renderCamera.transform.SetPositionAndRotation(position, rotation);
+#else
+            renderCamera.transform.position = camera.transform.position;
+            renderCamera.transform.rotation = camera.transform.rotation;
+#endif // OPTIMISATION_TRANSFORM
             renderCamera.clearFlags = transparentClearColor ? CameraClearFlags.Color : camera.clearFlags;
             renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) :
                                                                    new Color(camera.backgroundColor.r, camera.backgroundColor.g, camera.backgroundColor.b, 1.0f);
@@ -170,7 +181,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <returns>A unique screenshot path.</returns>
         public static string GetScreenshotPath()
         {
-            return Path.Combine(GetScreenshotDirectory(), $"Screenshot_{DateTime.Now:yyyy-MM-dd_hh-mm-ss-tt}_{GUID.Generate()}.png");
+            return Path.Combine(GetScreenshotDirectory(), string.Format("Screenshot_{0:yyyy-MM-dd_hh-mm-ss-tt}_{1}.png", DateTime.Now, GUID.Generate()));
         }
     }
 }

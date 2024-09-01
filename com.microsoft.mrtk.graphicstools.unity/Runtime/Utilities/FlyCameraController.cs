@@ -7,9 +7,10 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+
 #if ENABLE_VR && ENABLE_XR_MODULE
 using UnityEngine.XR;
-#endif
+#endif // ENABLE_VR && ENABLE_XR_MODULE
 
 #if USE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -83,7 +84,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private CameraState interpolatingCameraState = new CameraState();
 #if ENABLE_VR && ENABLE_XR_MODULE
         private List<XRDisplaySubsystem> xrDisplaySubsystems = new List<XRDisplaySubsystem>();
-#endif
+#endif // ENABLE_VR && ENABLE_XR_MODULE
 
         /// <summary>
         /// Called when the game object state from inactive to active.
@@ -100,13 +101,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Start()
         {
-    #if UNITY_2023_1_OR_NEWER
+#if UNITY_2023_1_OR_NEWER
             SubsystemManager.GetSubsystems(xrDisplaySubsystems);
-    #else
+#else
             SubsystemManager.GetInstances(xrDisplaySubsystems);
-    #endif
-        }
 #endif
+        }
+#endif // ENABLE_VR && ENABLE_XR_MODULE
 
         /// <summary>
         /// Called every frame to poll input and update the camera transform.
@@ -117,7 +118,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (!XRDeviceIsPresent() && Application.isFocused)
 #else
             if (Application.isFocused)
-#endif
+#endif // ENABLE_VR && ENABLE_XR_MODULE
             {
                 // Lock cursor when right mouse button pressed.
 #if USE_INPUT_SYSTEM
@@ -197,14 +198,28 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (!XRDeviceIsPresent() && showControlsText)
 #else
             if (showControlsText)
-#endif
+#endif // ENABLE_VR && ENABLE_XR_MODULE
             {
 #if USE_INPUT_SYSTEM
-                if (Gamepad.current != null)
+                bool gamepadPresent = Gamepad.current != null;
+#else
+
+#if USE_INPUT_SYSTEM
+                bool gamepadPresent = false;
+#endif // USE_INPUT_SYSTEM
+
+#endif // USE_INPUT_SYSTEM
+
+#if USE_INPUT_SYSTEM
+                if (gamepadPresent)
+                {
                     GUI.Label(new Rect(10.0f, 10.0f, 256.0f, 128.0f), "Camera Controls\nRight Stick to Rotate\nLeft Stick to Translate");
+                }
                 else
 #endif // USE_INPUT_SYSTEM
+                {
                     GUI.Label(new Rect(10.0f, 10.0f, 256.0f, 128.0f), "Camera Controls\nRight Click + Mouse Move to Rotate\n'W' 'A' 'S' 'D' to Translate");
+                }
             }
         }
 
@@ -224,7 +239,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             return false;
         }
-#endif
+#endif // ENABLE_VR && ENABLE_XR_MODULE
 
         /// <summary>
         /// Turns mouse/stick controls into an input vector.

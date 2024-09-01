@@ -174,6 +174,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <returns>True if the mesh was already processed, false otherwise.</returns>
         private bool AcquirePreprocessedMesh(out UnityEngine.Mesh mesh)
         {
+#if OPTIMISATION_TRYGET
             bool meshFilterFound = meshFilter != null;
             if (!meshFilterFound)
             {
@@ -182,6 +183,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // No mesh filter, mesh cannot be processed, so return a null mesh.
             if (!meshFilterFound)
+#else
+            if (meshFilter == null)
+            {
+                meshFilter = GetComponent<MeshFilter>();
+            }
+
+            // No mesh filter, mesh cannot be processed, so return a null mesh.
+            if (meshFilter == null)
+#endif // OPTIMISATION_TRYGET
             {
                 mesh = null;
 
@@ -199,11 +209,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             // A non-readable mesh cannot be processed, so return a null mesh.
-            if (!originalMesh.isReadable)
+            if (originalMesh.isReadable == false)
             {
 #if UNITY_EDITOR || DEBUG
                 Debug.LogWarning($"Mesh smoothing failed because {originalMesh.name} is not readable. Check \"Read/Write Enabled\" in the mesh's import settings.");
-#endif
+#endif // UNITY_EDITOR || DEBUG
 
                 mesh = null;
 
@@ -245,17 +255,28 @@ namespace Microsoft.MixedReality.GraphicsTools
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             // Group all vertices that share the same location in space.
+#if SPELLING
             var groupedVertices = new Dictionary<Vector3, List<KeyValuePair<int, Vector3>>>();
-
+#else
+            var groupedVerticies = new Dictionary<Vector3, List<KeyValuePair<int, Vector3>>>();
+#endif // SPELLING
             for (int i = 0; i < vertices.Length; ++i)
             {
                 var vertex = vertices[i];
                 List<KeyValuePair<int, Vector3>> group;
 
+#if SPELLING
                 if (!groupedVertices.TryGetValue(vertex, out group))
+#else
+                if (!groupedVerticies.TryGetValue(vertex, out group))
+#endif // SPELLING
                 {
                     group = new List<KeyValuePair<int, Vector3>>();
+#if SPELLING
                     groupedVertices[vertex] = group;
+#else
+                    groupedVerticies[vertex] = group;
+#endif // SPELLING
                 }
 
                 group.Add(new KeyValuePair<int, Vector3>(i, vertex));
@@ -264,9 +285,17 @@ namespace Microsoft.MixedReality.GraphicsTools
             var smoothNormals = new List<Vector3>(normals);
 
             // If we don't hit the degenerate case of each vertex is its own group (no vertices shared a location), average the normals of each group.
+#if SPELLING
             if (groupedVertices.Count != vertices.Length)
+#else
+            if (groupedVerticies.Count != vertices.Length)
+#endif // SPELLING
             {
+#if SPELLING
                 foreach (var group in groupedVertices)
+#else
+                foreach (var group in groupedVerticies)
+#endif // SPELLING
                 {
                     var smoothingGroup = group.Value;
 
@@ -292,7 +321,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 #if UNITY_EDITOR || DEBUG
             Debug.LogFormat("CalculateSmoothNormals took {0} ms on {1} vertices.", watch.ElapsedMilliseconds, vertices.Length);
-#endif
+#endif // UNITY_EDITOR || DEBUG
 
             return smoothNormals;
         }

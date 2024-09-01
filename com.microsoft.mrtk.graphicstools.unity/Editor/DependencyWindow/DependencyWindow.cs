@@ -44,7 +44,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             public HashSet<DependencyGraphNode> assetsDependentOnThis = new HashSet<DependencyGraphNode>();
         }
 
-        private Dictionary<string, DependencyGraphNode> dependencyGraph = new Dictionary<string, DependencyGraphNode>(System.StringComparer.Ordinal);
+        private Dictionary<string, DependencyGraphNode> dependencyGraph = new Dictionary<string, DependencyGraphNode>();
 
         private const string windowTitle = "Dependency Window";
         private static readonly string[] toolbarTitles = { "Asset Dependency Graph", "Unreferenced Asset List" };
@@ -182,11 +182,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 if (dependencyGraph.Count == 0)
                 {
-                    GUILayout.Label("The dependency graph contains 0 assets, please refresh the dependency graph.", EditorStyles.boldLabel);
+                    GUILayout.Label(string.Format("The dependency graph contains 0 assets, please refresh the dependency graph.", dependencyGraph.Count), EditorStyles.boldLabel);
                 }
                 else
                 {
-                    GUILayout.Label($"The dependency graph contains {dependencyGraph.Count:n0} assets and took {dependencyGraphRefreshTime:0.00} seconds to build.");
+                    GUILayout.Label(string.Format("The dependency graph contains {0:n0} assets and took {1:0.00} seconds to build.", dependencyGraph.Count, dependencyGraphRefreshTime));
                 }
 
                 if (GUILayout.Button("Refresh"))
@@ -255,7 +255,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     if (IsAsset(file))
                     {
-                        EditorGUILayout.HelpBox($"Failed to find data for {file} try refreshing the dependency graph.", MessageType.Warning);
+                        EditorGUILayout.HelpBox(string.Format("Failed to find data for {0} try refreshing the dependency graph.", file), MessageType.Warning);
                     }
                     else
                     {
@@ -309,7 +309,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
                 EditorGUILayout.EndScrollView();
 
-                EditorGUILayout.LabelField($"{unreferencedAssetCount:n0} assets are not referenced by any other asset.");
+                EditorGUILayout.LabelField(string.Format("{0:n0} assets are not referenced by any other asset.", unreferencedAssetCount));
             }
             EditorGUILayout.EndVertical();
         }
@@ -323,9 +323,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             // Get all meta files from the assets and package cache directories.
             const string metaExtension = ".meta";
             var metaFiles = new List<string>();
-            metaFiles.AddRange(Directory.GetFiles(Application.dataPath, $"*{metaExtension}", SearchOption.AllDirectories));
-            metaFiles.AddRange(Directory.GetFiles(Path.Combine(Directory.GetParent(Application.dataPath).FullName, "Library\\PackageCache"), $"*{metaExtension}", SearchOption.AllDirectories));
-            metaFiles.AddRange(Directory.GetFiles(Path.Combine(Directory.GetParent(Application.dataPath).FullName, "Packages"), $"*{metaExtension}", SearchOption.AllDirectories));
+            metaFiles.AddRange(Directory.GetFiles(Application.dataPath, "*" + metaExtension, SearchOption.AllDirectories));
+            metaFiles.AddRange(Directory.GetFiles(Path.Combine(Directory.GetParent(Application.dataPath).FullName, "Library\\PackageCache"), "*" + metaExtension, SearchOption.AllDirectories));
+            metaFiles.AddRange(Directory.GetFiles(Path.Combine(Directory.GetParent(Application.dataPath).FullName, "Packages"), "*" + metaExtension, SearchOption.AllDirectories));
 
             for (int i = 0; i < metaFiles.Count; ++i)
             {
@@ -337,7 +337,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 }
 
                 var metaFile = metaFiles[i];
-                var file = metaFile[..^metaExtension.Length];
+                var file = metaFile.Substring(0, metaFile.Length - metaExtension.Length);
 
                 if (!IsAsset(file))
                 {
@@ -467,7 +467,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             {
                 foreach (var line in File.ReadAllLines(file))
                 {
-                    var index = line.IndexOf(guidPrefix, StringComparison.Ordinal);
+                    var index = line.IndexOf(guidPrefix);
 
                     if (index > 0)
                     {
@@ -488,7 +488,12 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             return guids;
         }
 
-        private static void DrawDependencyGraphNode(DependencyGraphNode node, int depth = 0, int maxDepth = int.MaxValue)
+        private static void DrawDependencyGraphNode(DependencyGraphNode node)
+        {
+            DrawDependencyGraphNode(node, 0, int.MaxValue);
+        }
+
+        private static void DrawDependencyGraphNode(DependencyGraphNode node, int depth, int maxDepth)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -498,7 +503,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     if (string.IsNullOrEmpty(node.path))
                     {
-                        EditorGUILayout.LabelField($"Missing Asset: {node.guid}");
+                        EditorGUILayout.LabelField(string.Format("Missing Asset: {0}", node.guid));
                     }
                     else
                     {

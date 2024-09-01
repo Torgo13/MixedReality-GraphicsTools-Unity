@@ -70,11 +70,19 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured</param>
         private void DrawAuto(GameObject gameObject)
         {
+#if OPTIMISATION_TRYGET
             if (gameObject.TryGetComponent<RectTransform>(out var _))
+#else
+            if (gameObject.GetComponent<RectTransform>() != null)
+#endif // OPTIMISATION_TRYGET
             {
                 DrawRectMeasurement(gameObject);
             }
+#if OPTIMISATION_TRYGET
             else if (gameObject.TryGetComponent<Renderer>(out var _))
+#else
+            else if (gameObject.GetComponent<Renderer>() != null)
+#endif // OPTIMISATION_TRYGET
             {
                 DrawRendererMeasurement(gameObject);
             }
@@ -93,10 +101,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured, requires a RectTransform attached</param>
         private void DrawRectMeasurement(GameObject gameObject)
         {
+#if OPTIMISATION_TRYGET
             if (!gameObject.TryGetComponent<RectTransform>(out var rt))
             {
                 return;
             }
+#else
+            RectTransform rt = gameObject.GetComponent<RectTransform>();
+            if (rt == null) return;
+#endif // OPTIMISATION_TRYGET
 
             Vector3[] v = new Vector3[4];
 
@@ -129,10 +142,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured, requires a 3D collider attached</param>
         private void DrawColliderMeasurement(GameObject gameObject)
         {
+#if OPTIMISATION_TRYGET
             if (!gameObject.TryGetComponent<Collider>(out var col))
             {
                 return;
             }
+#else
+            Collider col = gameObject.GetComponent<Collider>();
+            if (col == null) return;
+#endif // OPTIMISATION_TRYGET
 
             Vector3[] array = VerticesFromBounds(col.bounds);
 
@@ -142,7 +160,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     SphereCollider sphereCollider = (SphereCollider)col;
 
+#if OPTIMISATION
                     array = VerticesFromSize(sphereCollider.center, 2 * sphereCollider.radius * Vector3.one);
+#else
+                    array = VerticesFromSize(sphereCollider.center, Vector3.one * sphereCollider.radius * 2);
+#endif // OPTIMISATION
                     TransformPoints(gameObject, array);
                 }
                 else if (col.GetType() == typeof(BoxCollider))
@@ -180,10 +202,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         ///<param name = "gameObject" > GameObject to be measured, requires a Renderer attached</param>
         private void DrawRendererMeasurement(GameObject gameObject)
         {
+#if OPTIMISATION_TRYGET
             if (!gameObject.TryGetComponent<Renderer>(out var rend))
             {
                 return;
             }
+#else
+            Renderer rend = gameObject.GetComponent<Renderer>();
+            if (rend == null) return;
+#endif // OPTIMISATION_TRYGET
 
             Handles.color = settings.LineColor;
 
@@ -227,9 +254,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="attachedTransform">Transform required to ensure handles rotate with cube</param>
         private void DrawCubeFromVectorArray(Vector3[] array, Transform attachedTransform)
         {
+#if OPTIMISATION
             Vector3 zOffset = 10f * settings.Offset * Vector3.forward;
             Vector3 xOffset = 10f * settings.Offset * Vector3.right;
             Vector3 diagonalOffset = 10f * settings.Offset * (Vector3.right + Vector3.forward).normalized;
+#else
+            Vector3 zOffset = Vector3.forward * settings.Offset * 10f;
+            Vector3 xOffset = Vector3.right * settings.Offset * 10f;
+            Vector3 diagonalOffset = (Vector3.right + Vector3.forward).normalized * settings.Offset * 10f;
+#endif // OPTIMISATION
 
             DrawLine(array[5], array[1]);
             DrawLine(array[1], array[7]);
@@ -248,9 +281,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (attachedTransform != null)
             {
+#if OPTIMISATION
                 zOffset = 10f * settings.Offset * attachedTransform.forward;
                 xOffset = 10f * settings.Offset * attachedTransform.right;
                 diagonalOffset = 10f * settings.Offset * (attachedTransform.right + attachedTransform.forward).normalized;
+#else
+                zOffset = attachedTransform.forward * settings.Offset * 10f;
+                xOffset = attachedTransform.right * settings.Offset * 10f;
+                diagonalOffset = (attachedTransform.right + attachedTransform.forward).normalized * settings.Offset * 10f;
+#endif // OPTIMISATION
             }
 
             DrawHandle(array[4], array[0], -zOffset, DistanceInUnits(Vector3.Distance(array[4], array[0])), Color.red);
@@ -317,7 +356,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <returns></returns>
         private Vector3[] VerticesFromSize(Vector3 pos, Vector3 size)
         {
-            size *= 0.5f;
+            size = size * 0.5f;
             size = pos + size;
             var vertices = new Vector3[8];
             vertices[0] = new Vector3(-size.x, -size.y, -size.z);
@@ -355,6 +394,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             switch (settings.Unit)
             {
+#if OPTIMISATION
                 case MeasureToolSettings.ToolUnits.Millimeter:
                     return $"{val * 1000:0.##} mm";
                 case MeasureToolSettings.ToolUnits.Centimeter:
@@ -362,6 +402,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 case MeasureToolSettings.ToolUnits.Meter:
                 default:
                     return $"{val:0.##} m";
+#else
+                case MeasureToolSettings.ToolUnits.Millimeter:
+                    return $"{(val * 1000).ToString("0.##")} mm";
+                case MeasureToolSettings.ToolUnits.Centimeter:
+                    return $"{(val * 100).ToString("0.##")} cm";
+                case MeasureToolSettings.ToolUnits.Meter:
+                default:
+                    return $"{val.ToString("0.##")} m";
+#endif // OPTIMISATION
             }
         }
 

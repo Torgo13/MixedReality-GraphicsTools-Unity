@@ -130,7 +130,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     }
                     else
                     {
-                        GUILayout.Box($"Combinable Mesh Count: {combinableMeshCount}", EditorStyles.helpBox, System.Array.Empty<GUILayoutOption>());
+                        GUILayout.Box(string.Format("Combinable Mesh Count: {0}", combinableMeshCount), EditorStyles.helpBox, new GUILayoutOption[0]);
                     }
                 }
                 EditorGUILayout.EndVertical();
@@ -224,7 +224,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var path = AssetDatabase.GetAssetPath(targetHierarchy);
             path = string.IsNullOrEmpty(path) ? PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(targetHierarchy) : path;
             var directory = string.IsNullOrEmpty(path) ? Application.dataPath : Path.GetDirectoryName(path);
-            var filename = $"{(string.IsNullOrEmpty(path) ? targetHierarchy.name : Path.GetFileNameWithoutExtension(path))}Combined";
+            var filename = string.Format("{0}{1}", string.IsNullOrEmpty(path) ? targetHierarchy.name : Path.GetFileNameWithoutExtension(path), "Combined");
 
             path = EditorUtility.SaveFilePanelInProject("Save Combined Mesh", filename, "prefab", "Please enter a file name.", directory);
 
@@ -243,7 +243,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     if (pair.Texture != null && !AssetDatabase.Contains(pair.Texture))
                     {
                         var decompressedTexture = new Texture2D(pair.Texture.width, pair.Texture.height, GetUncompressedEquivalent(pair.Texture.format), true);
+#if GET_PIXEL_DATA
                         decompressedTexture.SetPixelData<Color32>(pair.Texture.GetPixelData<Color32>(0), 0);
+#else
+                        decompressedTexture.SetPixels(pair.Texture.GetPixels());
+#endif // GET_PIXEL_DATA
                         decompressedTexture.Apply();
 
                         // Don't destroy textures we don't own.

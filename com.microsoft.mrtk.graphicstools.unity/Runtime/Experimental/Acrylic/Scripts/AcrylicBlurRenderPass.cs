@@ -35,12 +35,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         private bool blur;
         private AcrylicFilterDual blurFilter;
 
+#if OPTIMISATION_SHADERPARAMS
         private struct ShaderPropertyId
         {
             public static readonly int AcrylicInfo = Shader.PropertyToID("_AcrylicInfo");
             public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
             public static readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
         }
+#endif // OPTIMISATION_SHADERPARAMS
 
         public AcrylicBlurRenderPass(string _profilerLabel, int _downSamplePasses, int _passes, Material material, string _textureName, bool _blur, RenderTexture _texture, AcrylicFilterDual _blurFilter)
         {
@@ -76,32 +78,41 @@ namespace Microsoft.MixedReality.GraphicsTools
             info.z = 1.0f;
             info.w = 1.0f;
 
-            ConfigureTempRenderTarget(ref target1, Cysharp.Text.ZString.Concat(profilerLabel, "RenderTarget1"), width, height, slices, cmd);
-            ConfigureTempRenderTarget(ref target2, Cysharp.Text.ZString.Concat(profilerLabel, "RenderTarget2"), width, height, slices, cmd);
+            ConfigureTempRenderTarget(ref target1, profilerLabel + "RenderTarget1", width, height, slices, cmd);
+            ConfigureTempRenderTarget(ref target2, profilerLabel + "RenderTarget2", width, height, slices, cmd);
 
-            if (providedTexture == null)
+#if BUGFIX
+#else
+            if (providedTexture != null)
             {
-                providedTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
-                providedTexture.filterMode = FilterMode.Bilinear;
-            }
-            else
-            {
-                if (width != providedTexture.width || height != providedTexture.height)
+#endif // BUGFIX
+                if (providedTexture == null)
                 {
-                    providedTexture.Release();
-                    providedTexture.width = width;
-                    providedTexture.height = height;
-                    providedTexture.Create();
+                    providedTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+                    providedTexture.filterMode = FilterMode.Bilinear;
                 }
-            }
+                else
+                {
+                    if (width != providedTexture.width || height != providedTexture.height)
+                    {
+                        providedTexture.Release();
+                        providedTexture.width = width;
+                        providedTexture.height = height;
+                        providedTexture.Create();
+                    }
+                }
 
-            // TODO Release providedTexture
-            //AcrylicLayer.InitRenderTexture(ref providedTexture, width, height, 0);
+                // TODO Release providedTexture
+                //AcrylicLayer.InitRenderTexture(ref providedTexture, width, height, 0);
 
-            if (setMaterialTexture)
-            {
-                cmd.SetGlobalTexture(textureName, providedTexture);
+                if (setMaterialTexture)
+                {
+                    cmd.SetGlobalTexture(textureName, providedTexture);
+                }
+#if BUGFIX
+#else
             }
+#endif // BUGFIX
         }
 
 #if UNITY_2022_1_OR_NEWER
@@ -129,7 +140,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             var colorTargetHandle = renderer.cameraColorTarget;
 #endif
 
+#if OPTIMISATION_SHADERPARAMS
             cmd.SetGlobalVector(ShaderPropertyId.AcrylicInfo, info);
+#else
+            cmd.SetGlobalVector("_AcrylicInfo", info);
+#endif // OPTIMISATION_SHADERPARAMS
 
             if (downSample == 1)
             {
@@ -137,12 +152,22 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             else if (downSample == 2)
             {
+#if OPTIMISATION_SHADERPARAMS
                 cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, Vector2.zero);
+#else
+                cmd.SetGlobalVector("_AcrylicBlurOffset", Vector2.zero);
+#endif // OPTIMISATION_SHADERPARAMS
+
                 LocalBlit(cmd, colorTargetHandle, handle, blurMaterial);
             }
             else
             {
+#if OPTIMISATION_SHADERPARAMS
                 cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, 0.25f * pixelSize);
+#else
+                cmd.SetGlobalVector("_AcrylicBlurOffset", 0.25f * pixelSize);
+#endif // OPTIMISATION_SHADERPARAMS
+
                 LocalBlit(cmd, colorTargetHandle, handle, blurMaterial);
             }
 
@@ -172,7 +197,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             for (int i = 0; i < widths.Length; i++)
             {
+#if OPTIMISATION_SHADERPARAMS
                 cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
+#else
+                cmd.SetGlobalVector("_AcrylicBlurOffset", (0.5f + widths[i]) * pixelSize);
+#endif // OPTIMISATION_SHADERPARAMS
+
                 if (providedTexture != null && i == widths.Length - 1)
                 {
                     LocalBlit(cmd, GetIdentifier(target1), providedTexture, blurMaterial);
@@ -193,13 +223,25 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void LocalBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material material)
         {
             cmd.SetRenderTarget(target);
+
+#if OPTIMISATION_SHADERPARAMS
             cmd.SetGlobalTexture(ShaderPropertyId.AcrylicBlurSource, source);
+#else
+            cmd.SetGlobalTexture("_AcrylicBlurSource", source);
+#endif // OPTIMISATION_SHADERPARAMS
+
             cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material);
         }
 
         private void SwapTempTargets()
         {
+#if OPTIMISATION
             (target1, target2) = (target2, target1);
+#else
+            var rttmp = target1;
+            target1 = target2;
+            target2 = rttmp;
+#endif // OPTIMISATION
         }
 
 #if UNITY_2022_1_OR_NEWER
@@ -259,6 +301,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+#if OPTIMISATION_LISTPOOL
         public static void BlurWidths(ref System.Collections.Generic.List<float> widths, int passes)
         {
             switch (passes)
@@ -309,6 +352,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     break;
             }
         }
+#endif // OPTIMISATION_LISTPOOL
     }
 }
 #endif // GT_USE_URP

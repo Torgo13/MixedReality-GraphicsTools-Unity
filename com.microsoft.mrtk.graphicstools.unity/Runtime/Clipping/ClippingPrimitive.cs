@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -99,7 +99,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         cameraMethods.OnCameraPreRender += OnCameraPreRender;
                     }
+#if OPTIMISATION
                     else
+#else
+                    else if (!value)
+#endif // OPTIMISATION
                     {
                         cameraMethods.OnCameraPreRender -= OnCameraPreRender;
                     }
@@ -177,7 +181,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // in the process of removing.
                 ToggleClippingFeature(AcquireMaterials(_renderer, instance: false), false);
 
+#if OPTIMISATION_TRYGET
                 if (_renderer.TryGetComponent<MaterialInstance>(out var materialInstance))
+#else
+                var materialInstance = _renderer.GetComponent<MaterialInstance>();
+
+                if (materialInstance != null)
+#endif // OPTIMISATION_TRYGET
                 {
                     materialInstance.ReleaseMaterial(this, autoDestroyMaterial);
                 }
@@ -210,7 +220,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (renderers != null)
             {
-                while (renderers.Count > 0)
+                while (renderers.Count != 0)
                 {
                     RemoveRenderer(renderers.Count - 1, autoDestroyMaterial);
                 }
@@ -279,7 +289,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materials != null)
             {
-                while (materials.Count > 0)
+                while (materials.Count != 0)
                 {
                     RemoveMaterial(materials.Count - 1);
                 }
@@ -499,6 +509,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (renderers != null)
             {
+#if OPTIMISATION
                 for (int i = 0, renderersCount = renderers.Count; i < renderersCount; ++i)
                 {
                     if (renderers[i] != null)
@@ -506,10 +517,22 @@ namespace Microsoft.MixedReality.GraphicsTools
                         ToggleClippingFeature(AcquireMaterials(renderers[i]), keywordOn);
                     }
                 }
+#else
+                for (var i = 0; i < renderers.Count; ++i)
+                {
+                    var _renderer = renderers[i];
+
+                    if (_renderer != null)
+                    {
+                        ToggleClippingFeature(AcquireMaterials(_renderer), keywordOn);
+                    }
+                }
+#endif // OPTIMISATION
             }
 
             if (materials != null)
             {
+#if OPTIMISATION
                 for (int i = 0, materialsCount = materials.Count; i < materialsCount; ++i)
                 {
                     if (materials[i] != null)
@@ -517,6 +540,17 @@ namespace Microsoft.MixedReality.GraphicsTools
                         ToggleClippingFeature(materials[i], keywordOn);
                     }
                 }
+#else
+                for (var i = 0; i < materials.Count; ++i)
+                {
+                    var material = materials[i];
+
+                    if (material != null)
+                    {
+                        ToggleClippingFeature(material, keywordOn);
+                    }
+                }
+#endif // OPTIMISATION
             }
         }
 
@@ -527,10 +561,17 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materialsToToggle != null)
             {
+#if OPTIMISATION
                 for (int i = 0, materialsToToggleLength = materialsToToggle.Length; i < materialsToToggleLength; i++)
                 {
                     ToggleClippingFeature(materialsToToggle[i], keywordOn);
                 }
+#else
+                foreach (var material in materialsToToggle)
+                {
+                    ToggleClippingFeature(material, keywordOn);
+                }
+#endif // OPTIMISATION
             }
         }
 

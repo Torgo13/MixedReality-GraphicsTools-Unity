@@ -94,13 +94,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Undo.RecordObject(rt, "Set Canvas Position");
 
             // No GraphicRaycaster by default. Users can add one, if they like.
-            if (canvas.TryGetComponent<GraphicRaycaster>(out var raycaster))
+            if (canvas.TryGetComponent(out GraphicRaycaster raycaster))
             {
                 Undo.DestroyObjectImmediate(raycaster);
             }
 
             // CanvasScaler should be there by default.
-            if (!canvas.TryGetComponent<CanvasScaler>(out var _))
+            if (!canvas.TryGetComponent(out CanvasScaler _))
             {
                 Undo.AddComponent<CanvasScaler>(canvas.gameObject);
             }
@@ -117,7 +117,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             GameObjectUtility.SetParentAndAlign(gameObject, menuCommand.context as GameObject);
 
             // Register the creation in the undo system.
-            Undo.RegisterCreatedObjectUndo(gameObject, $"Create {gameObject.name}");
+            Undo.RegisterCreatedObjectUndo(gameObject, "Create " + gameObject.name);
 
             Selection.activeObject = gameObject;
 

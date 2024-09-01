@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -140,12 +140,20 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Shifts a source color in HSV color space.
         /// </summary>
+#if SPELLING
         public static Color ColorShiftHSV(Color source, float hueOffset, float saturationOffset, float valueOffset)
+#else
+        public static Color ColorShiftHSV(Color source, float hueOffset, float saturationtOffset, float valueOffset)
+#endif // SPELLING
         {
             float hue, saturation, value;
             Color.RGBToHSV(source, out hue, out saturation, out value);
-            hue += hueOffset;
+            hue = hue + hueOffset;
+#if SPELLING
             saturation = Mathf.Clamp01(saturation + saturationOffset);
+#else
+            saturation = Mathf.Clamp01(saturation + saturationtOffset);
+#endif // SPELLING
             value = Mathf.Clamp01(value + valueOffset);
             Color output = Color.HSVToRGB(hue, saturation, value);
             output.a = source.a;
@@ -180,19 +188,29 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // Extract the gradient structure.
                 const string prefix = "linear-gradient(";
                 const string postfix = ");";
+#if OPTIMISATION
                 int start = cssGradient.IndexOf(prefix, StringComparison.Ordinal) + prefix.Length;
                 int end = cssGradient.IndexOf(postfix, start, StringComparison.Ordinal);
                 string gradient = cssGradient[start..end];
+#else
+                int start = cssGradient.IndexOf(prefix) + prefix.Length;
+                int end = cssGradient.IndexOf(postfix, start);
+                string gradient = cssGradient.Substring(start, end - start);
+#endif // OPTIMISATION
 
                 string[] parameters = gradient.Split(',');
-                int parametersLength = parameters.Length;
 
                 float angle = defaultCSSAngle;
+#if OPTIMISATION_LISTPOOL
                 List<Color> colorKeys = UnityEngine.Pool.ListPool<Color>.Get();
                 List<float> timeKeys = UnityEngine.Pool.ListPool<float>.Get();
+#else
+                List<Color> colorKeys = new List<Color>();
+                List<float> timeKeys = new List<float>();
+#endif // OPTIMISATION_LISTPOOL
 
                 // Parse each parameter.
-                for (int i = 0; i < parametersLength; ++i)
+                for (int i = 0; i < parameters.Length; ++i)
                 {
                     // Handle degrees.
                     if (parameters[i].Contains("deg"))
@@ -213,9 +231,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                                 return channel;
                             }
-
+#if OPTIMISATION
                             float red, green, blue, alpha;
-
+#else
+                            float red, green, blue, alpha = 1.0f;
+#endif // OPTIMISATION
                             if (float.TryParse(parameters[i].Replace("rgba(", string.Empty), out red))
                             {
                                 red = NormalizeColorChannel(red);
@@ -275,18 +295,19 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                 }
 
-                int timeKeysCount = timeKeys.Count;
-                if (timeKeysCount >= 2)
+                if (timeKeys.Count >= 2)
                 {
                     // If no times were provided, assume regular interval.
-                    for (int i = 0; i < timeKeysCount; ++i)
+                    for (int i = 0; i < timeKeys.Count; ++i)
                     {
-                        if (timeKeys[i] < 0)
+                        float time = timeKeys[i];
+
+                        if (time < 0)
                         {
-                            timeKeys[i] = (float)i / (timeKeysCount - 1);
+                            time = (timeKeys.Count != 1) ? (float)i / (timeKeys.Count - 1) : 0.0f;
+                            timeKeys[i] = time;
                         }
                     }
-
                     // Ensure the last time goes to one.
                     timeKeys[colorKeys.Count - 1] = 1.0f;
 
@@ -298,9 +319,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 gradientColors = colorKeys.ToArray();
+#if OPTIMISATION_LISTPOOL
                 UnityEngine.Pool.ListPool<Color>.Release(colorKeys);
+#endif // OPTIMISATION_LISTPOOL
                 gradientTimes = timeKeys.ToArray();
+#if OPTIMISATION_LISTPOOL
                 UnityEngine.Pool.ListPool<float>.Release(timeKeys);
+#endif // OPTIMISATION_LISTPOOL
                 gradientAngle = angle;
             }
             catch

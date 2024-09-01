@@ -124,11 +124,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// </summary>
         /// <param name="materialEditor">Current material editor in use.</param>
         /// <param name="properties">Material properties to search.</param>
-        public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
+        public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
         {
             Material material = (Material)materialEditor.target;
 
-            FindProperties(properties);
+            FindProperties(props);
             Initialize(material);
 
             RenderingModeOptions(materialEditor);
@@ -138,24 +138,24 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// Looks for common properties associated with render mode.
         /// </summary>
         /// <param name="properties">Material properties to search.</param>
-        protected virtual void FindProperties(MaterialProperty[] properties)
+        protected virtual void FindProperties(MaterialProperty[] props)
         {
-            renderingMode = FindProperty(BaseStyles.renderingModeName, properties);
-            customRenderingMode = FindProperty(BaseStyles.customRenderingModeName, properties);
-            sourceBlend = FindProperty(BaseStyles.sourceBlendName, properties);
-            destinationBlend = FindProperty(BaseStyles.destinationBlendName, properties);
-            sourceBlendAlpha = FindProperty(BaseStyles.sourceBlendAlphaName, properties);
-            destinationBlendAlpha = FindProperty(BaseStyles.destinationBlendAlphaName, properties);
-            blendOperation = FindProperty(BaseStyles.blendOperationName, properties);
-            depthTest = FindProperty(BaseStyles.depthTestName, properties, false);
-            depthWrite = FindProperty(BaseStyles.depthWriteName, properties);
-            depthOffsetFactor = FindProperty(BaseStyles.depthOffsetFactorName, properties);
-            depthOffsetUnits = FindProperty(BaseStyles.depthOffsetUnitsName, properties);
-            colorWriteMask = FindProperty(BaseStyles.colorWriteMaskName, properties, false);
-            colorWriteMask = colorWriteMask == null ? FindProperty(BaseStyles.colorWriteMaskUIName, properties) : colorWriteMask;
+            renderingMode = FindProperty(BaseStyles.renderingModeName, props);
+            customRenderingMode = FindProperty(BaseStyles.customRenderingModeName, props);
+            sourceBlend = FindProperty(BaseStyles.sourceBlendName, props);
+            destinationBlend = FindProperty(BaseStyles.destinationBlendName, props);
+            sourceBlendAlpha = FindProperty(BaseStyles.sourceBlendAlphaName, props);
+            destinationBlendAlpha = FindProperty(BaseStyles.destinationBlendAlphaName, props);
+            blendOperation = FindProperty(BaseStyles.blendOperationName, props);
+            depthTest = FindProperty(BaseStyles.depthTestName, props, false);
+            depthWrite = FindProperty(BaseStyles.depthWriteName, props);
+            depthOffsetFactor = FindProperty(BaseStyles.depthOffsetFactorName, props);
+            depthOffsetUnits = FindProperty(BaseStyles.depthOffsetUnitsName, props);
+            colorWriteMask = FindProperty(BaseStyles.colorWriteMaskName, props, false);
+            colorWriteMask = colorWriteMask == null ? FindProperty(BaseStyles.colorWriteMaskUIName, props) : colorWriteMask;
 
-            cullMode = FindProperty(BaseStyles.cullModeName, properties);
-            renderQueueOverride = FindProperty(BaseStyles.renderQueueOverrideName, properties);
+            cullMode = FindProperty(BaseStyles.cullModeName, props);
+            renderQueueOverride = FindProperty(BaseStyles.renderQueueOverrideName, props);
         }
 
         /// <summary>

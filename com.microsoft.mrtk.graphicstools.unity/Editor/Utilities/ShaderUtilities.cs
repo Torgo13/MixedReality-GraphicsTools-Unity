@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if OPTIMISATION
+#else
+using Microsoft.CSharp;
+#endif // OPTIMISATION
+
 using System;
 using System.IO;
 using System.Linq;
@@ -117,22 +122,29 @@ namespace Microsoft.MixedReality.GraphicsTools
                     properties += string.Format(PropertyIDBody, nameID, name);
 
                     fromMaterial += Environment.NewLine;
+#if SPELLING
                     fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGetter(type), nameID, typeName);
-
+#else
+                    fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGettor(type), nameID, typeName);
+#endif // SPELLING
                     toMaterial += Environment.NewLine;
+#if SPELLING
                     toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSetter(type), nameID, name, typeName);
+#else
+                    toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSettor(type), nameID, name, typeName);
+#endif // SPELLING
                 }
                 else  // All other types. Colors, floats, vectors, etc.
                 {
                     string defaultValue, minValue = null, maxValue = null;
                     if (type == ShaderUtil.ShaderPropertyType.Float)
                     {
-                        defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0) + FloatPostfix;
+                        defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0).ToString() + FloatPostfix;
                     }
                     else if (type == ShaderUtil.ShaderPropertyType.Range)
                     {
-                        defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0) + FloatPostfix;
-                        minValue = ShaderUtil.GetRangeLimits(shader, i, 1) + FloatPostfix;
+                        defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0).ToString() + FloatPostfix;
+                        minValue = ShaderUtil.GetRangeLimits(shader, i, 1).ToString() + FloatPostfix;
                         maxValue = ShaderUtil.GetRangeLimits(shader, i, 2) + FloatPostfix;
                     }
                     else
@@ -155,20 +167,31 @@ namespace Microsoft.MixedReality.GraphicsTools
                     properties += string.Format(PropertyIDBody, nameID, name);
 
                     fromMaterial += Environment.NewLine;
+#if SPELLING
                     fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGetter(type), nameID);
-
+#else
+                    fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGettor(type), nameID);
+#endif // SPELLING
                     toMaterial += Environment.NewLine;
+#if SPELLING
                     toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSetter(type), nameID, name);
+#else
+                    toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSettor(type), nameID, name);
+#endif // SPELLING
                 }
             }
 
             try
             {
                 // Save a new component out as a C# class.
+#if OPTIMISATION
                 const string version = "0.1.0";
+#else
+                string version = "0.1.0";
+#endif // OPTIMISATION
                 string assetPath = AssetDatabase.GetAssetPath(shader);
 
-                string className = SanitizeIdentifier($"CanvasMaterialAnimator{Path.GetFileNameWithoutExtension(assetPath)}");
+                string className = SanitizeIdentifier("CanvasMaterialAnimator" + Path.GetFileNameWithoutExtension(assetPath));
 
                 string classText = string.Format(ClassBody, version, className, properties, fromMaterial, toMaterial, targetShaderName);
 
@@ -186,7 +209,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     Directory.CreateDirectory(directory);
                 }
 
-                string path = Path.Combine(directory, $"{className}.cs");
+                string path = Path.Combine(directory, string.Format("{0}.cs", className));
 
                 File.WriteAllText(path, classText);
 
@@ -226,7 +249,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             foreach (UnityEngine.Object selection in Selection.objects)
             {
+#if OPTIMISATION
                 if (selection is Shader)
+#else
+                if (selection.GetType() == typeof(Shader))
+#endif // OPTIMISATION
                 {
                     return true;
                 }
@@ -278,7 +305,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         [MenuItem("Window/Graphics Tools/Canvas Material Animators/Generate All")]
         private static void CanvasMaterialAnimatorsGenerateAll()
         {
-            string[] paths = Directory.GetFiles($"Packages/{DevelopmentUtilities.PackageName}/Runtime/Shaders", "*.shader");
+            string[] paths = Directory.GetFiles(string.Format("Packages/{0}/Runtime/Shaders", DevelopmentUtilities.PackageName), "*.shader");
 
             foreach (string path in paths)
             {
@@ -319,7 +346,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// ShaderPropertyType to Unity material getter method.
         /// </summary>
+#if SPELLING
         private static string ShaderPropertyTypeToGetter(ShaderUtil.ShaderPropertyType type)
+#else
+        private static string ShaderPropertyTypeToGettor(ShaderUtil.ShaderPropertyType type)
+#endif // SPELLING
         {
             switch (type)
             {
@@ -335,7 +366,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// ShaderPropertyType to Unity material setter method.
         /// </summary>
+#if SPELLING
         private static string ShaderPropertyTypeToSetter(ShaderUtil.ShaderPropertyType type)
+#else
+        private static string ShaderPropertyTypeToSettor(ShaderUtil.ShaderPropertyType type)
+#endif // SPELLING
         {
             switch (type)
             {
@@ -385,7 +420,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string SanitizeIdentifier(string input)
         {
+#if OPTIMISATION
             bool isValid = System.CodeDom.Compiler.CodeDomProvider.CreateProvider("C#").IsValidIdentifier(input);
+#else
+            bool isValid = CSharpCodeProvider.CreateProvider("C#").IsValidIdentifier(input);
+#endif // OPTIMISATION
 
             if (!isValid)
             {
@@ -425,8 +464,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string GetHeaderName(string headerAttribute)
         {
+#if OPTIMISATION
             int startPosition = headerAttribute.IndexOf("(", StringComparison.Ordinal) + 1;
             int wordLength = headerAttribute.IndexOf(")", startPosition, StringComparison.Ordinal) - startPosition;
+#else
+            int startPosition = headerAttribute.IndexOf("(") + 1;
+            int wordLength = headerAttribute.IndexOf(")", startPosition) - startPosition;
+#endif // OPTIMISATION
 
             return headerAttribute.Substring(startPosition, wordLength);
         }

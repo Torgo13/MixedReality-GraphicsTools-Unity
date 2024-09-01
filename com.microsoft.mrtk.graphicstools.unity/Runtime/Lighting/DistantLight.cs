@@ -73,7 +73,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 Debug.LogWarningFormat("Max distant light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", distantLightCount, gameObject.name);
             }
-#endif
+#endif // UNITY_EDITOR || DEBUG
 
             activeDistantLights.Add(this);
         }
@@ -102,7 +102,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 DistantLight light = (i >= activeDistantLights.Count) ? null : activeDistantLights[i];
                 int dataIndex = i * distantLightDataSize;
 
-                if (light != null)
+                if (light)
                 {
                     Vector4 direction = -light.transform.forward;
                     distantLightData[dataIndex] = new Vector4(direction.x,

@@ -25,7 +25,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private bool isSourceAndDestinationSameTarget;
         private string profilerTag;
-        private const string _TempRT = "_TempRT";
 
         ///<summary>
         /// Constructor.
@@ -57,7 +56,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (isSourceAndDestinationSameTarget)
             {
                 RenderingUtils.ReAllocateIfNeeded(ref destination, blitTargetDescriptor, Settings.FilterMode,
-                                                  TextureWrapMode.Clamp, name: _TempRT);
+                                                  TextureWrapMode.Clamp, name: "_TempRT");
             }
             else if (Settings.DestinationType == BufferType.CameraColor)
             {
@@ -96,6 +95,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// Unsure when this is called? This is the only resource I could find to dispose of RTHandles.
         /// https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@14.0/manual/upgrade-guide-2022-1.html
         /// </summary>
+#if OPTIMISATION_IDISPOSABLE
         private void Dispose()
         {
             Dispose(true);
@@ -107,6 +107,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             source?.Release();
             destination?.Release();
         }
+#else
+        private void Dispose()
+        {
+            source?.Release();
+            destination?.Release();
+        }
+#endif // OPTIMISATION_IDISPOSABLE
+
 #else
         private RenderTargetIdentifier source;
         private RenderTargetIdentifier destination;

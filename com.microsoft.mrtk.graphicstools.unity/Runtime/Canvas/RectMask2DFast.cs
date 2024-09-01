@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#define OPTIMISATION
+
 #if GT_USE_UGUI
 using System.Collections.Generic;
 using System.Reflection;
@@ -30,6 +32,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Vector2Int lastSoftness = new Vector2Int();
         private List<RectMask2D> clippers = new List<RectMask2D>();
 
+#if OPTIMISATION
         #region Reflection
 
         private static FieldInfo _clipTargets;
@@ -60,7 +63,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        #endregion
+        #endregion // Reflection
+#endif // OPTIMISATION
 
 #region MonoBehaviour Implementation
 
@@ -139,7 +143,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // get the compound rects from
             // the clippers that are valid
-            bool validRect;
+            bool validRect = true;
             Rect clipRect = Clipping.FindCullAndClipWorldRect(clippers, out validRect);
 
             // If the mask is in ScreenSpaceOverlay/Camera render mode, its content is only rendered when its rect
@@ -233,7 +237,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             set
             {
-                if (value)
+                if (value == true)
                 {
                     lastclipTargetsCount = 0;
                     lastmaskableTargetsCount = 0;
@@ -262,8 +266,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             // Many of the properties we need access to for clipping are not exposed. So, we have to do reflection to get access to them.
+#if OPTIMISATION
             clipTargets = (HashSet<IClippable>)ClipTargets?.GetValue(this);
             maskableTargets = (HashSet<MaskableGraphic>)MaskableTargets?.GetValue(this);
+#else
+            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+            clipTargets = (HashSet<IClippable>)typeof(RectMask2D).GetField("m_ClipTargets", bindFlags).GetValue(this);
+            maskableTargets = (HashSet<MaskableGraphic>)typeof(RectMask2D).GetField("m_MaskableTargets", bindFlags).GetValue(this);
+#endif // OPTIMISATION
         }
 
         private Canvas Canvas
@@ -273,14 +283,29 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (cachedCanvas == null)
                 {
 #if UNITY_2021_1_OR_NEWER
+
+#if OPTIMISATION
                     using (ListPool<Canvas>.Get(out var list))
                     {
                         gameObject.GetComponentsInParent(false, list);
                         cachedCanvas = list.Count > 0 ? list[^1] : null;
                     }
 #else
+                    var list = ListPool<Canvas>.Get();
+                    gameObject.GetComponentsInParent(false, list);
+                    if (list.Count > 0)
+                        cachedCanvas = list[list.Count - 1];
+                    else
+                        cachedCanvas = null;
+                    ListPool<Canvas>.Release(list);
+#endif // OPTIMISATION
+
+#else
                     var list = gameObject.GetComponentsInParent<Canvas>(false);
-                    cachedCanvas = list.Count > 0 ? list[^1] : null;
+                    if (list.Length > 0)
+                        cachedCanvas = list[list.Length - 1];
+                    else
+                        cachedCanvas = null;
 #endif
                 }
 

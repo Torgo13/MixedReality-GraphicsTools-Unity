@@ -46,12 +46,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             
 #if UNITY_EDITOR || DEBUG
-
             if (IsInstance(source))
             {
                 Debug.LogWarning($"The material ({source.name}) is already instanced and is being instanced multiple times.");
             }
-#endif
+#endif // UNITY_EDITOR || DEBUG
 
             Material output = new Material(source);
             output.name += InstancePostfix;
@@ -78,8 +77,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 AcquireInstances();
             }
-
+#if SAFETY
             if (instanceMaterials != null && instanceMaterials.Length > 0)
+#else
+            if (instanceMaterials?.Length > 0)
+#endif // SAFETY
             {
                 return instanceMaterials[0];
             }
@@ -283,12 +285,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static bool MaterialsMatch(List<Material> a, Material[] b)
         {
+#if SAFETY
             if (a == null || b == null || a.Count != b.Length)
+#else
+            if (a?.Count != b?.Length)
+#endif // SAFETY
             {
                 return false;
             }
-            
+#if SAFETY
             for (int i = 0, aCount = a.Count; i < aCount; ++i)
+#else
+            for (int i = 0; i < a?.Count; ++i)
+#endif // SAFETY
             {
                 if (a[i] != b[i])
                 {
@@ -331,9 +340,15 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materials != null)
             {
+#if OPTIMISATION
                 for (int i = 0, materialsLength = materials.Length; i < materialsLength; ++i)
                 {
                     if (materials[i] != null)
+#else
+                foreach (var material in materials)
+                {
+                    if (material != null)
+#endif // OPTIMISATION
                     {
                         return true;
                     }
@@ -354,6 +369,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if UNITY_EDITOR
                 else
                 {
+#if UNITY_EDITOR
                     // Let Unity handle unload of unused assets if lifecycle is transitioning from editor to play mode
                     // Deferring the call during this transition would destroy reference only after play mode Awake, leading to possible broken material references on TMPro objects
                     if (!EditorApplication.isPlayingOrWillChangePlaymode)
@@ -366,8 +382,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                             }
                         };
                     }
-                }
 #endif
+                }
+#endif // UNITY_EDITOR
             }
         }
     }

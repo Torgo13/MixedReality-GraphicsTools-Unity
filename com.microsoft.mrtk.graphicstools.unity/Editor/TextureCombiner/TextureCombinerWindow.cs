@@ -185,7 +185,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             RenderTexture.ReleaseTemporary(renderTexture);
 
             // Save the texture to disk.
-            string filename = $"{GetChannelMapName(textures)}_Channel.{TextureFile.GetExtension(textureFormat)}";
+            string filename = string.Format("{0}{1}.{2}", GetChannelMapName(textures), "_Channel", TextureFile.GetExtension(textureFormat));
             string path = EditorUtility.SaveFilePanel("Save Channel Map", "", filename, TextureFile.GetExtension(textureFormat));
 
             if (path.Length != 0)

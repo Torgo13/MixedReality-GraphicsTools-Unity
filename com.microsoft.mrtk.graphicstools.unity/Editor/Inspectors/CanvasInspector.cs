@@ -71,8 +71,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     {
                         if (materialsToFix.Count != 0)
                         {
+#if OPTIMISATION
                             EditorGUILayout.HelpBox($"Canvas contains {materialsToFix.Count} {nameof(Material)}(s) which are using the {StandardShaderUtility.GraphicsToolsStandardShaderName} instead of the {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} shader. The {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} is required for some shader features to function.", MessageType.Warning);
                             if (GUILayout.Button($"Change {nameof(Shader)}(s) to {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName}"))
+#else
+                            EditorGUILayout.HelpBox($"Canvas contains {materialsToFix.Count} {typeof(Material).Name}(s) which are using the {StandardShaderUtility.GraphicsToolsStandardShaderName} instead of the {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} shader. The {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} is required for some shader features to function.", MessageType.Warning);
+                            if (GUILayout.Button($"Change {typeof(Shader).Name}(s) to {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName}"))
+#endif // OPTIMISATION
                             {
                                 Undo.RecordObjects(materialsToFix.ToArray(), "Change Shader");
                                 foreach (var material in materialsToFix)
@@ -87,8 +92,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                         if (graphicsToFix.Count != 0)
                         {
+#if OPTIMISATION
                             EditorGUILayout.HelpBox($"Canvas contains {graphicsToFix.Count} {nameof(Graphic)} components(s) which require a {nameof(ScaleMeshEffect)} to work with the {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} shader.", MessageType.Warning);
                             if (GUILayout.Button($"Add {nameof(ScaleMeshEffect)}(s)"))
+#else
+                            EditorGUILayout.HelpBox($"Canvas contains {graphicsToFix.Count} {typeof(Graphic).Name} components(s) which require a {typeof(ScaleMeshEffect).Name} to work with the {StandardShaderUtility.GraphicsToolsStandardCanvasShaderName} shader.", MessageType.Warning);
+                            if (GUILayout.Button($"Add {typeof(ScaleMeshEffect).Name}(s)"))
+#endif // OPTIMISATION
                             {
                                 foreach (var graphic in graphicsToFix)
                                 {
@@ -101,8 +111,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                         if (masksToFix.Count != 0)
                         {
+#if OPTIMISATION
                             EditorGUILayout.HelpBox($"Canvas contains {masksToFix.Count} {nameof(RectMask2D)} components(s) which may be slow when masking many objects, consider switching to {nameof(RectMask2DFast)}.", MessageType.Warning);
                             if (GUILayout.Button($"Replace with {nameof(RectMask2DFast)}"))
+#else
+                            EditorGUILayout.HelpBox($"Canvas contains {masksToFix.Count} {typeof(RectMask2D).Name} components(s) which may be slow when masking many objects, consider switching to {typeof(RectMask2DFast).Name}.", MessageType.Warning);
+                            if (GUILayout.Button($"Replace with {typeof(RectMask2DFast).Name}"))
+#endif // OPTIMISATION
                             {
                                 foreach (RectMask2D mask in masksToFix)
                                 {
@@ -153,7 +168,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 foreach (var graphic in graphics)
                 {
                     if (StandardShaderUtility.IsUsingGraphicsToolsStandardShader(graphic.material) &&
+#if OPTIMISATION_TRYGET
                         !graphic.TryGetComponent<ScaleMeshEffect>(out var _))
+#else
+                        graphic.GetComponent<ScaleMeshEffect>() == null)
+#endif // OPTIMISATION_TRYGET
                     {
                         output.Add(graphic);
                     }

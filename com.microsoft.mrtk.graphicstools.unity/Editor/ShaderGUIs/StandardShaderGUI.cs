@@ -461,8 +461,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             // Cache old shader properties with potentially different names than the new shader.
             float? smoothness = GetFloatProperty(material, "_Glossiness");
+#if CUSTOM
             float? metallic = GetFloatProperty(material, "_Metallic");
             float? alphaClip = GetFloatProperty(material, "_AlphaClip");
+#endif // CUSTOM
             float? diffuse = GetFloatProperty(material, "_UseDiffuse");
             float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
             float? normalMap = null;
@@ -493,6 +495,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     rimLighting = GetFloatProperty(material, "_UseRimLighting");
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                 }
+#if CUSTOM
                 else if (oldShader.name.Contains("Universal Render Pipeline/Lit") || oldShader.name.Contains("Universal Render Pipeline/Unlit") || oldShader.name.Contains("Universal Render Pipeline/Simple Lit") || oldShader.name.Contains("Universal Render Pipeline/Complex Lit"))
                 {
                     normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
@@ -504,14 +507,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     metallic = GetFloatProperty(material, "_Metallic");
                     alphaClip = GetFloatProperty(material, "_AlphaClip");
                 }
+#endif // CUSTOM
             }
 
             base.AssignNewShaderToMaterial(material, oldShader, newShader);
 
             // Apply old shader properties to the new shader.
             SetShaderFeatureActive(material, null, "_Smoothness", smoothness);
+#if CUSTOM
             SetShaderFeatureActive(material, null, "_Metallic", metallic);
             SetShaderFeatureActive(material, null, "_AlphaClip", alphaClip);
+#endif // CUSTOM
 
             if (!newShaderIsStandardCanvas)
             {
@@ -868,7 +874,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     case BorderColorMode.HoverColor:
                         {
                             materialEditor.ShaderProperty(borderMinValue, Styles.borderMinValue, 2);
-                            GUILayout.Box($"Enable the {Styles.hoverLight.text} property and {Styles.enableHoverColorOverride.text} property to alter the color.", EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
+                            GUILayout.Box(string.Format("Enable the {0} property and {1} property to alter the color.", Styles.hoverLight.text, Styles.enableHoverColorOverride.text), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
 
                             material.EnableKeyword(Styles.borderColorModeHoverColorName);
                             material.DisableKeyword(Styles.borderColorModeColorName);
@@ -886,7 +892,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                         break;
                     case BorderColorMode.Gradient:
                         {
-                            GUILayout.Box($"Adjust the {Styles.gradientMode.text} property to alter the color.", EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
+                            GUILayout.Box(string.Format("Adjust the {0} property to alter the color.", Styles.gradientMode.text), EditorStyles.helpBox, Array.Empty<GUILayoutOption>());
 
                             material.DisableKeyword(Styles.borderColorModeHoverColorName);
                             material.DisableKeyword(Styles.borderColorModeColorName);
@@ -1100,7 +1106,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                 // Ensure we always have 'maxKeys' colors keys.
                                 while (colorKeys.Count < maxKeys)
                                 {
+#if OPTIMISATION
                                     colorKeys.Add(colorKeys[^1]);
+#else
+                                    colorKeys.Add(colorKeys[colorKeys.Count - 1]);
+#endif // OPTIMISATION
                                 }
 
                                 Color ToColorTime(GradientColorKey colorKey)
@@ -1118,7 +1128,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                 // Ensure we always have 'maxKeys' alpha keys.
                                 while (alphaKeys.Count < maxKeys)
                                 {
+#if OPTIMISATION
                                     alphaKeys.Add(alphaKeys[^1]);
+#else
+                                    alphaKeys.Add(alphaKeys[alphaKeys.Count - 1]);
+#endif // OPTIMISATION
                                 }
 
                                 gradientAlpha.vectorValue = new Vector4(alphaKeys[0].alpha, alphaKeys[1].alpha, alphaKeys[2].alpha, alphaKeys[3].alpha);
@@ -1161,8 +1175,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                     // Ensure we always have 'maxKeys' colors/keys.
                                     while (colors.Count < maxKeys)
                                     {
+#if OPTIMISATION
                                         colors.Add(colors[^1]);
                                         keys.Add(keys[^1]);
+#else
+                                        colors.Add(colors[colors.Count - 1]);
+                                        keys.Add(keys[keys.Count - 1]);
+#endif // OPTIMISATION
                                     }
 
                                     Color ToColorTime(Color color, float key)

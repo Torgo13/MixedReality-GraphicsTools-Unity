@@ -20,7 +20,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (gameObject != null)
             {
+#if OPTIMISATION_TRYGET
                 if (gameObject.TryGetComponent<RectTransform>(out var rectTransform))
+#else
+                RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+
+                if (rectTransform != null)
+#endif // OPTIMISATION_TRYGET
                 {
                     rectTransform.sizeDelta = new Vector2(32, 32);
                 }

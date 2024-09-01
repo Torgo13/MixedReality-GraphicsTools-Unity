@@ -424,7 +424,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_ScaleRatioAID, _ScaleRatioA);
             material.SetFloat(_ScaleRatioBID, _ScaleRatioB);
             material.SetFloat(_ScaleRatioCID, _ScaleRatioC);
-            material.SetTexture(_MainTexID, _MainTex);
+            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
             material.SetFloat(_TextureWidthID, _TextureWidth);
             material.SetFloat(_TextureHeightID, _TextureHeight);
             material.SetFloat(_GradientScaleID, _GradientScale);

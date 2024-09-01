@@ -1,5 +1,7 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+#define OPTIMISATION
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -66,11 +68,19 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Normal = 1
             }
 
+#if OPTIMISATION
             public static readonly Color32[] TextureUsageColorDefault = new Color32[]
             {
                 new Color32(255, 255, 255, 255),
                 new Color32(127, 127, 255, 255)
             };
+#else
+            public static readonly Color[] TextureUsageColorDefault = new Color[]
+            {
+                new Color(255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f),
+                new Color(127.0f / 255.0f, 127.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f)
+            };
+#endif // OPTIMISATION
 
             [System.Serializable]
             public class TextureSetting
@@ -84,7 +94,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 [Range(0, 256)]
                 public int Padding = 4;
                 public bool OverridePaddingColor = false;
+#if OPTIMISATION
                 public Color32 PaddingColorOverride = TextureUsageColorDefault[0];
+#else
+                public Color PaddingColorOverride = TextureUsageColorDefault[0];
+#endif // OPTIMISATION
             }
 
             public List<TextureSetting> TextureSettings = new List<TextureSetting>()
@@ -127,7 +141,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                                 var dimension = 4;
                                 normalTexture = new Texture2D(dimension, dimension);
                                 var normal = TextureUsageColorDefault[(int)usage];
+#if OPTIMISATION
                                 normalTexture.SetPixels32(Repeat(new Color32(255, normal.g, 255, normal.r), dimension * dimension).ToArray());
+#else
+                                normalTexture.SetPixels(Repeat(new Color(1.0f, normal.g, 1.0f, normal.r), dimension * dimension).ToArray());
+#endif // OPTIMISATION
                                 normalTexture.Apply();
                             }
 
@@ -139,20 +157,42 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public static bool CanCombine(MeshFilter meshFilter, int targetLOD)
         {
-            if (meshFilter == null || meshFilter.sharedMesh == null || meshFilter.sharedMesh.vertexCount == 0)
+            if (meshFilter == null)
+            {
+                return false;
+            }
+
+            if (meshFilter.sharedMesh == null)
+            {
+                return false;
+            }
+
+            if (meshFilter.sharedMesh.vertexCount == 0)
             {
                 return false;
             }
             
+#if OPTIMISATION_TRYGET
             // Don't merge meshes from multiple LOD groups.
             if (meshFilter.TryGetComponent<Renderer>(out var renderer))
             {
+#else
+                var renderer = meshFilter.GetComponent<Renderer>();
+#endif // OPTIMISATION_TRYGET
                 if (renderer is SkinnedMeshRenderer)
                 {
                     // Don't merge skinned meshes.
                     return false;
                 }
                 
+#if OPTIMISATION_TRYGET
+#else
+            // Don't merge meshes from multiple LOD groups.
+            if (renderer != null)
+            {
+#endif // OPTIMISATION_TRYGET
+
+#if OPTIMISATION_LISTPOOL
                 using (UnityEngine.Pool.ListPool<LODGroup>.Get(out var lodGroups))
                 {
                     meshFilter.GetComponentsInParent<LODGroup>(false, lodGroups);
@@ -160,6 +200,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                     for (int j = 0, lodGroupsCount = lodGroups.Count; j < lodGroupsCount; j++)
                     {
                         var lods = lodGroups[j].GetLODs();
+#else
+                    var lodGroups = meshFilter.GetComponentsInParent<LODGroup>();
+
+                    foreach (var lodGroup in lodGroups)
+                    {
+                        var lods = lodGroup.GetLODs();
+#endif // OPTIMISATION_LISTPOOL
 
                         for (int i = 0; i < lods.Length; ++i)
                         {
@@ -175,7 +222,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                             }
                         }
                     }
+#if OPTIMISATION_LISTPOOL
                 }
+#endif // OPTIMISATION_LISTPOOL
             }
 
             return true;
@@ -186,12 +235,23 @@ namespace Microsoft.MixedReality.GraphicsTools
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var output = new MeshCombineResult();
 
+#if OPTIMISATION_LISTPOOL
             var combineInstances = UnityEngine.Pool.ListPool<CombineInstance>.Get();
             var meshIDTable = UnityEngine.Pool.ListPool<MeshCombineResult.MeshID>.Get();
             var textureToCombineInstanceMappings = UnityEngine.Pool.ListPool<Dictionary<Texture2D, List<CombineInstance>>>.Get();
+#else
+            var combineInstances = new List<CombineInstance>();
+            var meshIDTable = new List<MeshCombineResult.MeshID>();
+            var textureToCombineInstanceMappings = new List<Dictionary<Texture2D, List<CombineInstance>>>(settings.TextureSettings.Count);
+#endif // OPTIMISATION_LISTPOOL
+
             Material defaultMaterial = null;
 
+#if OPTIMISATION
             for (int i = 0, textureSettingsCount = settings.TextureSettings.Count; i < textureSettingsCount; i++)
+#else
+            foreach (var textureSetting in settings.TextureSettings)
+#endif // OPTIMISATION
             {
                 textureToCombineInstanceMappings.Add(new Dictionary<Texture2D, List<CombineInstance>>());
             }
@@ -212,11 +272,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             Debug.LogFormat("MeshCombine took {0} ms on {1} meshes.", watch.ElapsedMilliseconds, settings.MeshFilters.Count);
-#endif
+#endif // UNITY_EDITOR || DEBUG
 
+#if OPTIMISATION_LISTPOOL
             UnityEngine.Pool.ListPool<Dictionary<Texture2D, List<CombineInstance>>>.Release(textureToCombineInstanceMappings);
             UnityEngine.Pool.ListPool<MeshCombineResult.MeshID>.Release(meshIDTable);
             UnityEngine.Pool.ListPool<CombineInstance>.Release(combineInstances);
+#endif // OPTIMISATION_LISTPOOL
 
             return output;
         }
@@ -242,7 +304,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 for (int i = 0; i < meshFilter.sharedMesh.subMeshCount; ++i)
                 {
                     var combineInstance = new CombineInstance();
-                    combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh);
+                    combineInstance.mesh = settings.AllowsMeshInstancing() ? meshFilter.sharedMesh : UnityEngine.Object.Instantiate(meshFilter.sharedMesh) as UnityEngine.Mesh;
                     combineInstance.subMeshIndex = i;
 
                     if (settings.BakeMeshIDIntoUVChannel)
@@ -255,7 +317,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (settings.RequiresMaterialData())
                     {
                         Material material = null;
+#if OPTIMISATION_TRYGET
                         if (meshFilter.TryGetComponent<Renderer>(out var renderer))
+#else
+                        var renderer = meshFilter.GetComponent<Renderer>();
+
+                        if (renderer != null)
+#endif // OPTIMISATION_TRYGET
                         {
                             material = renderer.sharedMaterial;
                         }
@@ -280,11 +348,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                             {
                                 // Map textures to CombineInstances
                                 var texture = material.GetTexture(textureSetting.TextureProperty) as Texture2D;
+#if SAFETY
                                 if (texture == null)
                                 {
                                     texture = MeshCombineSettings.GetTextureUsageDefault(textureSetting.Usage);
                                 }
-
+#else
+                                texture = texture ?? MeshCombineSettings.GetTextureUsageDefault(textureSetting.Usage);
+#endif // SAFETY
                                 if (textureToCombineInstanceMappings[textureSettingIndex].TryGetValue(texture, out List<CombineInstance> combineInstanceMappings))
                                 {
                                     combineInstanceMappings.Add(combineInstance);
@@ -314,12 +385,21 @@ namespace Microsoft.MixedReality.GraphicsTools
                                                                                    List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings)
         {
             var output = new List<MeshCombineResult.PropertyTexture2DID>();
+#if OPTIMISATION
             var uvsAltered = new bool[4];
+#else
+            var uvsAltered = new bool[4] { false, false, false, false };
+#endif // OPTIMISATION
             var textureSettingIndex = 0;
 
+#if OPTIMISATION
             for (int k = 0, textureSettingsCount = settings.TextureSettings.Count; k < textureSettingsCount; k++)
             {
                 var textureSetting = settings.TextureSettings[k];
+#else
+            foreach (var textureSetting in settings.TextureSettings)
+            {
+#endif // OPTIMISATION
                 var mapping = textureToCombineInstanceMappings[textureSettingIndex];
                 var sourceChannel = (int)textureSetting.SourceUVChannel;
                 var destChannel = (int)textureSetting.DestUVChannel;
@@ -367,12 +447,22 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                                 foreach (var combineInstance in mapping[textures[i]])
                                 {
+#if OPTIMISATION_LISTPOOL
                                     using (UnityEngine.Pool.ListPool<Vector2>.Get(out var uvs))
                                     {
                                         combineInstance.mesh.GetUVs(sourceChannel, uvs);
                                         using (UnityEngine.Pool.ListPool<Vector2>.Get(out var remappedUvs))
                                         {
+#else
+                                            var uvs = new List<Vector2>();
+                                            combineInstance.mesh.GetUVs(sourceChannel, uvs);
+                                            var remappedUvs = new List<Vector2>(uvs.Count);
+#endif // OPTIMISATION_LISTPOOL
+#if OPTIMISATION
                                             for (int j = 0, uvsCount = uvs.Count; j < uvsCount; ++j)
+#else
+                                            for (var j = 0; j < uvs.Count; ++j)
+#endif // OPTIMISATION
                                             {
                                                 remappedUvs.Add(new Vector2(Mathf.Lerp(rect.xMin, rect.xMax, uvs[j].x),
                                                                             Mathf.Lerp(rect.yMin, rect.yMax, uvs[j].y)));
@@ -380,8 +470,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                                             combineInstance.mesh.SetUVs(destChannel, remappedUvs);
                                         }
+#if OPTIMISATION_LISTPOOL
                                     }
                                 }
+#endif // OPTIMISATION_LISTPOOL
                             }
 
                             uvsAltered[destChannel] = true;
@@ -410,7 +502,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static void PostprocessTexture(Texture2D texture, Rect[] usedRects, MeshCombineSettings.TextureSetting settings)
         {
+#if OPTIMISATION
             var pixels = texture.GetRawTextureData<Color32>();
+#else
+            var pixels = texture.GetPixels();
+#endif // OPTIMISATION
             var width = texture.width;
             var height = texture.height;
 
@@ -435,6 +531,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         if (settings.Usage == MeshCombineSettings.TextureUsage.Normal)
                         {
                             // Apply Unity's UnpackNormalDXT5nm method to go from DXTnm to RGB.
+#if OPTIMISATION
                             int index = y * width + x;
                             var c = pixels[index];
                             c.r = c.a;
@@ -443,6 +540,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                             double dot = red * red + green * green;
                             c.b = (byte)((System.Math.Sqrt(1.0 - System.Math.Clamp(dot, 0.0, 1.0)) * 0.5 + 0.5) * 255.0);
                             pixels[index] = c;
+#else
+                            var c = pixels[(y * width) + x];
+                            c.r = c.a;
+                            Vector2 normal = new Vector2(c.r, c.g);
+                            c.b = (Mathf.Sqrt(1.0f - Mathf.Clamp01(Vector2.Dot(normal, normal))) * 0.5f) + 0.5f;
+                            pixels[(y * width) + x] = c;
+#endif // OPTIMISATION
                         }
                     }
                     else
@@ -455,6 +559,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
+#if OPTIMISATION
+#else
+            texture.SetPixels(pixels);
+#endif // OPTIMISATION
             texture.Apply();
         }
 

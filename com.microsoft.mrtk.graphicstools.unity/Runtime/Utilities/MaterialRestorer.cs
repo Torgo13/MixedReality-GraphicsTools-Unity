@@ -43,6 +43,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // Ensure this material represents an asset.
                 if (AssetDatabase.Contains(material))
                 {
+#if OPTIMISATION
                     if (materialsToRestore.TryGetValue(material, out MaterialSnapshot value))
                     {
                         ++value.RefCount;
@@ -51,6 +52,16 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         materialsToRestore.Add(material, new MaterialSnapshot(new Material(material)));
                     }
+#else
+                    if (!materialsToRestore.ContainsKey(material))
+                    {
+                        materialsToRestore.Add(material, new MaterialSnapshot(new Material(material)));
+                    }
+                    else
+                    {
+                        ++materialsToRestore[material].RefCount;
+                    }
+#endif // OPTIMISATION
                 }
             }
 #endif
@@ -69,8 +80,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (materialsToRestore.TryGetValue(material, out materialRef))
                 {
                     --materialRef.RefCount;
-
+#if SAFETY
                     if (materialRef.RefCount < 1)
+#else
+                    if (materialRef.RefCount == 0)
+#endif // SAFETY
                     {
                         if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(material.GetInstanceID(), out string guid, out long _) && !new GUID(guid).Empty())
                         {

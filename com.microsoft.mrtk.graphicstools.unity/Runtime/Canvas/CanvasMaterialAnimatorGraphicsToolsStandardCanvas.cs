@@ -1093,7 +1093,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public override void ApplyToMaterial(Material material)
         {
             material.SetColor(_ColorID, _Color);
-            material.SetTexture(_MainTexID, _MainTex);
+            material.SetTexture(_MainTexID, (Texture2D)_MainTex);
             material.SetFloat(_AlbedoAlphaModeID, _AlbedoAlphaMode);
             material.SetFloat(_AlbedoAssignedAtRuntimeID, _AlbedoAssignedAtRuntime);
             material.SetFloat(_CutoffID, _Cutoff);
@@ -1101,13 +1101,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetFloat(_MetallicID, _Metallic);
             material.SetFloat(_SmoothnessID, _Smoothness);
             material.SetFloat(_EnableChannelMapID, _EnableChannelMap);
-            material.SetTexture(_ChannelMapID, _ChannelMap);
+            material.SetTexture(_ChannelMapID, (Texture2D)_ChannelMap);
             material.SetFloat(_EnableNormalMapID, _EnableNormalMap);
-            material.SetTexture(_NormalMapID, _NormalMap);
+            material.SetTexture(_NormalMapID, (Texture2D)_NormalMap);
             material.SetFloat(_NormalMapScaleID, _NormalMapScale);
             material.SetFloat(_EnableEmissionID, _EnableEmission);
             material.SetColor(_EmissiveColorID, _EmissiveColor);
-            material.SetTexture(_EmissiveMapID, _EmissiveMap);
+            material.SetTexture(_EmissiveMapID, (Texture2D)_EmissiveMap);
             material.SetFloat(_EnableTriplanarMappingID, _EnableTriplanarMapping);
             material.SetFloat(_EnableLocalSpaceTriplanarMappingID, _EnableLocalSpaceTriplanarMapping);
             material.SetFloat(_TriplanarMappingBlendSharpnessID, _TriplanarMappingBlendSharpness);
@@ -1166,7 +1166,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             material.SetColor(_InnerGlowColorID, _InnerGlowColor);
             material.SetFloat(_InnerGlowPowerID, _InnerGlowPower);
             material.SetFloat(_GradientModeID, _GradientMode);
-            material.SetTexture(_IridescentSpectrumMapID, _IridescentSpectrumMap);
+            material.SetTexture(_IridescentSpectrumMapID, (Texture2D)_IridescentSpectrumMap);
             material.SetFloat(_IridescenceIntensityID, _IridescenceIntensity);
             material.SetFloat(_IridescenceThresholdID, _IridescenceThreshold);
             material.SetFloat(_IridescenceAngleID, _IridescenceAngle);

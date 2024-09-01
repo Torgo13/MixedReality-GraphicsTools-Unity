@@ -52,8 +52,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (masksToFix.Count != 0)
             {
+#if OPTIMISATION
                 EditorGUILayout.HelpBox($"This component may be slow when masking many objects, consider switching to {nameof(RectMask2DFast)}.", MessageType.Warning);
                 if (GUILayout.Button($"Replace with {nameof(RectMask2DFast)}"))
+#else
+                EditorGUILayout.HelpBox($"This component may be slow when masking many objects, consider switching to {typeof(RectMask2DFast).Name}.", MessageType.Warning);
+                if (GUILayout.Button($"Replace with {typeof(RectMask2DFast).Name}"))
+#endif // OPTIMISATION
                 {
                     foreach (var mask in masksToFix)
                     {
@@ -75,7 +80,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             foreach (GameObject target in targets)
             {
+#if OPTIMISATION_TRYGET
                 if (target.TryGetComponent<RectMask2D>(out RectMask2D mask) && (mask as RectMask2DFast) == null)
+#else
+                RectMask2D mask = target.GetComponent<RectMask2D>();
+
+                if (mask != null && mask as RectMask2DFast == null)
+#endif // OPTIMISATION_TRYGET
                 {
                     output.Add(mask);
                 }
