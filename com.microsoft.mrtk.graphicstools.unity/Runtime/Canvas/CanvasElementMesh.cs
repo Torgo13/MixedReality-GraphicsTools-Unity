@@ -179,48 +179,42 @@ namespace Microsoft.MixedReality.GraphicsTools
             rectPivot.z = ZPivot;
 
 #if OPTIMISATION_LISTPOOL && SPELLING
-            using (UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticesTRS))
-            {
-                uiVerticesTRS.AddRange(uiVertices);
+            using var _ = UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticesTRS);
+            uiVerticesTRS.AddRange(uiVertices);
 #elif OPTIMISATION_LISTPOOL
-            using (UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticiesTRS))
-            {
-                uiVerticiesTRS.AddRange(uiVerticies);
+            using var _ = UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticiesTRS);
+            uiVerticiesTRS.AddRange(uiVerticies);
 #elif SPELLING
-                List<UIVertex> uiVerticesTRS = new List<UIVertex>(uiVertices);
+            List<UIVertex> uiVerticesTRS = new List<UIVertex>(uiVertices);
 #else
-                List<UIVertex> uiVerticiesTRS = new List<UIVertex>(uiVerticies);
+            List<UIVertex> uiVerticiesTRS = new List<UIVertex>(uiVerticies);
 #endif // OPTIMISATION_LISTPOOL && SPELLING
-                // Scale, translate and rotate vertices.
+            // Scale, translate and rotate vertices.
 #if SPELLING
-                for (int i = 0; i < uiVerticesCount; i++)
-                {
-                    UIVertex vertex = uiVerticesTRS[i];
+            for (int i = 0; i < uiVerticesCount; i++)
+            {
+                UIVertex vertex = uiVerticesTRS[i];
 
-                    // Scale the vector from the normalized position to the pivot by the rect size.
-                    vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
+                // Scale the vector from the normalized position to the pivot by the rect size.
+                vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
 
-                    uiVerticesTRS[i] = vertex;
-                }
-
-                vh.AddUIVertexStream(uiVerticesTRS, uiIndices);
-#else
-                for (int i = 0; i < uiVerticiesTRS.Count; i++)
-                {
-                    UIVertex vertex = uiVerticiesTRS[i];
-
-                    // Scale the vector from the normalized position to the pivot by the rect size.
-                    vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
-
-                    uiVerticiesTRS[i] = vertex;
-                }
-
-                vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
-#endif // SPELLING
-                
-#if OPTIMISATION_LISTPOOL
+                uiVerticesTRS[i] = vertex;
             }
-#endif // OPTIMISATION_LISTPOOL
+
+            vh.AddUIVertexStream(uiVerticesTRS, uiIndices);
+#else
+            for (int i = 0; i < uiVerticiesTRS.Count; i++)
+            {
+                UIVertex vertex = uiVerticiesTRS[i];
+
+                // Scale the vector from the normalized position to the pivot by the rect size.
+                vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
+
+                uiVerticiesTRS[i] = vertex;
+            }
+
+            vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
+#endif // SPELLING
         }
 
 #endregion Graphic Implementation

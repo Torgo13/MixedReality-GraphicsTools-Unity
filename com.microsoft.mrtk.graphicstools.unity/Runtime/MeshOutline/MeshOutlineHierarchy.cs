@@ -178,40 +178,28 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void Create()
         {
 #if OPTIMISATION_LISTPOOL
-            using (UnityEngine.Pool.ListPool<MeshRenderer>.Get(out var meshRenderers))
-            {
-                GetComponentsInChildren<MeshRenderer>(meshRenderers);
-
-                for (int i = 0, meshRenderersCount = meshRenderers.Count; i < meshRenderersCount; ++i)
+            using var _ = UnityEngine.Pool.ListPool<MeshRenderer>.Get(out var meshRenderers);
+            GetComponentsInChildren<MeshRenderer>(meshRenderers);
+            for (int i = 0, meshRenderersCount = meshRenderers.Count; i < meshRenderersCount; ++i)
 #else
-                var meshRenderers = GetComponentsInChildren<MeshRenderer>();
-
-                for (int i = 0; i < meshRenderers.Length; ++i)
+            var meshRenderers = GetComponentsInChildren<MeshRenderer>();
+            for (int i = 0; i < meshRenderers.Length; ++i)
 #endif // OPTIMISATION_LISTPOOL
-                {
-                    AddMeshOutline(meshRenderers[i]);
-                }
-#if OPTIMISATION_LISTPOOL
-            }
-#endif // OPTIMISATION_LISTPOOL
-
-#if OPTIMISATION_LISTPOOL
-            using (UnityEngine.Pool.ListPool<SkinnedMeshRenderer>.Get(out var skinnedMeshRenderers))
             {
-                GetComponentsInChildren<SkinnedMeshRenderer>(skinnedMeshRenderers);
-
-                for (int i = 0, skinnedMeshRenderersCount = skinnedMeshRenderers.Count; i < skinnedMeshRenderersCount; ++i)
-#else
-                var skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
-
-                for (int i = 0; i < skinnedMeshRenderers.Length; ++i)
-#endif // OPTIMISATION_LISTPOOL
-                {
-                    AddMeshOutline(skinnedMeshRenderers[i]);
-                }
-#if OPTIMISATION_LISTPOOL
+                AddMeshOutline(meshRenderers[i]);
             }
+
+#if OPTIMISATION_LISTPOOL
+            using var _0 = UnityEngine.Pool.ListPool<SkinnedMeshRenderer>.Get(out var skinnedMeshRenderers);
+            GetComponentsInChildren<SkinnedMeshRenderer>(skinnedMeshRenderers);
+            for (int i = 0, skinnedMeshRenderersCount = skinnedMeshRenderers.Count; i < skinnedMeshRenderersCount; ++i)
+#else
+            var skinnedMeshRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+            for (int i = 0; i < skinnedMeshRenderers.Length; ++i)
 #endif // OPTIMISATION_LISTPOOL
+            {
+                AddMeshOutline(skinnedMeshRenderers[i]);
+            }
         }
 
         /// <summary>

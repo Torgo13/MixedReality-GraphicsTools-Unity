@@ -446,34 +446,30 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Vector2 pixelSize = new Vector2(1.0f / width, 1.0f / height);
 
 #if OPTIMISATION_LISTPOOL
-                using (UnityEngine.Pool.ListPool<float>.Get(out var widths))
-                {
-                    AcrylicBlurRenderPass.BlurWidths(ref widths, settings.blurPasses);
-                    for (int i = 0, widthsCount = widths.Count; i < widthsCount; i++)
+                using var _ = UnityEngine.Pool.ListPool<float>.Get(out var widths);
+                AcrylicBlurRenderPass.BlurWidths(ref widths, settings.blurPasses);
+                for (int i = 0, widthsCount = widths.Count; i < widthsCount; i++)
 #else
-                    float[] widths = AcrylicBlurRenderPass.BlurWidths(settings.blurPasses);
-                    for (int i = 0; i < widths.Length; i++)
+                float[] widths = AcrylicBlurRenderPass.BlurWidths(settings.blurPasses);
+                for (int i = 0; i < widths.Length; i++)
 #endif // OPTIMISATION_LISTPOOL
-                    {
+                {
 #if OPTIMISATION_SHADERPARAMS
-                        cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
+                    cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
 #else
-                        cmd.SetGlobalVector("_AcrylicBlurOffset", (0.5f + widths[i]) * pixelSize);
+                    cmd.SetGlobalVector("_AcrylicBlurOffset", (0.5f + widths[i]) * pixelSize);
 #endif // OPTIMISATION_SHADERPARAMS
 
-                        LocalBlit(cmd, source, destination, kawaseBlur);
+                    LocalBlit(cmd, source, destination, kawaseBlur);
 
 #if OPTIMISATION
-                        (source, destination) = (destination, source);
+                    (source, destination) = (destination, source);
 #else
-                        var swap = source;
-                        source = destination;
-                        destination = swap;
+                    var swap = source;
+                    source = destination;
+                    destination = swap;
 #endif // OPTIMISATION
-                    }
-#if OPTIMISATION_LISTPOOL
                 }
-#endif // OPTIMISATION_LISTPOOL
 
                 Graphics.ExecuteCommandBuffer(cmd);
 

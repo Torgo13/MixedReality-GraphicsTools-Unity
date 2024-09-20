@@ -193,38 +193,34 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif // OPTIMISATION_TRYGET
 
 #if OPTIMISATION_LISTPOOL
-                using (UnityEngine.Pool.ListPool<LODGroup>.Get(out var lodGroups))
+                using var _ = UnityEngine.Pool.ListPool<LODGroup>.Get(out var lodGroups);
+                meshFilter.GetComponentsInParent<LODGroup>(false, lodGroups);
+
+                for (int j = 0, lodGroupsCount = lodGroups.Count; j < lodGroupsCount; j++)
                 {
-                    meshFilter.GetComponentsInParent<LODGroup>(false, lodGroups);
-
-                    for (int j = 0, lodGroupsCount = lodGroups.Count; j < lodGroupsCount; j++)
-                    {
-                        var lods = lodGroups[j].GetLODs();
+                    var lods = lodGroups[j].GetLODs();
 #else
-                    var lodGroups = meshFilter.GetComponentsInParent<LODGroup>();
+                var lodGroups = meshFilter.GetComponentsInParent<LODGroup>();
 
-                    foreach (var lodGroup in lodGroups)
-                    {
-                        var lods = lodGroup.GetLODs();
+                foreach (var lodGroup in lodGroups)
+                {
+                    var lods = lodGroup.GetLODs();
 #endif // OPTIMISATION_LISTPOOL
 
-                        for (int i = 0; i < lods.Length; ++i)
+                    for (int i = 0; i < lods.Length; ++i)
+                    {
+                        if (i == targetLOD)
                         {
-                            if (i == targetLOD)
-                            {
-                                continue;
-                            }
+                            continue;
+                        }
 
-                            // If this renderer is contained in a parent LOD group which is not being merged, ignore it.
-                            if (Array.Exists(lods[i].renderers, element => element == renderer))
-                            {
-                                return false;
-                            }
+                        // If this renderer is contained in a parent LOD group which is not being merged, ignore it.
+                        if (Array.Exists(lods[i].renderers, element => element == renderer))
+                        {
+                            return false;
                         }
                     }
-#if OPTIMISATION_LISTPOOL
                 }
-#endif // OPTIMISATION_LISTPOOL
             }
 
             return true;
@@ -448,32 +444,26 @@ namespace Microsoft.MixedReality.GraphicsTools
                                 foreach (var combineInstance in mapping[textures[i]])
                                 {
 #if OPTIMISATION_LISTPOOL
-                                    using (UnityEngine.Pool.ListPool<Vector2>.Get(out var uvs))
-                                    {
-                                        combineInstance.mesh.GetUVs(sourceChannel, uvs);
-                                        using (UnityEngine.Pool.ListPool<Vector2>.Get(out var remappedUvs))
-                                        {
+                                    using var _ = UnityEngine.Pool.ListPool<Vector2>.Get(out var uvs);
+                                    combineInstance.mesh.GetUVs(sourceChannel, uvs);
+                                    using var _0 = UnityEngine.Pool.ListPool<Vector2>.Get(out var remappedUvs);
 #else
-                                            var uvs = new List<Vector2>();
-                                            combineInstance.mesh.GetUVs(sourceChannel, uvs);
-                                            var remappedUvs = new List<Vector2>(uvs.Count);
+                                    var uvs = new List<Vector2>();
+                                    combineInstance.mesh.GetUVs(sourceChannel, uvs);
+                                    var remappedUvs = new List<Vector2>(uvs.Count);
 #endif // OPTIMISATION_LISTPOOL
 #if OPTIMISATION
-                                            for (int j = 0, uvsCount = uvs.Count; j < uvsCount; ++j)
+                                    for (int j = 0, uvsCount = uvs.Count; j < uvsCount; ++j)
 #else
-                                            for (var j = 0; j < uvs.Count; ++j)
+                                    for (var j = 0; j < uvs.Count; ++j)
 #endif // OPTIMISATION
-                                            {
-                                                remappedUvs.Add(new Vector2(Mathf.Lerp(rect.xMin, rect.xMax, uvs[j].x),
-                                                                            Mathf.Lerp(rect.yMin, rect.yMax, uvs[j].y)));
-                                            }
-
-                                            combineInstance.mesh.SetUVs(destChannel, remappedUvs);
-                                        }
-#if OPTIMISATION_LISTPOOL
+                                    {
+                                        remappedUvs.Add(new Vector2(Mathf.Lerp(rect.xMin, rect.xMax, uvs[j].x),
+                                                                    Mathf.Lerp(rect.yMin, rect.yMax, uvs[j].y)));
                                     }
+
+                                    combineInstance.mesh.SetUVs(destChannel, remappedUvs);
                                 }
-#endif // OPTIMISATION_LISTPOOL
                             }
 
                             uvsAltered[destChannel] = true;
