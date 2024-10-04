@@ -53,6 +53,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif // UNITY_EDITOR || DEBUG
 
             Material output = new Material(source);
+            output.CopyPropertiesFromMaterial(source);
             output.name += InstancePostfix;
 
             return output;
