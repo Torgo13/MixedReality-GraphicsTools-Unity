@@ -78,11 +78,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 AcquireInstances();
             }
-#if SAFETY
-            if (instanceMaterials != null && instanceMaterials.Length > 0)
-#else
+
             if (instanceMaterials?.Length > 0)
-#endif // SAFETY
             {
                 return instanceMaterials[0];
             }
@@ -286,11 +283,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static bool MaterialsMatch(List<Material> a, Material[] b)
         {
-#if SAFETY
-            if (a == null || b == null || a.Count != b.Length)
-#else
             if (a?.Count != b?.Length)
-#endif // SAFETY
             {
                 return false;
             }

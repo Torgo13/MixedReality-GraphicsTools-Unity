@@ -45,6 +45,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             buffers = new List<RenderTexture>();
         }
 
+#if OPTIMISATION_IDISPOSABLE
         public void Dispose()
         {
             Dispose(true);
@@ -55,6 +56,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             FreeBuffers();
         }
+#else
+        public void Dispose()
+        {
+            FreeBuffers();
+        }
+#endif // OPTIMISATION_IDISPOSABLE
 
         public void QueueBlur(CommandBuffer cmd, RenderTexture image, int iterations)
         {

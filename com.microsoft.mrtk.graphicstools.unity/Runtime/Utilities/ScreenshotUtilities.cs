@@ -15,34 +15,34 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     public static class ScreenshotUtilities
     {
-        private static void CaptureScreenshot1x()
+        private static bool CaptureScreenshot1x()
         {
-            CaptureScreenshot(GetScreenshotPath(), 1);
+            return CaptureScreenshot(GetScreenshotPath(), 1);
         }
 
-        private static void CaptureScreenshot1xAlphaComposite()
+        private static bool CaptureScreenshot1xAlphaComposite()
         {
-            CaptureScreenshot(GetScreenshotPath(), 1, true);
+            return CaptureScreenshot(GetScreenshotPath(), 1, true);
         }
 
-        private static void CaptureScreenshot2x()
+        private static bool CaptureScreenshot2x()
         {
-            CaptureScreenshot(GetScreenshotPath(), 2);
+            return CaptureScreenshot(GetScreenshotPath(), 2);
         }
 
-        private static void CaptureScreenshot2xAlphaComposite()
+        private static bool CaptureScreenshot2xAlphaComposite()
         {
-            CaptureScreenshot(GetScreenshotPath(), 2, true);
+            return CaptureScreenshot(GetScreenshotPath(), 2, true);
         }
 
-        private static void CaptureScreenshot4x()
+        private static bool CaptureScreenshot4x()
         {
-            CaptureScreenshot(GetScreenshotPath(), 4);
+            return CaptureScreenshot(GetScreenshotPath(), 4);
         }
 
-        private static void CaptureScreenshot4xAlphaComposite()
+        private static bool CaptureScreenshot4xAlphaComposite()
         {
-            CaptureScreenshot(GetScreenshotPath(), 4, true);
+            return CaptureScreenshot(GetScreenshotPath(), 4, true);
         }
 
         /// <summary>

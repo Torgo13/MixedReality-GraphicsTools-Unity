@@ -68,28 +68,28 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
- /// Call this method to restore a material to the state in time it was called with AddMaterialSnapshot.
- /// This only works with material assets.
- /// </summary>
- public static void Restore(Material material)
+        /// Call this method to restore a material to the state in time it was called with AddMaterialSnapshot.
+        /// This only works with material assets.
+        /// </summary>
+        public static void Restore(Material material)
         {
 #if UNITY_EDITOR
- if (material != null)
+            if (material != null)
             {
                 MaterialSnapshot materialRef;
                 if (materialsToRestore.TryGetValue(material, out materialRef))
                 {
                     --materialRef.RefCount;
 #if SAFETY
-                    if (materialRef.RefCount < 1)
+                    if (materialRef.RefCount <= 0)
 #else
                     if (materialRef.RefCount == 0)
 #endif // SAFETY
                     {
                         if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(material.GetInstanceID(), out string guid, out long _) && !new GUID(guid).Empty())
                         {
-                             // Restore to the original material snapshot.
-                             material.CopyPropertiesFromMaterial(materialRef.Snapshot);
+                            // Restore to the original material snapshot.
+                            material.CopyPropertiesFromMaterial(materialRef.Snapshot);
 
                             // SaveAssetIfDirty does not exist in 2021.1.10f1.
 #if UNITY_2021_2_OR_NEWER
@@ -108,6 +108,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 #endif
- }
+        }
     }
 }

@@ -613,7 +613,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         }
 
                         layerData[i].UpdateFrame(rendererData, captureMethod == AcrylicMethod.CopyFramebuffer, updatePeriod, blendFrames, blendMaterial, autoUpdateBlurMap);
-                        if (captureMethod==AcrylicMethod.CopyFramebuffer)
+                        if (captureMethod == AcrylicMethod.CopyFramebuffer)
                         {
                             bool inList = layerData[i].InFeaturesList(rendererData);
                             if (layerData[i].CaptureNextFrame)
@@ -628,6 +628,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         }
                     }
                 }
+
                 if (updateActiveFeatures) UpdateActiveLayers();
 #endif // OPTIMISATION
                 

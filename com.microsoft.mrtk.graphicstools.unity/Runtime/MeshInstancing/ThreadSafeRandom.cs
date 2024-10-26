@@ -30,6 +30,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+#if CUSTOM
         /// <summary>
         /// Returns a random double within [0.0..1.0] (range is inclusive) (Read Only).
         /// </summary>
@@ -41,6 +42,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return local.NextDouble();
             }
         }
+#endif // CUSTOM
 
         /// <summary>
         /// Returns a random int within [minInclusive..maxInclusive] (range is inclusive).
@@ -59,6 +61,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             return value * (max - min) + min;
         }
 
+#if CUSTOM
         /// <summary>
         /// Returns a random double within [minInclusive..maxInclusive] (range is inclusive).
         /// </summary>
@@ -66,6 +69,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             return doubleValue * (max - min) + min;
         }
+#endif // CUSTOM
 
         /// <summary>
         /// Returns a random point inside or on a circle with radius 1.0 (Read Only).
