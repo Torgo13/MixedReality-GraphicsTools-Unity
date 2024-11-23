@@ -90,15 +90,15 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 if (camera == null)
                 {
+#if UNITY_6000_0_OR_NEWER
+                    camera = GameObject.FindFirstObjectByType<Camera>();
+#else
 #if UNITY_2022_3_OR_NEWER
                     camera = GameObject.FindFirstObjectByType<Camera>();
 #else
-#if UNITY_2023_1_OR_NEWER
-                    camera = GameObject.FindFirstObjectByType<Camera>();
-#else
                     camera = GameObject.FindObjectOfType<Camera>();
+#endif // UNITY_2022_3_OR_NEWER
 #endif
-#endif // UNITY_2023_1_OR_NEWER
 
                     if (camera == null)
                     {
