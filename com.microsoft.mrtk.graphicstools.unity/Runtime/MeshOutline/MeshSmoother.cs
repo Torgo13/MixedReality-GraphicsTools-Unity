@@ -174,16 +174,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <returns>True if the mesh was already processed, false otherwise.</returns>
         private bool AcquirePreprocessedMesh(out UnityEngine.Mesh mesh)
         {
-#if OPTIMISATION_TRYGET
-            bool meshFilterFound = meshFilter != null;
-            if (!meshFilterFound)
-            {
-                meshFilterFound = TryGetComponent<MeshFilter>(out meshFilter);
-            }
-
-            // No mesh filter, mesh cannot be processed, so return a null mesh.
-            if (!meshFilterFound)
-#else
             if (meshFilter == null)
             {
                 meshFilter = GetComponent<MeshFilter>();
@@ -191,7 +181,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // No mesh filter, mesh cannot be processed, so return a null mesh.
             if (meshFilter == null)
-#endif // OPTIMISATION_TRYGET
             {
                 mesh = null;
 

@@ -447,7 +447,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string RemoveWhitespace(string input)
         {
+#if OPTIMISATION
+            return input.Where(c => !Char.IsWhiteSpace(c)).ToString();
+#else
             return new string(input.ToCharArray().Where(c => !Char.IsWhiteSpace(c)).ToArray());
+#endif // OPTIMISATION
         }
 
         /// <summary>

@@ -33,14 +33,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void Awake()
         {
 #if UNITY_EDITOR || DEBUG
-
-#if OPTIMISATION_TRYGET
-            if (!TryGetComponent<MeshRenderer>(out var _) &&
-                !TryGetComponent<SkinnedMeshRenderer>(out var _))
-#else
             if (GetComponent<MeshRenderer>() == null && 
                 GetComponent<SkinnedMeshRenderer>() == null)
-#endif // OPTIMISATION_TRYGET
             {
                 Debug.LogWarning($"{this.GetType()} is not supported on this type of renderer.");
             }

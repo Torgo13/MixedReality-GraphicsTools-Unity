@@ -130,11 +130,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
                 foreach (Graphic graphic in graphics)
                 {
-#if OPTIMISATION_TRYGET
-                    if (StandardShaderUtility.IsUsingGraphicsToolsStandardShader(graphic.material) && !graphic.TryGetComponent<ScaleMeshEffect>(out var _))
-#else
                     if (StandardShaderUtility.IsUsingGraphicsToolsStandardShader(graphic.material) && graphic.GetComponent<ScaleMeshEffect>() == null)
-#endif // OPTIMISATION_TRYGET
                     {
                         output.Add(graphic);
                     }

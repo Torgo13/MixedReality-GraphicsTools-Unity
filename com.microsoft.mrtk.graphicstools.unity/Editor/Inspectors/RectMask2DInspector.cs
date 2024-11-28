@@ -80,13 +80,9 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             foreach (GameObject target in targets)
             {
-#if OPTIMISATION_TRYGET
-                if (target.TryGetComponent<RectMask2D>(out RectMask2D mask) && (mask as RectMask2DFast) == null)
-#else
                 RectMask2D mask = target.GetComponent<RectMask2D>();
 
                 if (mask != null && mask as RectMask2DFast == null)
-#endif // OPTIMISATION_TRYGET
                 {
                     output.Add(mask);
                 }

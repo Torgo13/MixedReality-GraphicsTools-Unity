@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#define OPTIMISATION
-
 #if GT_USE_URP
 using UnityEngine;
 using UnityEngine.UI;
@@ -97,13 +95,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             get
             {
                 Texture output = null;
-#if OPTIMISATION_TRYGET
-                if (TryGetComponent<Image>(out var image))
-#else
                 Image image = GetComponent<Image>();
 
                 if (image != null)
-#endif // OPTIMISATION_TRYGET
                 {
 #if OPTIMISATION
                     if (image.sprite != null)
@@ -116,13 +110,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
                 else
                 {
-#if OPTIMISATION_TRYGET
-                    if (TryGetComponent<RawImage>(out var rawImage))
-#else
                     RawImage rawImage = GetComponent<RawImage>();
 
                     if (rawImage != null)
-#endif // OPTIMISATION_TRYGET
                     {
                         output = rawImage.texture;
                     }

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#define OPTIMISATION
-
 #if GT_USE_UGUI
 using UnityEngine;
 using UnityEngine.UI;

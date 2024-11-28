@@ -63,25 +63,17 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void Start()
         {
-#if OPTIMISATION_TRYGET
-            if (gameObject.TryGetComponent<Renderer>(out var _renderer))
-#else
             _renderer = gameObject.GetComponent<Renderer>();
 
             if (_renderer != null)
-#endif // OPTIMISATION_TRYGET
             {
                 materialProperty = new MaterialPropertyBlock();
             }
             else
             {
-#if OPTIMISATION_TRYGET
-                if (!TryGetComponent<CanvasMaterialAnimatorCanvasFrontplate>(out var _))
-#else
                 animator = GetComponent<CanvasMaterialAnimatorCanvasFrontplate>();
 
                 if (animator == null)
-#endif // OPTIMISATION_TRYGET
                 {
                     graphic = GetComponent<Graphic>();
                     MaterialRestorer.Capture(graphic.material);

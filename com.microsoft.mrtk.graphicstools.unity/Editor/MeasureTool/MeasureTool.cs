@@ -70,19 +70,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured</param>
         private void DrawAuto(GameObject gameObject)
         {
-#if OPTIMISATION_TRYGET
-            if (gameObject.TryGetComponent<RectTransform>(out var _))
-#else
             if (gameObject.GetComponent<RectTransform>() != null)
-#endif // OPTIMISATION_TRYGET
             {
                 DrawRectMeasurement(gameObject);
             }
-#if OPTIMISATION_TRYGET
-            else if (gameObject.TryGetComponent<Renderer>(out var _))
-#else
             else if (gameObject.GetComponent<Renderer>() != null)
-#endif // OPTIMISATION_TRYGET
             {
                 DrawRendererMeasurement(gameObject);
             }
@@ -101,15 +93,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured, requires a RectTransform attached</param>
         private void DrawRectMeasurement(GameObject gameObject)
         {
-#if OPTIMISATION_TRYGET
-            if (!gameObject.TryGetComponent<RectTransform>(out var rt))
-            {
-                return;
-            }
-#else
             RectTransform rt = gameObject.GetComponent<RectTransform>();
             if (rt == null) return;
-#endif // OPTIMISATION_TRYGET
 
             Vector3[] v = new Vector3[4];
 
@@ -142,15 +127,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="gameObject">GameObject to be measured, requires a 3D collider attached</param>
         private void DrawColliderMeasurement(GameObject gameObject)
         {
-#if OPTIMISATION_TRYGET
-            if (!gameObject.TryGetComponent<Collider>(out var col))
-            {
-                return;
-            }
-#else
             Collider col = gameObject.GetComponent<Collider>();
             if (col == null) return;
-#endif // OPTIMISATION_TRYGET
 
             Vector3[] array = VerticesFromBounds(col.bounds);
 
@@ -202,15 +180,8 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         ///<param name = "gameObject" > GameObject to be measured, requires a Renderer attached</param>
         private void DrawRendererMeasurement(GameObject gameObject)
         {
-#if OPTIMISATION_TRYGET
-            if (!gameObject.TryGetComponent<Renderer>(out var rend))
-            {
-                return;
-            }
-#else
             Renderer rend = gameObject.GetComponent<Renderer>();
             if (rend == null) return;
-#endif // OPTIMISATION_TRYGET
 
             Handles.color = settings.LineColor;
 

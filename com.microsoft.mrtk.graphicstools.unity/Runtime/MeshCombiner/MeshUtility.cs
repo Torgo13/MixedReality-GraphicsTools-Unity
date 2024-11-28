@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#define OPTIMISATION
-
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -172,25 +170,16 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return false;
             }
             
-#if OPTIMISATION_TRYGET
-            // Don't merge meshes from multiple LOD groups.
-            if (meshFilter.TryGetComponent<Renderer>(out var renderer))
+            var renderer = meshFilter.GetComponent<Renderer>();
+            if (renderer is SkinnedMeshRenderer)
             {
-#else
-                var renderer = meshFilter.GetComponent<Renderer>();
-#endif // OPTIMISATION_TRYGET
-                if (renderer is SkinnedMeshRenderer)
-                {
-                    // Don't merge skinned meshes.
-                    return false;
-                }
+                // Don't merge skinned meshes.
+                return false;
+            }
                 
-#if OPTIMISATION_TRYGET
-#else
             // Don't merge meshes from multiple LOD groups.
             if (renderer != null)
             {
-#endif // OPTIMISATION_TRYGET
 
 #if OPTIMISATION_LISTPOOL
                 using var _ = UnityEngine.Pool.ListPool<LODGroup>.Get(out var lodGroups);
@@ -313,13 +302,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (settings.RequiresMaterialData())
                     {
                         Material material = null;
-#if OPTIMISATION_TRYGET
-                        if (meshFilter.TryGetComponent<Renderer>(out var renderer))
-#else
                         var renderer = meshFilter.GetComponent<Renderer>();
 
                         if (renderer != null)
-#endif // OPTIMISATION_TRYGET
                         {
                             material = renderer.sharedMaterial;
                         }
@@ -335,7 +320,12 @@ namespace Microsoft.MixedReality.GraphicsTools
                             if (settings.BakeMaterialColorIntoVertexColor)
                             {
                                 // Write the material color to all vertex colors.
+#if OPTIMISATION
+                                var mesh = combineInstance.mesh;
+                                mesh.SetColors(Repeat(material.color, mesh.vertexCount));
+#else
                                 combineInstance.mesh.colors = Repeat(material.color, combineInstance.mesh.vertexCount).ToArray();
+#endif // OPTIMISATION
                             }
 
                             var textureSettingIndex = 0;

@@ -81,22 +81,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void UpdateMaterialState()
         {
-#if OPTIMISATION_TRYGET
-            bool cachedGraphicFound = cachedGraphic != null;
-            if (!cachedGraphicFound)
-            {
-                cachedGraphicFound = TryGetComponent<Graphic>(out cachedGraphic);
-            }
-
-            if (cachedGraphicFound)
-#else
             if (cachedGraphic == null)
             {
                 cachedGraphic = GetComponent<Graphic>();
             }
 
             if (cachedGraphic != null)
-#endif // OPTIMISATION_TRYGET
             {
                 useAcrylic = AcrylicLayerManager.Instance != null && AcrylicLayerManager.Instance.AcrylicActive;
                 SetMaterialState(cachedGraphic.material, "_BLUR_TEXTURE_ENABLE_", useAcrylic && blurLayer == 0);

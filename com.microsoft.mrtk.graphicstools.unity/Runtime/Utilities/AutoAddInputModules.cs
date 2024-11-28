@@ -15,24 +15,15 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void OnValidate()
         {
             // Check if a valid input module exists.
-#if OPTIMISATION_TRYGET
-            if (TryGetComponent<EventSystem>(out var eventSystem))
-#else
             EventSystem eventSystem = GetComponent<EventSystem>();
             if (eventSystem != null)
-#endif // OPTIMISATION_TRYGET
             {
                 if (eventSystem.currentInputModule == null)
                 {
                     // If the app is using the legacy input system and not the "new" one (they can be used at the same time). 
                     // Then add the default input module.
 #if ENABLE_LEGACY_INPUT_MANAGER && !ENABLE_INPUT_SYSTEM
-
-#if OPTIMISATION_TRYGET
-                    if (!gameObject.TryGetComponent<StandaloneInputModule>(out var _))
-#else
                     if (gameObject.GetComponent<StandaloneInputModule>() == null)
-#endif // OPTIMISATION_TRYGET
                     {
                         gameObject.AddComponent<StandaloneInputModule>();
                     }

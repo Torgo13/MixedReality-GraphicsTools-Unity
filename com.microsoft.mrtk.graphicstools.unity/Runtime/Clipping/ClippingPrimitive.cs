@@ -181,13 +181,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // in the process of removing.
                 ToggleClippingFeature(AcquireMaterials(_renderer, instance: false), false);
 
-#if OPTIMISATION_TRYGET
-                if (_renderer.TryGetComponent<MaterialInstance>(out var materialInstance))
-#else
                 var materialInstance = _renderer.GetComponent<MaterialInstance>();
 
                 if (materialInstance != null)
-#endif // OPTIMISATION_TRYGET
                 {
                     materialInstance.ReleaseMaterial(this, autoDestroyMaterial);
                 }
