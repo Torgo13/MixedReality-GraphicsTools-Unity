@@ -243,13 +243,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public void SwapRenderTargets()
         {
-#if OPTIMISATION
-            (renderTarget1, renderTarget2) = (renderTarget2, renderTarget1);
-#else
             var swap = renderTarget1;
             renderTarget1 = renderTarget2;
             renderTarget2 = swap;
-#endif // OPTIMISATION
         }
 
         public int DownSamplePowerOf2 => PowerOf2(settings.downSample);
@@ -337,10 +333,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public void RenderToTexture(ScriptableRenderContext context, Camera mainCamera, int updatePeriod, int blendFrames, LayerMask hiddenLayers)
         {
-#if ENABLE_PROFILER
             Profiler.BeginSample("AcrylicLayer" + index + "_RenderToTexture");
-#endif // ENABLE_PROFILER
-
             int camWidth = mainCamera.scaledPixelWidth;
             int camHeight = mainCamera.scaledPixelHeight;
 
@@ -385,9 +378,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (!firstFrameRendered)
                 firstFrameRendered = true;
 
-#if ENABLE_PROFILER
             Profiler.EndSample();
-#endif // ENABLE_PROFILER
         }
 
 #if UNITY_2021_2_OR_NEWER
@@ -434,11 +425,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 InitRenderTexture(ref destination, source.width, source.height, depthBits, "Destination");
                 InitCommandBuffer();
-
-#if ENABLE_PROFILER
                 Profiler.BeginSample("AcrylicLayer" + index + "_Blur");
-#endif // ENABLE_PROFILER
-
                 cmd.Clear();
 
                 int width = source.width;
@@ -446,7 +433,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Vector2 pixelSize = new Vector2(1.0f / width, 1.0f / height);
 
 #if OPTIMISATION_LISTPOOL
-                using var _ = UnityEngine.Pool.ListPool<float>.Get(out var widths);
+                using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var widths);
                 AcrylicBlurRenderPass.BlurWidths(ref widths, settings.blurPasses);
                 for (int i = 0, widthsCount = widths.Count; i < widthsCount; i++)
 #else
@@ -462,20 +449,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     LocalBlit(cmd, source, destination, kawaseBlur);
 
-#if OPTIMISATION
-                    (source, destination) = (destination, source);
-#else
                     var swap = source;
                     source = destination;
                     destination = swap;
-#endif // OPTIMISATION
                 }
 
                 Graphics.ExecuteCommandBuffer(cmd);
-
-#if ENABLE_PROFILER
                 Profiler.EndSample();
-#endif // ENABLE_PROFILER
             }
         }
 
@@ -531,13 +511,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         public void SetTargetCamera(Camera newTargetCamera)
         {
             targetCamera = newTargetCamera;
-
-            if (blur != null)
 #else
         public void SetTargetCamera(Camera newtargetCamera)
         {
             targetCamera = newtargetCamera;
 #endif // SPELLING
+
+            if (blur != null)
             {
 #if SPELLING
                 blur.targetCamera = newTargetCamera;
@@ -651,11 +631,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (rendererData != null && feature != null)
             {
                 UnityEditor.AssetDatabase.AddObjectToAsset(feature, rendererData);
-#if OPTIMISATION
-                UnityEditor.AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out string _, out long _);
-#else
                 UnityEditor.AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out var guide, out long localId);
-#endif // OPTIMISATION
             }
 #endif
         }

@@ -185,10 +185,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 // Save a new component out as a C# class.
 #if OPTIMISATION
-                const string version = "0.1.0";
-#else
-                string version = "0.1.0";
+                const
 #endif // OPTIMISATION
+                string version = "0.1.0";
                 string assetPath = AssetDatabase.GetAssetPath(shader);
 
                 string className = SanitizeIdentifier("CanvasMaterialAnimator" + Path.GetFileNameWithoutExtension(assetPath));

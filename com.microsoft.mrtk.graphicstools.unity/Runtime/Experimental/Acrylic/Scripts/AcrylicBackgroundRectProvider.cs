@@ -14,10 +14,7 @@ namespace Microsoft.MixedReality.GraphicsTools
     [AddComponentMenu("Scripts/GraphicsTools/AcrylicBackgroundRectProvider")]
     public class AcrylicBackgroundRectProvider : BaseMeshEffect
     {
-#if CUSTOM
-#else
         [Experimental]
-#endif // CUSTOM
         [Tooltip("List of materials to apply the _BlurBackgroundRect and _blurTexture to.")]
         [SerializeField]
         private Material[] materials = null;
@@ -243,14 +240,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (materials != null)
                 {
-#if OPTIMISATION
-                    for (int i = 0, materialsLength = materials.Length; i < materialsLength; i++)
-                    {
-                        Material material = materials[i];
-#else
                     foreach (Material material in materials)
                     {
-#endif // OPTIMISATION
                         if (material != null)
                         {
                             material.SetVector(rectNameID, rect);
@@ -261,14 +252,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (graphics != null)
                 {
-#if OPTIMISATION
-                    for (int i = 0, graphicsLength = graphics.Length; i < graphicsLength; i++)
-                    {
-                        Graphic graphic = graphics[i];
-#else
                     foreach (Graphic graphic in graphics)
                     {
-#endif // OPTIMISATION
                         if (graphic != null && graphic.materialForRendering != null)
                         {
                             graphic.materialForRendering.SetVector(rectNameID, rect);
@@ -394,14 +379,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return;
             }
             
-#if OPTIMISATION
-            for (int i = 0, graphicsLength = graphics.Length; i < graphicsLength; i++)
-            {
-                Graphic graphic = graphics[i];
-#else
             foreach (Graphic graphic in graphics)
             {
-#endif // OPTIMISATION
                 if (graphic != null)
                 {
                     if (!MaterialInstance.IsInstance(graphic.material))

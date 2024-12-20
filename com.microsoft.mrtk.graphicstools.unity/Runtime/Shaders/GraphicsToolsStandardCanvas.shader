@@ -194,6 +194,56 @@ Shader "Graphics Tools/Standard Canvas"
             ENDHLSL
         }
     }
+    
+    /// <summary>
+    /// Sub Shader for the Built-in Render Pipeline.
+    /// </summary>
+    SubShader
+    {
+        Tags
+        {
+            "Queue" = "Transparent"
+            "IgnoreProjector" = "True"
+            "RenderType" = "Fade"
+            "PreviewType" = "Plane"
+            "CanUseSpriteAtlas" = "True"
+        }
+
+        // Default pass (no meta pass needed for UI).
+        Pass
+        {
+            Name "Main"
+            Tags{ "LightMode" = "ForwardBase" }
+            LOD 100
+            Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
+            BlendOp[_BlendOp]
+            ZTest[_ZTest]
+            ZWrite[_ZWrite]
+            Cull[_CullMode]
+            Offset[_ZOffsetFactor],[_ZOffsetUnits]
+            ColorMask[_ColorMask]
+
+            Stencil
+            {
+                Ref[_Stencil]
+                Comp[_StencilComp]
+                Pass[_StencilOp]
+                ReadMask[_StencilReadMask]
+                WriteMask[_StencilWriteMask]
+            }
+
+            HLSLPROGRAM
+            #define _CANVAS_RENDERED
+
+            #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
+            #pragma multi_compile_local _ _UI_CLIP_RECT_ROUNDED _UI_CLIP_RECT_ROUNDED_INDEPENDENT
+            #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
+
+            #include_with_pragmas "GraphicsToolsStandardProgram.hlsl"
+
+            ENDHLSL
+        }
+    }
 
     CustomEditor "Microsoft.MixedReality.GraphicsTools.Editor.StandardShaderGUI"
 }

@@ -241,13 +241,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private void SwapTempTargets()
         {
-#if OPTIMISATION
-            (target1, target2) = (target2, target1);
-#else
             var rttmp = target1;
             target1 = target2;
             target2 = rttmp;
-#endif // OPTIMISATION
         }
 
 #if UNITY_2022_1_OR_NEWER
@@ -310,6 +306,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION_LISTPOOL
         public static void BlurWidths(ref System.Collections.Generic.List<float> widths, int passes)
         {
+            if (widths.Capacity < 10)
+                widths.Capacity = 10;
+
             switch (passes)
             {
                 case 2:

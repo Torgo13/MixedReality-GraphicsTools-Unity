@@ -13,10 +13,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         [System.ThreadStatic]
         private static System.Random local;
 #if SAFETY
-        private static readonly System.Random global = new System.Random();
-#else
-        private static System.Random global = new System.Random();
+        readonly
 #endif // SAFETY
+        private static System.Random global = new System.Random();
 
         /// <summary>
         /// Returns a random float within [0.0..1.0] (range is inclusive) (Read Only).
@@ -30,7 +29,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#if CUSTOM
+#if CUSTOM_URP
         /// <summary>
         /// Returns a random double within [0.0..1.0] (range is inclusive) (Read Only).
         /// </summary>
@@ -42,7 +41,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return local.NextDouble();
             }
         }
-#endif // CUSTOM
+#endif // CUSTOM_URP
 
         /// <summary>
         /// Returns a random int within [minInclusive..maxInclusive] (range is inclusive).
@@ -61,7 +60,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             return value * (max - min) + min;
         }
 
-#if CUSTOM
+#if CUSTOM_URP
         /// <summary>
         /// Returns a random double within [minInclusive..maxInclusive] (range is inclusive).
         /// </summary>
@@ -69,7 +68,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             return doubleValue * (max - min) + min;
         }
-#endif // CUSTOM
+#endif // CUSTOM_URP
 
         /// <summary>
         /// Returns a random point inside or on a circle with radius 1.0 (Read Only).

@@ -178,7 +178,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void Create()
         {
 #if OPTIMISATION_LISTPOOL
-            using var _ = UnityEngine.Pool.ListPool<MeshRenderer>.Get(out var meshRenderers);
+            using var _0 = UnityEngine.Pool.ListPool<MeshRenderer>.Get(out var meshRenderers);
             GetComponentsInChildren<MeshRenderer>(meshRenderers);
             for (int i = 0, meshRenderersCount = meshRenderers.Count; i < meshRenderersCount; ++i)
 #else
@@ -190,7 +190,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
 #if OPTIMISATION_LISTPOOL
-            using var _0 = UnityEngine.Pool.ListPool<SkinnedMeshRenderer>.Get(out var skinnedMeshRenderers);
+            using var _1 = UnityEngine.Pool.ListPool<SkinnedMeshRenderer>.Get(out var skinnedMeshRenderers);
             GetComponentsInChildren<SkinnedMeshRenderer>(skinnedMeshRenderers);
             for (int i = 0, skinnedMeshRenderersCount = skinnedMeshRenderers.Count; i < skinnedMeshRenderersCount; ++i)
 #else

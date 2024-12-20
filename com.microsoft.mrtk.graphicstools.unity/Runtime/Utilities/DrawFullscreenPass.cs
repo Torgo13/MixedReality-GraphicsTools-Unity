@@ -109,17 +109,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         protected virtual void Dispose(bool disposing)
-        {
-            source?.Release();
-            destination?.Release();
-        }
 #else
         private void Dispose()
+#endif // OPTIMISATION_IDISPOSABLE
         {
             source?.Release();
             destination?.Release();
         }
-#endif // OPTIMISATION_IDISPOSABLE
 
 #else
         private RenderTargetIdentifier source;

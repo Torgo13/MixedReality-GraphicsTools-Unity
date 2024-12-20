@@ -14,11 +14,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
     /// be capture at various resolutions and with the current camera's clear color or a transparent
     /// clear color for use in easy post compositing of images.
     /// </summary>
-#if CUSTOM
-    public static class ScreenshotUtilities
-#else
+#if CUSTOM_URP
+    static
+#endif // CUSTOM_URP
     public class ScreenshotUtilities
-#endif // CUSTOM
     {
         [Shortcut("Graphics Tools/Take Screenshot 1x", KeyCode.Alpha1, ShortcutModifiers.Alt)]
         [MenuItem("Window/Graphics Tools/Take Screenshot/Native Resolution")]

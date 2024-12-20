@@ -76,7 +76,7 @@ SubShader {
     Tags{ "RenderType" = "Opaque" }
     Blend[_SrcBlend][_DstBlend],[_SrcBlendAlpha][_DstBlendAlpha]
     ZWrite[_ZWrite]
-    ZTest[unity_GUIZTestMode]
+    ZTest[_ZTest]
     Tags {"DisableBatching" = "True"}
     Stencil
     {

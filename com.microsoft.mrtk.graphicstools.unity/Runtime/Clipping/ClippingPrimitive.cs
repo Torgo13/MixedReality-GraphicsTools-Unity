@@ -99,11 +99,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         cameraMethods.OnCameraPreRender += OnCameraPreRender;
                     }
-#if OPTIMISATION
-                    else
-#else
                     else if (!value)
-#endif // OPTIMISATION
                     {
                         cameraMethods.OnCameraPreRender -= OnCameraPreRender;
                     }
@@ -505,15 +501,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (renderers != null)
             {
-#if OPTIMISATION
-                for (int i = 0, renderersCount = renderers.Count; i < renderersCount; ++i)
-                {
-                    if (renderers[i] != null)
-                    {
-                        ToggleClippingFeature(AcquireMaterials(renderers[i]), keywordOn);
-                    }
-                }
-#else
                 for (var i = 0; i < renderers.Count; ++i)
                 {
                     var _renderer = renderers[i];
@@ -523,20 +510,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                         ToggleClippingFeature(AcquireMaterials(_renderer), keywordOn);
                     }
                 }
-#endif // OPTIMISATION
             }
 
             if (materials != null)
             {
-#if OPTIMISATION
-                for (int i = 0, materialsCount = materials.Count; i < materialsCount; ++i)
-                {
-                    if (materials[i] != null)
-                    {
-                        ToggleClippingFeature(materials[i], keywordOn);
-                    }
-                }
-#else
                 for (var i = 0; i < materials.Count; ++i)
                 {
                     var material = materials[i];
@@ -546,7 +523,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                         ToggleClippingFeature(material, keywordOn);
                     }
                 }
-#endif // OPTIMISATION
             }
         }
 
@@ -557,17 +533,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (materialsToToggle != null)
             {
-#if OPTIMISATION
-                for (int i = 0, materialsToToggleLength = materialsToToggle.Length; i < materialsToToggleLength; i++)
-                {
-                    ToggleClippingFeature(materialsToToggle[i], keywordOn);
-                }
-#else
                 foreach (var material in materialsToToggle)
                 {
                     ToggleClippingFeature(material, keywordOn);
                 }
-#endif // OPTIMISATION
             }
         }
 

@@ -53,15 +53,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         protected virtual void Dispose(bool disposing)
-        {
-            FreeBuffers();
-        }
 #else
         public void Dispose()
+#endif // OPTIMISATION_IDISPOSABLE
         {
             FreeBuffers();
         }
-#endif // OPTIMISATION_IDISPOSABLE
 
         public void QueueBlur(CommandBuffer cmd, RenderTexture image, int iterations)
         {

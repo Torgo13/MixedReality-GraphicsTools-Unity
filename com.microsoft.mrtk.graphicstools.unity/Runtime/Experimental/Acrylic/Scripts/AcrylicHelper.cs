@@ -17,10 +17,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
     public class AcrylicHelper : MonoBehaviour
     {
-#if CUSTOM
-#else
         [Experimental]
-#endif // CUSTOM
         [SerializeField]
         [Range(0, 1)]
         private int blurLayer = 0;

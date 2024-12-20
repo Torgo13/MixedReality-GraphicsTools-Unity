@@ -204,7 +204,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 bool gamepadPresent = Gamepad.current != null;
 #else
 
-#if USE_INPUT_SYSTEM
+#if USE_INPUT_SYSTEM // Prevent unused variable from being created
                 bool gamepadPresent = false;
 #endif // USE_INPUT_SYSTEM
 

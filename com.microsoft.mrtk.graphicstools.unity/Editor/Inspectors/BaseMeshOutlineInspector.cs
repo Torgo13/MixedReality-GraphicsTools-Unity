@@ -264,11 +264,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                                     return false;
                                 }
                             }
-#if SAFETY_APPROXIMATELY
-                            else if (!Mathf.Approximately(material.GetFloat(x.Key), (float)x.Value.Item1))
-#else
                             else if (material.GetFloat(x.Key) != (float)x.Value.Item1)
-#endif // SAFETY_APPROXIMATELY
                             {
                                 return false;
                             }

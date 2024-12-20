@@ -202,8 +202,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 float angle = defaultCSSAngle;
 #if OPTIMISATION_LISTPOOL
-                List<Color> colorKeys = UnityEngine.Pool.ListPool<Color>.Get();
-                List<float> timeKeys = UnityEngine.Pool.ListPool<float>.Get();
+                using var _0 = UnityEngine.Pool.ListPool<Color>.Get(out var colorKeys);
+                using var _1 = UnityEngine.Pool.ListPool<float>.Get(out var timeKeys);
 #else
                 List<Color> colorKeys = new List<Color>();
                 List<float> timeKeys = new List<float>();
@@ -231,19 +231,23 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                                 return channel;
                             }
+
 #if OPTIMISATION
                             float red, green, blue, alpha;
 #else
                             float red, green, blue, alpha = 1.0f;
 #endif // OPTIMISATION
+
                             if (float.TryParse(parameters[i].Replace("rgba(", string.Empty), out red))
                             {
                                 red = NormalizeColorChannel(red);
                             }
+
                             if (float.TryParse(parameters[i + 1], out green))
                             {
                                 green = NormalizeColorChannel(green);
                             }
+
                             if (float.TryParse(parameters[i + 2], out blue))
                             {
                                 blue = NormalizeColorChannel(blue);
@@ -308,6 +312,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                             timeKeys[i] = time;
                         }
                     }
+
                     // Ensure the last time goes to one.
                     timeKeys[colorKeys.Count - 1] = 1.0f;
 
@@ -319,13 +324,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 gradientColors = colorKeys.ToArray();
-#if OPTIMISATION_LISTPOOL
-                UnityEngine.Pool.ListPool<Color>.Release(colorKeys);
-#endif // OPTIMISATION_LISTPOOL
                 gradientTimes = timeKeys.ToArray();
-#if OPTIMISATION_LISTPOOL
-                UnityEngine.Pool.ListPool<float>.Release(timeKeys);
-#endif // OPTIMISATION_LISTPOOL
                 gradientAngle = angle;
             }
             catch

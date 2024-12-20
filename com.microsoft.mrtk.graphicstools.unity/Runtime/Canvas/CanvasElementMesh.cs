@@ -292,6 +292,18 @@ namespace Microsoft.MixedReality.GraphicsTools
                     float scaler = 0.5f / Mathf.Max(meshSize.x, meshSize.y);
                     
 #if OPTIMISATION
+#if SPELLING
+                    var capacity = uiVertices.Count + vertices.Count;
+                    if (capacity > uiVertices.Capacity)
+                        uiVertices.Capacity = capacity;
+#else
+                    var capacity = uiVerticies.Count + verticies.Count;
+                    if (capacity > uiVerticies.Capacity)
+                        uiVerticies.Capacity = capacity;
+#endif // SPELLING
+#endif // OPTIMISATION
+
+#if OPTIMISATION
                     for (int i = 0, verticesCount = vertices.Count; i < verticesCount; ++i)
 #else
                     for (int i = 0; i < vertices.Count; ++i)
@@ -306,7 +318,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                         {
                             position = position,
                             normal = normals[i],
-                            tangent = tangents[i]
+                            tangent = tangents[i],
+                            color = i < colors.Count ? colors[i] * color : color
                         };
 #else
                         UIVertex vertex = new UIVertex();
@@ -324,7 +337,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Set the other attributes.
                         vertex.normal = normals[i];
                         vertex.tangent = tangents[i];
-#endif // OPTIMISATION
 
                         if (i < colors.Count)
                         {
@@ -334,6 +346,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                         {
                             vertex.color = color;
                         }
+#endif // OPTIMISATION
 
                         if (i < uv0s.Count)
                         {

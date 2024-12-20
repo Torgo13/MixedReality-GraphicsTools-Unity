@@ -531,7 +531,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
+#if OPTIMISATION_LISTPOOL
+                    using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var list);
+                    Repeat(ref list, property.Value, UNITY_MAX_INSTANCE_COUNT);
+                    Properties.SetFloatArray(property.Key, list);
+#else
                     Properties.SetFloatArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
+#endif // OPTIMISATION_LISTPOOL
                 }
             }
 
@@ -539,7 +545,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
+#if OPTIMISATION_LISTPOOL
+                    using var _0 = UnityEngine.Pool.ListPool<Vector4>.Get(out var list);
+                    Repeat(ref list, property.Value, UNITY_MAX_INSTANCE_COUNT);
+                    Properties.SetVectorArray(property.Key, list);
+#else
                     Properties.SetVectorArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
+#endif // OPTIMISATION_LISTPOOL
                 }
             }
 
@@ -547,7 +559,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
+#if OPTIMISATION_LISTPOOL
+                    using var _0 = UnityEngine.Pool.ListPool<Matrix4x4>.Get(out var list);
+                    Repeat(ref list, property.Value, UNITY_MAX_INSTANCE_COUNT);
+                    Properties.SetMatrixArray(property.Key, list);
+#else
                     Properties.SetMatrixArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
+#endif // OPTIMISATION_LISTPOOL
                 }
             }
 
@@ -613,6 +631,19 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, recieveShadows);
             }
 #endif // SPELLING
+
+#if OPTIMISATION_LISTPOOL
+            private static void Repeat<T>(ref List<T> output, T element, int count)
+            {
+                if (output.Capacity < count)
+                    output.Capacity = count;
+
+                for (int i = 0; i < count; ++i)
+                {
+                    output[i] = element;
+                }
+            }
+#endif // OPTIMISATION_LISTPOOL
 
             private static T[] Repeat<T>(T element, int count)
             {
