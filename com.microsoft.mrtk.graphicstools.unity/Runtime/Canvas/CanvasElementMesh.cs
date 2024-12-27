@@ -179,10 +179,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             rectPivot.z = ZPivot;
 
 #if OPTIMISATION_LISTPOOL && SPELLING
-            using var _ = UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticesTRS);
+            using var _0 = UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticesTRS);
             uiVerticesTRS.AddRange(uiVertices);
 #elif OPTIMISATION_LISTPOOL
-            using var _ = UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticiesTRS);
+            using var _0 = UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticiesTRS);
             uiVerticiesTRS.AddRange(uiVerticies);
 #elif SPELLING
             List<UIVertex> uiVerticesTRS = new List<UIVertex>(uiVertices);

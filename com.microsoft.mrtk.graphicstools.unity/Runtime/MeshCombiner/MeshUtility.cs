@@ -190,7 +190,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
 
 #if OPTIMISATION_LISTPOOL
-                using var _ = UnityEngine.Pool.ListPool<LODGroup>.Get(out var lodGroups);
+                using var _0 = UnityEngine.Pool.ListPool<LODGroup>.Get(out var lodGroups);
                 meshFilter.GetComponentsInParent<LODGroup>(false, lodGroups);
 #else
                 var lodGroups = meshFilter.GetComponentsInParent<LODGroup>();
@@ -437,9 +437,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                                 foreach (var combineInstance in mapping[textures[i]])
                                 {
 #if OPTIMISATION_LISTPOOL
-                                    using var _ = UnityEngine.Pool.ListPool<Vector2>.Get(out var uvs);
+                                    using var _0 = UnityEngine.Pool.ListPool<Vector2>.Get(out var uvs);
                                     combineInstance.mesh.GetUVs(sourceChannel, uvs);
-                                    using var _0 = UnityEngine.Pool.ListPool<Vector2>.Get(out var remappedUvs);
+                                    using var _1 = UnityEngine.Pool.ListPool<Vector2>.Get(out var remappedUvs);
 #else
                                     var uvs = new List<Vector2>();
                                     combineInstance.mesh.GetUVs(sourceChannel, uvs);

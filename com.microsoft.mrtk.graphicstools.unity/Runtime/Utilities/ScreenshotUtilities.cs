@@ -133,9 +133,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             finally
             {
-                UnityEngine.Object.DestroyImmediate(outputTexture);
-                UnityEngine.Object.DestroyImmediate(renderCamera.gameObject);
-                UnityEngine.Object.DestroyImmediate(renderTexture);
+                UnityEngine.Object.Destroy(outputTexture);
+                UnityEngine.Object.Destroy(renderCamera.gameObject);
+                UnityEngine.Object.Destroy(renderTexture);
             }
 
 #if UNITY_EDITOR || DEBUG
