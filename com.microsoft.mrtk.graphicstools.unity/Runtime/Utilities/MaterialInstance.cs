@@ -354,7 +354,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     Destroy(toDestroy);
                 }
-#if UNITY_EDITOR
                 else
                 {
 #if UNITY_EDITOR
@@ -372,7 +371,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
 #endif
                 }
-#endif // UNITY_EDITOR
             }
         }
     }

@@ -620,17 +620,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-#if SPELLING
-            public void Draw(UnityEngine.Mesh mesh, int submeshIndex, Material material, UnityEngine.Rendering.ShadowCastingMode shadowCastingMode, bool receiveShadows)
-            {
-                Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, receiveShadows);
-            }
-#else
             public void Draw(UnityEngine.Mesh mesh, int submeshIndex, Material material, UnityEngine.Rendering.ShadowCastingMode shadowCastingMode, bool recieveShadows)
             {
                 Graphics.DrawMeshInstanced(mesh, submeshIndex, material, matrixScratchBuffer, InstanceCount, Properties, shadowCastingMode, recieveShadows);
             }
-#endif // SPELLING
 
 #if OPTIMISATION_LISTPOOL
             private static void Repeat<T>(ref List<T> output, T element, int count)
@@ -640,7 +633,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 for (int i = 0; i < count; ++i)
                 {
-                    output[i] = element;
+                    output.Add(element);
                 }
             }
 #endif // OPTIMISATION_LISTPOOL
@@ -850,22 +843,22 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // WebGL doesn't support threaded operations.
 #if UNITY_WEBGL
-          foreach (InstanceBucket bucket in instanceBuckets)
-          {
-              if (RaycastInstances)
-              {
+            foreach (InstanceBucket bucket in instanceBuckets)
+            {
+                if (RaycastInstances)
+                {
 #if OPTIMISATION
-                  bucket.RaycastHits.Clear();
+                    bucket.RaycastHits.Clear();
 #else
-                  bucket.RaycastHits = new List<RaycastHit>();
+                    bucket.RaycastHits = new List<RaycastHit>();
 #endif // OPTIMISATION
-                  bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, DeferredRayQuery, 0, bucket.InstanceCount);
-              }
-              else
-              {
-                  bucket.UpdateJob(deltaTime, localToWorld, 0, bucket.InstanceCount);
-              }
-          };
+                    bucket.UpdateJobRaycast(deltaTime, localToWorld, BoxCollider, DeferredRayQuery, 0, bucket.InstanceCount);
+                }
+                else
+                {
+                    bucket.UpdateJob(deltaTime, localToWorld, 0, bucket.InstanceCount);
+                }
+            };
 #else
             // We are on a single processor machine, so best to not multi-thread.
             if (processorCount == 1 || DisableParallelUpdate)
@@ -885,11 +878,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         bucket.UpdateJob(deltaTime, localToWorld, 0, bucket.InstanceCount);
                     }
-#if BUGFIX
-                }
-#else
                 };
-#endif // BUGFIX
             }
             else if (processorCount > instanceBuckets.Count)  // More processors than buckets so split up the work within buckets.
             {
@@ -1223,7 +1212,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             InstanceBucket bucket = instanceBuckets[instance.InstanceBucketIndex];
+#if OPTIMISATION_LISTPOOL
+            using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var values);
+            bucket.Properties.GetFloatArray(nameID, values);
+#else
             float[] values = bucket.Properties.GetFloatArray(nameID);
+#endif // OPTIMISATION_LISTPOOL
             values[instance.InstanceIndex] = value;
             bucket.Properties.SetFloatArray(nameID, values);
         }
@@ -1242,7 +1236,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             InstanceBucket bucket = instanceBuckets[instance.InstanceBucketIndex];
+#if OPTIMISATION_LISTPOOL
+            using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var values);
+            bucket.Properties.GetFloatArray(nameID, values);
+#else
             float[] values = bucket.Properties.GetFloatArray(nameID);
+#endif // OPTIMISATION_LISTPOOL
             return values[instance.InstanceIndex];
         }
 
@@ -1260,7 +1259,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             InstanceBucket bucket = instanceBuckets[instance.InstanceBucketIndex];
+#if OPTIMISATION_LISTPOOL
+            using var _0 = UnityEngine.Pool.ListPool<Vector4>.Get(out var values);
+            bucket.Properties.GetVectorArray(nameID, values);
+#else
             Vector4[] values = bucket.Properties.GetVectorArray(nameID);
+#endif // OPTIMISATION_LISTPOOL
             values[instance.InstanceIndex] = value;
             bucket.Properties.SetVectorArray(nameID, values);
         }
@@ -1279,7 +1283,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             InstanceBucket bucket = instanceBuckets[instance.InstanceBucketIndex];
+#if OPTIMISATION_LISTPOOL
+            using var _0 = UnityEngine.Pool.ListPool<Vector4>.Get(out var values);
+            bucket.Properties.GetVectorArray(nameID, values);
+#else
             Vector4[] values = bucket.Properties.GetVectorArray(nameID);
+#endif // OPTIMISATION_LISTPOOL
             return values[instance.InstanceIndex];
         }
 
@@ -1297,7 +1306,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             InstanceBucket bucket = instanceBuckets[instance.InstanceBucketIndex];
+#if OPTIMISATION_LISTPOOL
+            using var _0 = UnityEngine.Pool.ListPool<Matrix4x4>.Get(out var values);
+            bucket.Properties.GetMatrixArray(nameID, values);
+#else
             Matrix4x4[] values = bucket.Properties.GetMatrixArray(nameID);
+#endif // OPTIMISATION_LISTPOOL
             values[instance.InstanceIndex] = value;
             bucket.Properties.SetMatrixArray(nameID, values);
         }
@@ -1316,7 +1330,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             InstanceBucket bucket = instanceBuckets[instance.InstanceBucketIndex];
+#if OPTIMISATION_LISTPOOL
+            using var _0 = UnityEngine.Pool.ListPool<Matrix4x4>.Get(out var values);
+            bucket.Properties.GetMatrixArray(nameID, values);
+#else
             Matrix4x4[] values = bucket.Properties.GetMatrixArray(nameID);
+#endif // OPTIMISATION_LISTPOOL
             return values[instance.InstanceIndex];
         }
 
@@ -1352,26 +1371,50 @@ namespace Microsoft.MixedReality.GraphicsTools
                                                                         this);
                 bucket.Instances[newInstanceCount] = null;
 
+#if OPTIMISATION_LISTPOOL
+                using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var floatArray);
+                using var _1 = UnityEngine.Pool.ListPool<Vector4>.Get(out var vector4Array);
+                using var _2 = UnityEngine.Pool.ListPool<Matrix4x4>.Get(out var matrix4x4Array);
+#endif // OPTIMISATION_LISTPOOL
+
                 // Update material properties.
                 foreach (var property in floatMaterialProperties)
                 {
+#if OPTIMISATION_LISTPOOL
+                    bucket.Properties.GetFloatArray(property.Key, floatArray);
+                    floatArray[instance.InstanceIndex] = floatArray[newInstanceCount];
+                    bucket.Properties.SetFloatArray(property.Key, floatArray);
+#else
                     float[] values = bucket.Properties.GetFloatArray(property.Key);
                     values[instance.InstanceIndex] = values[newInstanceCount];
                     bucket.Properties.SetFloatArray(property.Key, values);
+#endif // OPTIMISATION_LISTPOOL
                 }
 
                 foreach (var property in vectorMaterialProperties)
                 {
+#if OPTIMISATION_LISTPOOL
+                    bucket.Properties.GetVectorArray(property.Key, vector4Array);
+                    vector4Array[instance.InstanceIndex] = vector4Array[newInstanceCount];
+                    bucket.Properties.SetVectorArray(property.Key, vector4Array);
+#else
                     Vector4[] values = bucket.Properties.GetVectorArray(property.Key);
                     values[instance.InstanceIndex] = values[newInstanceCount];
                     bucket.Properties.SetVectorArray(property.Key, values);
+#endif // OPTIMISATION_LISTPOOL
                 }
 
                 foreach (var property in matrixMaterialProperties)
                 {
+#if OPTIMISATION_LISTPOOL
+                    bucket.Properties.GetMatrixArray(property.Key, matrix4x4Array);
+                    matrix4x4Array[instance.InstanceIndex] = matrix4x4Array[newInstanceCount];
+                    bucket.Properties.SetMatrixArray(property.Key, matrix4x4Array);
+#else
                     Matrix4x4[] values = bucket.Properties.GetMatrixArray(property.Key);
                     values[instance.InstanceIndex] = values[newInstanceCount];
                     bucket.Properties.SetMatrixArray(property.Key, values);
+#endif // OPTIMISATION_LISTPOOL
                 }
 
                 // Update the parallel update delegate.
@@ -1385,11 +1428,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private int AllocateInstanceBucketIndex()
         {
-#if OPTIMISATION
-            for (int i = 0, instanceBucketsCount = instanceBuckets.Count; i < instanceBucketsCount; ++i)
-#else
             for (int i = 0; i < instanceBuckets.Count; ++i)
-#endif // OPTIMISATION
             {
 #if SPELLING
                 if (instanceBuckets[i].InstanceCount < instanceBuckets[i].Matrices.Length)

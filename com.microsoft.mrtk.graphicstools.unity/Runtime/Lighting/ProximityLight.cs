@@ -117,11 +117,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             [Header("Color Settings")]
             [Tooltip("The color of the ProximityLight gradient at the center (RGB) and (A) is gradient extent.")]
-#if BUGFIX
-            [ColorUsage(true, true)]
-#else
             [ColorUsageAttribute(true, true)]
-#endif // BUGFIX
             [SerializeField]
             private Color centerColor = new Color(54.0f / 255.0f, 142.0f / 255.0f, 250.0f / 255.0f, 0.0f / 255.0f);
 
@@ -136,11 +132,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             [Tooltip("The color of the ProximityLight gradient at the middle (RGB) and (A) is gradient extent.")]
             [SerializeField]
-#if BUGFIX
-            [ColorUsage(true, true)]
-#else
             [ColorUsageAttribute(true, true)]
-#endif // BUGFIX
             private Color middleColor = new Color(47.0f / 255.0f, 132.0f / 255.0f, 255.0f / 255.0f, 51.0f / 255.0f);
 
             /// <summary>
@@ -154,11 +146,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             [Tooltip("The color of the ProximityLight gradient at the outer (RGB) and (A) is gradient extent.")]
             [SerializeField]
-#if BUGFIX
-            [ColorUsage(true, true)]
-#else
             [ColorUsageAttribute(true, true)]
-#endif // BUGFIX
             private Color outerColor = new Color((82.0f * 3.0f) / 255.0f, (31.0f * 3.0f) / 255.0f, (191.0f * 3.0f) / 255.0f, 255.0f / 255.0f);
         }
 

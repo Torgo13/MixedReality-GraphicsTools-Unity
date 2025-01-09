@@ -115,6 +115,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         public void ApplyBlur(string profileLabel, RenderTexture image, int iterations)
         {
             Profiler.BeginSample(profileLabel);
+#if SAFETY
+            using
+#endif // SAFETY
             CommandBuffer cmd = new CommandBuffer();
             QueueBlur(cmd, image, iterations);
             Graphics.ExecuteCommandBuffer(cmd);

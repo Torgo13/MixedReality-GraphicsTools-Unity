@@ -140,20 +140,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Shifts a source color in HSV color space.
         /// </summary>
-#if SPELLING
-        public static Color ColorShiftHSV(Color source, float hueOffset, float saturationOffset, float valueOffset)
-#else
         public static Color ColorShiftHSV(Color source, float hueOffset, float saturationtOffset, float valueOffset)
-#endif // SPELLING
         {
             float hue, saturation, value;
             Color.RGBToHSV(source, out hue, out saturation, out value);
             hue = hue + hueOffset;
-#if SPELLING
-            saturation = Mathf.Clamp01(saturation + saturationOffset);
-#else
             saturation = Mathf.Clamp01(saturation + saturationtOffset);
-#endif // SPELLING
             value = Mathf.Clamp01(value + valueOffset);
             Color output = Color.HSVToRGB(hue, saturation, value);
             output.a = source.a;
@@ -191,12 +183,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION
                 int start = cssGradient.IndexOf(prefix, StringComparison.Ordinal) + prefix.Length;
                 int end = cssGradient.IndexOf(postfix, start, StringComparison.Ordinal);
-                string gradient = cssGradient[start..end];
 #else
                 int start = cssGradient.IndexOf(prefix) + prefix.Length;
                 int end = cssGradient.IndexOf(postfix, start);
-                string gradient = cssGradient.Substring(start, end - start);
 #endif // OPTIMISATION
+                string gradient = cssGradient.Substring(start, end - start);
 
                 string[] parameters = gradient.Split(',');
 
@@ -232,11 +223,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                                 return channel;
                             }
 
-#if OPTIMISATION
-                            float red, green, blue, alpha;
-#else
                             float red, green, blue, alpha = 1.0f;
-#endif // OPTIMISATION
 
                             if (float.TryParse(parameters[i].Replace("rgba(", string.Empty), out red))
                             {

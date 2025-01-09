@@ -244,28 +244,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             // Group all vertices that share the same location in space.
-#if SPELLING
-            var groupedVertices = new Dictionary<Vector3, List<KeyValuePair<int, Vector3>>>();
-#else
             var groupedVerticies = new Dictionary<Vector3, List<KeyValuePair<int, Vector3>>>();
-#endif // SPELLING
             for (int i = 0; i < vertices.Length; ++i)
             {
                 var vertex = vertices[i];
                 List<KeyValuePair<int, Vector3>> group;
 
-#if SPELLING
-                if (!groupedVertices.TryGetValue(vertex, out group))
-#else
                 if (!groupedVerticies.TryGetValue(vertex, out group))
-#endif // SPELLING
                 {
                     group = new List<KeyValuePair<int, Vector3>>();
-#if SPELLING
-                    groupedVertices[vertex] = group;
-#else
                     groupedVerticies[vertex] = group;
-#endif // SPELLING
                 }
 
                 group.Add(new KeyValuePair<int, Vector3>(i, vertex));
@@ -274,17 +262,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             var smoothNormals = new List<Vector3>(normals);
 
             // If we don't hit the degenerate case of each vertex is its own group (no vertices shared a location), average the normals of each group.
-#if SPELLING
-            if (groupedVertices.Count != vertices.Length)
-#else
             if (groupedVerticies.Count != vertices.Length)
-#endif // SPELLING
             {
-#if SPELLING
-                foreach (var group in groupedVertices)
-#else
                 foreach (var group in groupedVerticies)
-#endif // SPELLING
                 {
                     var smoothingGroup = group.Value;
 

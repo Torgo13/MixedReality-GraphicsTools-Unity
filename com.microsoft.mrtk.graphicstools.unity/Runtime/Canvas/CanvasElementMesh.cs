@@ -85,11 +85,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private UnityEngine.Mesh previousMesh = null;
         private Color previousColor = Color.white;
-#if SPELLING
-        private List<UIVertex> uiVertices = new List<UIVertex>();
-#else
         private List<UIVertex> uiVerticies = new List<UIVertex>();
-#endif // SPELLING
         private List<int> uiIndices = new List<int>();
 
 #region UIBehaviour Implementation
@@ -143,12 +139,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             RefreshMesh();
 
-#if SPELLING
-            int uiVerticesCount = uiVertices.Count;
-            if (Mesh == null || uiVerticesCount == 0)
-#else
             if (Mesh == null || uiVerticies.Count == 0)
-#endif // SPELLING
             {
                 return;
             }
@@ -178,31 +169,15 @@ namespace Microsoft.MixedReality.GraphicsTools
             Vector3 rectPivot = rectTransform.pivot;
             rectPivot.z = ZPivot;
 
-#if OPTIMISATION_LISTPOOL && SPELLING
-            using var _0 = UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticesTRS);
-            uiVerticesTRS.AddRange(uiVertices);
-#elif OPTIMISATION_LISTPOOL
+#if OPTIMISATION_LISTPOOL
             using var _0 = UnityEngine.Pool.ListPool<UIVertex>.Get(out var uiVerticiesTRS);
             uiVerticiesTRS.AddRange(uiVerticies);
-#elif SPELLING
-            List<UIVertex> uiVerticesTRS = new List<UIVertex>(uiVertices);
 #else
             List<UIVertex> uiVerticiesTRS = new List<UIVertex>(uiVerticies);
-#endif // OPTIMISATION_LISTPOOL && SPELLING
+#endif // OPTIMISATION_LISTPOOL
+
             // Scale, translate and rotate vertices.
-#if SPELLING
-            for (int i = 0; i < uiVerticesCount; i++)
-            {
-                UIVertex vertex = uiVerticesTRS[i];
 
-                // Scale the vector from the normalized position to the pivot by the rect size.
-                vertex.position = Vector3.Scale(vertex.position - rectPivot, rectSize);
-
-                uiVerticesTRS[i] = vertex;
-            }
-
-            vh.AddUIVertexStream(uiVerticesTRS, uiIndices);
-#else
             for (int i = 0; i < uiVerticiesTRS.Count; i++)
             {
                 UIVertex vertex = uiVerticiesTRS[i];
@@ -214,7 +189,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
             vh.AddUIVertexStream(uiVerticiesTRS, uiIndices);
-#endif // SPELLING
         }
 
 #endregion Graphic Implementation
@@ -227,17 +201,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (previousMesh != Mesh ||
                 previousColor != color ||
-#if SPELLING
-                uiVertices.Count == 0)
-#else
                 uiVerticies.Count == 0)
-#endif // SPELLING
             {
-#if SPELLING
-                uiVertices.Clear();
-#else
                 uiVerticies.Clear();
-#endif // SPELLING
                 uiIndices.Clear();
 
                 if (Mesh != null)
@@ -292,22 +258,12 @@ namespace Microsoft.MixedReality.GraphicsTools
                     float scaler = 0.5f / Mathf.Max(meshSize.x, meshSize.y);
                     
 #if OPTIMISATION
-#if SPELLING
-                    var capacity = uiVertices.Count + vertices.Count;
-                    if (capacity > uiVertices.Capacity)
-                        uiVertices.Capacity = capacity;
-#else
-                    var capacity = uiVerticies.Count + verticies.Count;
+                    var capacity = uiVerticies.Count + vertices.Count;
                     if (capacity > uiVerticies.Capacity)
                         uiVerticies.Capacity = capacity;
-#endif // SPELLING
 #endif // OPTIMISATION
 
-#if OPTIMISATION
-                    for (int i = 0, verticesCount = vertices.Count; i < verticesCount; ++i)
-#else
                     for (int i = 0; i < vertices.Count; ++i)
-#endif // OPTIMISATION
                     {
 #if OPTIMISATION
                         // Center the mesh at the origin.
@@ -368,11 +324,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                             vertex.uv3 = uv3s[i];
                         }
 
-#if SPELLING
-                        uiVertices.Add(vertex);
-#else
                         uiVerticies.Add(vertex);
-#endif // SPELLING
                     }
 
 #if OPTIMISATION_LISTPOOL

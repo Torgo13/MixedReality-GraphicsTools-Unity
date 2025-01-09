@@ -380,11 +380,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                                                                                    List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings)
         {
             var output = new List<MeshCombineResult.PropertyTexture2DID>();
-#if OPTIMISATION
-            var uvsAltered = new bool[4];
-#else
             var uvsAltered = new bool[4] { false, false, false, false };
-#endif // OPTIMISATION
             var textureSettingIndex = 0;
 
             foreach (var textureSetting in settings.TextureSettings)

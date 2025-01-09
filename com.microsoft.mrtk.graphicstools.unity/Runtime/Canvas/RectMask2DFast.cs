@@ -281,16 +281,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (cachedCanvas == null)
                 {
 #if UNITY_2021_1_OR_NEWER
-
-#if OPTIMISATION
-                    using (ListPool<Canvas>.Get(out var list))
-                    {
-                        gameObject.GetComponentsInParent(false, list);
-
-                        if (list.Count > 0)
-                            cachedCanvas = list[list.Count - 1];
-                    }
-#else
                     var list = ListPool<Canvas>.Get();
                     gameObject.GetComponentsInParent(false, list);
 
@@ -300,8 +290,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                         cachedCanvas = null;
 
                     ListPool<Canvas>.Release(list);
-#endif // OPTIMISATION
-
 #else
                     var list = gameObject.GetComponentsInParent<Canvas>(false);
                     if (list.Length > 0)

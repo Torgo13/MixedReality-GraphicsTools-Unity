@@ -139,6 +139,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                 dualBlur.Dispose();
                 dualBlur = null;
             }
+
+#if OPTIMISATION_IDISPOSABLE
+            if (cmd != null)
+            {
+                cmd.Dispose();
+                cmd = null;
+            }
+#endif // OPTIMISATION_IDISPOSABLE
         }
 
 #if UNITY_2021_2_OR_NEWER
@@ -507,23 +515,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#if SPELLING
-        public void SetTargetCamera(Camera newTargetCamera)
-        {
-            targetCamera = newTargetCamera;
-#else
         public void SetTargetCamera(Camera newtargetCamera)
         {
             targetCamera = newtargetCamera;
-#endif // SPELLING
 
             if (blur != null)
             {
-#if SPELLING
-                blur.targetCamera = newTargetCamera;
-#else
                 blur.targetCamera = newtargetCamera;
-#endif // SPELLING
             }
         }
 

@@ -122,17 +122,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                     properties += string.Format(PropertyIDBody, nameID, name);
 
                     fromMaterial += Environment.NewLine;
-#if SPELLING
-                    fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGetter(type), nameID, typeName);
-#else
                     fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGettor(type), nameID, typeName);
-#endif // SPELLING
                     toMaterial += Environment.NewLine;
-#if SPELLING
-                    toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSetter(type), nameID, name, typeName);
-#else
                     toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSettor(type), nameID, name, typeName);
-#endif // SPELLING
                 }
                 else  // All other types. Colors, floats, vectors, etc.
                 {
@@ -167,17 +159,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                     properties += string.Format(PropertyIDBody, nameID, name);
 
                     fromMaterial += Environment.NewLine;
-#if SPELLING
-                    fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGetter(type), nameID);
-#else
                     fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGettor(type), nameID);
-#endif // SPELLING
                     toMaterial += Environment.NewLine;
-#if SPELLING
-                    toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSetter(type), nameID, name);
-#else
                     toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSettor(type), nameID, name);
-#endif // SPELLING
                 }
             }
 
@@ -345,11 +329,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// ShaderPropertyType to Unity material getter method.
         /// </summary>
-#if SPELLING
-        private static string ShaderPropertyTypeToGetter(ShaderUtil.ShaderPropertyType type)
-#else
         private static string ShaderPropertyTypeToGettor(ShaderUtil.ShaderPropertyType type)
-#endif // SPELLING
         {
             switch (type)
             {
@@ -365,11 +345,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// ShaderPropertyType to Unity material setter method.
         /// </summary>
-#if SPELLING
-        private static string ShaderPropertyTypeToSetter(ShaderUtil.ShaderPropertyType type)
-#else
         private static string ShaderPropertyTypeToSettor(ShaderUtil.ShaderPropertyType type)
-#endif // SPELLING
         {
             switch (type)
             {
@@ -468,7 +444,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static string GetHeaderName(string headerAttribute)
         {
 #if OPTIMISATION
-            int startPosition = headerAttribute.IndexOf("(", StringComparison.Ordinal) + 1;
+            int startPosition = headerAttribute.IndexOf('(', StringComparison.Ordinal) + 1;
             int wordLength = headerAttribute.IndexOf(")", startPosition, StringComparison.Ordinal) - startPosition;
 #else
             int startPosition = headerAttribute.IndexOf("(") + 1;

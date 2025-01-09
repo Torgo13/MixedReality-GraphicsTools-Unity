@@ -496,7 +496,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                 }
 #if CUSTOM_URP
-                else if (oldShader.name.Contains("Universal Render Pipeline/Lit") || oldShader.name.Contains("Universal Render Pipeline/Unlit") || oldShader.name.Contains("Universal Render Pipeline/Simple Lit") || oldShader.name.Contains("Universal Render Pipeline/Complex Lit"))
+                else if (oldShader.name.Contains("Universal Render Pipeline/Lit", StringComparison.Ordinal)
+                    || oldShader.name.Contains("Universal Render Pipeline/Unlit", StringComparison.Ordinal)
+                    || oldShader.name.Contains("Universal Render Pipeline/Simple Lit", StringComparison.Ordinal)
+                    || oldShader.name.Contains("Universal Render Pipeline/Complex Lit", StringComparison.Ordinal))
                 {
                     normalMap = material.IsKeywordEnabled("_NORMALMAP") ? 1.0f : 0.0f;
                     emission = material.IsKeywordEnabled("_EMISSION") ? 1.0f : 0.0f;
