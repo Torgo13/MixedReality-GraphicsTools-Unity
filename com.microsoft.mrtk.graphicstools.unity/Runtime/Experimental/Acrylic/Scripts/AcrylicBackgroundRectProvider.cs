@@ -130,13 +130,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Canvas canvas = null;
         private RenderTexture source = null;
         private RenderTexture destination = null;
-#if OPTIMISATION_SHADERPARAMS
-        private static readonly int rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
-        private static readonly int textureID = Shader.PropertyToID("_blurTexture");
-#else
         private int rectNameID = 0;
         private int textureID = 0;
-#endif // OPTIMISATION_SHADERPARAMS
         private bool hasBlurred = false;
 
         /// <summary>
@@ -219,23 +214,24 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 canvas = GetComponentInParent<Canvas>();
                 canvasFound = canvas != null;
-#if OPTIMISATION_SHADERPARAMS
-#else
+
                 rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
                 textureID = Shader.PropertyToID("_blurTexture");
-#endif // OPTIMISATION_SHADERPARAMS
             }
 
 #if OPTIMISATION
             if (canvasFound && transform is RectTransform rectTransform)
             {
+                var canvasRect = rectTransform.rect;
+                Vector3 minCorner = TransformToCanvas(canvasRect.min);
+                Vector3 maxCorner = TransformToCanvas(canvasRect.max);
 #else
             if (canvas != null)
             {
                 var rectTransform = transform as RectTransform;
-#endif // OPTIMISATION
                 Vector3 minCorner = TransformToCanvas(rectTransform.rect.min);
                 Vector3 maxCorner = TransformToCanvas(rectTransform.rect.max);
+#endif // OPTIMISATION
                 Vector4 rect = new Vector4(minCorner.x, minCorner.y, maxCorner.x, maxCorner.y);
 
                 if (materials != null)
@@ -279,9 +275,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (textureToBlur == null)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("Failed to find a texture to blur on {0} Image or RawImage components.", gameObject.name);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return false;
             }
@@ -324,20 +320,20 @@ namespace Microsoft.MixedReality.GraphicsTools
             // Acquire the AcrylicLayerManager to copy settings from.
             if (AcrylicLayerManager.Instance == null)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarning("An AcrylicLayerManager does not exist. The image texture will not be blurred.");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return false;
             }
 
             if (AcrylicLayerManager.Instance.Layers.Count < layerIndex)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("The AcrylicLayerManager does not contain enough layers. Request layer {0} but contains {1} layers. The image texture will not be blurred.",
                                        layerIndex,
                                        AcrylicLayerManager.Instance.Layers.Count);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return false;
             }

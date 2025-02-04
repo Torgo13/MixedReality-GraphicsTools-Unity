@@ -65,9 +65,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             { 
                 if (initialized)
                 {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                     Debug.LogWarning("Failed to set the render index because the layer manager is already initialized.");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                     return;
                 }
@@ -94,9 +94,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 if (initialized)
                 {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                     Debug.LogWarning("Failed to set the filter method because the layer manager is already initialized.");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                     return;
                 }
@@ -170,7 +170,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             private set { onPreInitializeEvent = value; }
         }
 
-#region private properties
+        #region private properties
 
         private List<AcrylicLayer> layerData = new List<AcrylicLayer>();
 #if UNITY_2021_2_OR_NEWER
@@ -190,7 +190,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #endregion
 
-#region Monobehavior methods
+        #region Monobehavior methods
 
         private void OnDestroy()
         {
@@ -229,9 +229,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (instance != null && instance != this)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogErrorFormat("An instance of the AcrylicLayerManager already exists on gameobject {0}", instance.name);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return;
             }
@@ -259,9 +259,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             InitializeBlurTexturesToBlack();
         }
 
-#endregion
+        #endregion
 
-#region Public methods
+        #region Public methods
+
         public void EnableLayer(int i)
         {
             if (!AcrylicSupported) return;
@@ -336,9 +337,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#endregion
+        #endregion
 
-#region private methods
+        #region private methods
+
         private void Initialize()
         {
             if (!initialized && AcrylicSupported)
@@ -407,6 +409,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 layer.CreateRendererFeatures();
             }
 
+#if LEGACY_ACRYLIC
+#else
+            layer.SetAcrylicBlurFeature(rendererData);
+#endif // LEGACY_ACRYLIC
+
             return layer;
         }
 
@@ -415,8 +422,22 @@ namespace Microsoft.MixedReality.GraphicsTools
             RemoveAllLayers();
             if (AcrylicActive)
                 AddActiveLayers();
+
+#if LEGACY_ACRYLIC
+#else
+            for (int i = 0; i < layerData.Count; i++)
+            {
+                layerData[i].EnableLayerRendererFeatures(AcrylicActive);
+
+                if (AcrylicActive && layerData[i].activeCount > 0 && layerData[i].CaptureNextFrame)
+                {
+                    layerData[i].UpdateLayerRendererFeatures(updatePeriod < 2 && autoUpdateBlurMap);
+                }
+            }
+#endif // LEGACY_ACRYLIC
         }
 
+        [System.Diagnostics.Conditional("LEGACY_ACRYLIC")]
         private void RemoveExistingAcrylicPasses()
         {
             List<ScriptableRendererFeature> passes = rendererData.rendererFeatures;
@@ -432,33 +453,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        private bool FindExistingAcrylicPasses(out ScriptableRendererFeature acrylicPass)
-        {
-            List<ScriptableRendererFeature> passes = rendererData.rendererFeatures;
-            for (int i = passes.Count - 1; i >= 0; i--)
-            {
-                if (passes[i].name.Contains("Acrylic"))
-                {
-                    acrylicPass = passes[i];
-                    return true;
-                }
-            }
-
-            acrylicPass = null;
-            return false;
-        }
-
         private bool AnyLayersNeedUpdating()
         {
-#if OPTIMISATION
-            for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
-            {
-                if (layerData[i] != null && layerData[i].activeCount > 0 && (autoUpdateBlurMap || !layerData[i].FirstFrameGenerated))
-                {
-                    return true;
-                }
-            }
-#else
             for (int i = 0; i < layerData.Count; i++)
             {
                 if (layerData[i].activeCount > 0)
@@ -466,14 +462,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (autoUpdateBlurMap || !layerData[i].FirstFrameGenerated) return true;
                 }
             }
-#endif // OPTIMISATION
 
             return false;
         }
 
-#endregion
+        #endregion
 
-#region Render to texture methods
+        #region Render to texture methods
 
         private void ExecuteBeforeCameraRender(ScriptableRenderContext context, Camera camera)
         {
@@ -501,9 +496,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             return mask;
         }
 
-#endregion
+        #endregion
 
-#region Periodic update methods
+        #region Periodic update methods
 
         private void StartUpdateRoutine()
         {
@@ -595,10 +590,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             updateRoutine = null;
         }
-#endregion
+        #endregion
 
-#region Copy framebuffer related methods
+        #region Copy framebuffer related methods
 
+        [System.Diagnostics.Conditional("LEGACY_ACRYLIC")]
         private void AddActiveLayers()
         {
             if (captureMethod != AcrylicMethod.CopyFramebuffer) return;
@@ -612,6 +608,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+        [System.Diagnostics.Conditional("LEGACY_ACRYLIC")]
         private void RemoveAllLayers()
         {
             if (captureMethod != AcrylicMethod.CopyFramebuffer) return;
@@ -621,7 +618,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 layerData[i].RemoveLayerRendererFeatures(rendererData);
             }
         }
-#endregion
+        #endregion
     }
 }
 #endif // GT_USE_URP

@@ -104,6 +104,22 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (useDualBlur) dualBlur = new AcrylicFilterDual(_dualBlur);
         }
 
+#if LEGACY_ACRYLIC
+#else
+        public void SetAcrylicBlurFeature(UniversalRendererData rendererData)
+        {
+            foreach (var rendererFeature in rendererData.rendererFeatures)
+            {
+                if (rendererFeature is AcrylicBlurFeature acrylic)
+                {
+                    blur = acrylic;
+                    blur.targetCamera = targetCamera;
+                    break;
+                }
+            }
+        }
+#endif // LEGACY_ACRYLIC
+
 #if OPTIMISATION_IDISPOSABLE
         public void Dispose()
         {
@@ -149,6 +165,33 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif // OPTIMISATION_IDISPOSABLE
         }
 
+#if LEGACY_ACRYLIC
+#else
+        public void EnableLayerRendererFeatures(bool enable)
+        {
+            blur.SetActive(enable);
+        }
+
+        public void UpdateLayerRendererFeatures(bool updateEveryFrame)
+        {
+            blur.SetMaterialTexture(!firstFrameRendered || updateEveryFrame);
+            immediateBlur = !firstFrameRendered || updateEveryFrame;
+            blur.ApplyBlur(immediateBlur);
+
+            RenderTexture captureTarget = null;
+            if (!updateEveryFrame || useDualBlur)
+            {
+                if (renderTarget1 == null)
+                    InitRenderTargets(1, 1, depthBits);
+                captureTarget = renderTarget1;
+            }
+
+            blur.SetStorageTexture(captureTarget);
+            blur.rendered = false;
+            blurred = false;
+        }
+#endif // LEGACY_ACRYLIC
+
 #if UNITY_2021_2_OR_NEWER
         public void AddLayerRendererFeatures(UniversalRendererData rendererData, bool updateEveryFrame)
 #else
@@ -182,6 +225,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 rendererData.rendererFeatures.Insert(insertIndex, renderOpaque);
                 rendererData.opaqueLayerMask = rendererData.opaqueLayerMask & ~settings.renderLayers;
             }
+
             if (renderTransparent != null)
             {
                 ++insertIndex;
@@ -199,6 +243,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (renderTarget1 == null) InitRenderTargets(1, 1, depthBits);
                 captureTarget = renderTarget1;
             }
+
             blur.SetStorageTexture(captureTarget);
             blur.rendered = false;
             blurred = false;
@@ -208,7 +253,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public void ForceCaptureNextFrame()
         {
-            if (blur!=null)
+            if (blur != null)
             {
                 if (!useDualBlur) blur.SetStorageTexture(null);
                 blur.SetMaterialTexture(true);
@@ -260,6 +305,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         public bool CaptureNextFrame => frameCount == 0;
 
+        [System.Diagnostics.Conditional("LEGACY_ACRYLIC")]
         public void CreateRendererFeatures()
         {
             blur = CreateBlurFeature("Acrylic Blur" + index, settings.captureEvent, kawaseBlur, targetCamera);
@@ -311,8 +357,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                         Shader.SetGlobalTexture(settings.blurTextureName, renderTarget1);
                         SwapRenderTargets();
                     }
+
                     blurred = true;
                 }
+
                 if (blendMaterial != null && blendFrames > 0)
                 {
                     float blend = Mathf.Clamp01((float)frameCount / blendFrames);
@@ -389,6 +437,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             Profiler.EndSample();
         }
 
+#if OPTIMISATION
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+#endif // OPTIMISATION
 #if UNITY_2021_2_OR_NEWER
         public void MakeFeaturesPersistent(UniversalRendererData rendererData)
 #else
@@ -407,7 +458,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#endregion
+        #endregion
 
         #region Blur and blend methods
         public void ApplyBlur()
@@ -419,9 +470,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (source == null)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarning("Null blur source texture.");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
                 return;
             }
 
@@ -478,6 +529,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 InitRenderTexture(ref blendSource[1 - blendSourceIndex], input.width, input.height, 0, "BlendSource");
                 cmd.Blit(input, blendSource[1 - blendSourceIndex]);
             }
+
             Graphics.ExecuteCommandBuffer(cmd);
             blendSourceIndex = 1 - blendSourceIndex;
         }
@@ -619,6 +671,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             return r;
         }
 
+#if OPTIMISATION
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+#endif // OPTIMISATION
 #if UNITY_2021_2_OR_NEWER
         private void MakeFeaturePersistent(UniversalRendererData rendererData, ScriptableRendererFeature feature)
 #else
@@ -647,6 +702,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, 0, blitProperties);
         }
 
+        [System.Diagnostics.Conditional("LEGACY_ACRYLIC")]
         private void DestroyScriptableObject(UnityEngine.Object o)
         {
             if (Application.isPlaying)

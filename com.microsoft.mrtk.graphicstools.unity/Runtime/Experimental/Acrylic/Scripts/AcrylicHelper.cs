@@ -26,15 +26,25 @@ namespace Microsoft.MixedReality.GraphicsTools
         private Graphic cachedGraphic = null;
         private Coroutine initCoroutine = null;
 
-#region Monobehavior methods
+        #region Monobehavior methods
 
         private void OnEnable()
         {
+#if LEGACY_ACRYLIC
+#else
+            AcrylicLayerManager.Instance.AcrylicActive = true;
+#endif // LEGACY_ACRYLIC
+
             initCoroutine = StartCoroutine(WaitForAcrylicLayerManager());
         }
 
         private void OnDisable()
         {
+#if LEGACY_ACRYLIC
+#else
+            AcrylicLayerManager.Instance.AcrylicActive = false;
+#endif // LEGACY_ACRYLIC
+
             if (initCoroutine != null)
             {
                 StopCoroutine(initCoroutine);
@@ -48,7 +58,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 #endregion
 
-#region public methods
+        #region public methods
 
         /// <summary>
         /// Adds a reference to the current blur layer.
@@ -72,9 +82,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#endregion
+        #endregion
 
-#region private methods
+        #region private methods
 
         private void UpdateMaterialState()
         {
@@ -118,7 +128,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             initCoroutine = null;
         }
-#endregion
+        #endregion
     }
 }
 #endif // GT_USE_URP
