@@ -42,7 +42,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             get { return instanceMaterials; }
             set 
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (isInitialized)
                 {
                     Debug.LogError("Cannot toggle UseInstanceMaterials after initialization.");
@@ -56,7 +56,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     instanceMaterials = value;
                 }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
             }
         }
 
@@ -204,12 +204,12 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     isInitialized = true;
                 }
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 else
                 {
                     Debug.LogErrorFormat("Failed to initialize CanvasMaterialAnimator. Expected shader {0} but using {1}.", GetTargetShaderName(), material.shader.name);
                 }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
             }
 #endif // GT_USE_UGUI
         }

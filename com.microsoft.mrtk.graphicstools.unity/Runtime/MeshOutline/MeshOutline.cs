@@ -32,13 +32,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Awake()
         {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             if (GetComponent<MeshRenderer>() == null && 
                 GetComponent<SkinnedMeshRenderer>() == null)
             {
                 Debug.LogWarning($"{this.GetType()} is not supported on this type of renderer.");
             }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
             baseRenderer = GetComponent<Renderer>();
             defaultMaterials = baseRenderer.sharedMaterials;
@@ -85,18 +85,18 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return;
             }
             
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             Debug.AssertFormat(outlineMaterial.IsKeywordEnabled(vertexExtrusionKeyword),
            "The material \"{0}\" does not have vertex extrusion enabled, an outline might not be rendered.", outlineMaterial.name);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
             if (UseStencilOutline)
             {
                 if (stencilWriteMaterial == null)
                 {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                     Debug.LogError("ApplyOutlineMaterial failed due to missing stencil write material.");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
                     return;
                 }
 

@@ -33,10 +33,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!StandardShaderUtility.IsUsingGraphicsToolsTextMeshProShader(textMaterial))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("Failed to set the text color inversion because the material isn't using the {0} shader.",
                                        StandardShaderUtility.GraphicsToolsTextMeshProShaderName);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
                 return;
             }
 

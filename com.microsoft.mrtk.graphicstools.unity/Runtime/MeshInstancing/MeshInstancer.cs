@@ -325,11 +325,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void Destroy()
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to double destroy a MeshInstancer instance."); return; }
 #else
                 if (Destroyed) { return; }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 meshInstancer.Destroy(this);
 
@@ -353,11 +353,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetFloat(int nameID, float value)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to SetFloat on a destroyed MeshInstancer instance."); return; }
 #else
                 if (Destroyed) { return; }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 meshInstancer.SetFloat(this, nameID, value);
             }
@@ -377,11 +377,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public float GetFloat(int nameID)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to GetFloat on a destroyed MeshInstancer instance."); return 0.0f; }
 #else
                 if (Destroyed) { return 0.0f; }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return meshInstancer.GetFloat(this, nameID);
             }
@@ -401,11 +401,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetVector(int nameID, Vector4 value)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to SetVector on a destroyed MeshInstancer instance."); return; }
 #else
                 if (Destroyed) { return; }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 meshInstancer.SetVector(this, nameID, value);
             }
@@ -425,11 +425,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public Vector4 GetVector(int nameID)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to GetVector on a destroyed MeshInstancer instance."); return Vector4.zero; }
 #else
                 if (Destroyed) { return Vector4.zero; }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return meshInstancer.GetVector(this, nameID);
             }
@@ -449,11 +449,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetMatrix(int nameID, Matrix4x4 value)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to SetMatrix on a destroyed MeshInstancer instance."); return; }
 #else
                 if (Destroyed) { return; }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 meshInstancer.SetMatrix(this, nameID, value);
             }
@@ -473,11 +473,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public Matrix4x4 GetMatrix(int nameID)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to v on a destroyed MeshInstancer instance."); return Matrix4x4.identity; }
 #else
                 if (Destroyed) { return Matrix4x4.identity; }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return meshInstancer.GetMatrix(this, nameID);
             }
@@ -488,11 +488,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetParallelUpdate(ParallelUpdate parallelUpdate)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to set the ParallelUpdate method on a destroyed MeshInstancer instance."); return; }
 #else
                 if (Destroyed) { return; }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 meshInstancer.instanceBuckets[InstanceBucketIndex].ParallelUpdates[InstanceIndex] = parallelUpdate;
             }
@@ -1129,9 +1129,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return false;
             }
@@ -1155,9 +1155,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return false;
             }
@@ -1181,9 +1181,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return false;
             }
@@ -1204,9 +1204,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("SetFloat failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return;
             }
@@ -1228,9 +1228,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("GetFloat failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return 0.0f;
             }
@@ -1251,9 +1251,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("SetVector failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return;
             }
@@ -1275,9 +1275,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("GetVector failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return Vector4.zero;
             }
@@ -1298,9 +1298,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("SetMatrix failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return;
             }
@@ -1322,9 +1322,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat("GetMatrix failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return Matrix4x4.identity;
             }

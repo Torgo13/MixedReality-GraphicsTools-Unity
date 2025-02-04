@@ -60,12 +60,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         protected override void AddLight()
         {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             if (activeHoverLights.Count == hoverLightCount)
             {
                 Debug.LogWarningFormat("Max hover light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", hoverLightCount, gameObject.name);
             }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
             activeHoverLights.Add(this);
         }

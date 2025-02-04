@@ -45,12 +45,12 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return null;
             }
             
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             if (IsInstance(source))
             {
                 Debug.LogWarning($"The material ({source.name}) is already instanced and is being instanced multiple times.");
             }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
             Material output = new Material(source);
             output.CopyPropertiesFromMaterial(source);

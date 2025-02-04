@@ -200,9 +200,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             // A non-readable mesh cannot be processed, so return a null mesh.
             if (originalMesh.isReadable == false)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarning($"Mesh smoothing failed because {originalMesh.name} is not readable. Check \"Read/Write Enabled\" in the mesh's import settings.");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 mesh = null;
 
@@ -288,9 +288,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             Debug.LogFormat("CalculateSmoothNormals took {0} ms on {1} vertices.", watch.ElapsedMilliseconds, vertices.Length);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
             return smoothNormals;
         }

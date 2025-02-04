@@ -71,15 +71,15 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (camera == null)
                     {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                         Debug.LogError("Failed to find any cameras to capture a screenshot from.");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
                         return false;
                     }
 
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                     Debug.LogWarning($"Capturing screenshot from a camera named \"{camera.name}\" because there is no camera tagged \"MainCamera\".");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
                 }
             }
 
@@ -138,9 +138,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 UnityEngine.Object.Destroy(renderTexture);
             }
 
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             Debug.LogFormat("Screenshot captured to: {0}", path);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
             return true;
         }
 

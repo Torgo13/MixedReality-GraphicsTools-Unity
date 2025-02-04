@@ -62,9 +62,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (settings.BlitMaterial == null)
             {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
                 Debug.LogWarningFormat($"{nameof(DrawFullscreenFeature)} is missing a blit material and will not be queued.");
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
                 return;
             }

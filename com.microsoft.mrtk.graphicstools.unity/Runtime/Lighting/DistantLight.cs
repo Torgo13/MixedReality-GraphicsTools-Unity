@@ -68,12 +68,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         protected override void AddLight()
         {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             if (activeDistantLights.Count == distantLightCount)
             {
                 Debug.LogWarningFormat("Max distant light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", distantLightCount, gameObject.name);
             }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
             activeDistantLights.Add(this);
         }

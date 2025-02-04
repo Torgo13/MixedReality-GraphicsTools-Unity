@@ -204,12 +204,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <inheritdoc/>
         protected override void AddLight()
         {
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             if (activeProximityLights.Count == proximityLightCount)
             {
                 Debug.LogWarningFormat("Max proximity light count {0} exceeded. {1} will not be considered by the Graphics Tools/Standard shader until other lights are removed.", proximityLightCount, gameObject.name);
             }
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
             activeProximityLights.Add(this);
         }

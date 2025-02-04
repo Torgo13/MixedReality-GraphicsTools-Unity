@@ -188,7 +188,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             // Don't merge meshes from multiple LOD groups.
             if (renderer != null)
             {
-
 #if OPTIMISATION_LISTPOOL
                 using var _0 = UnityEngine.Pool.ListPool<LODGroup>.Get(out var lodGroups);
                 meshFilter.GetComponentsInParent<LODGroup>(false, lodGroups);
@@ -250,14 +249,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                 output.Material = new Material(defaultMaterial);
                 output.MeshIDTable = meshIDTable;
             }
-#if UNITY_EDITOR || DEBUG
+#if DEBUG
             else
             {
                 Debug.LogWarning("The MeshCombiner failed to find any meshes to combine.");
             }
 
             Debug.LogFormat("MeshCombine took {0} ms on {1} meshes.", watch.ElapsedMilliseconds, settings.MeshFilters.Count);
-#endif // UNITY_EDITOR || DEBUG
+#endif // DEBUG
 
             return output;
         }
