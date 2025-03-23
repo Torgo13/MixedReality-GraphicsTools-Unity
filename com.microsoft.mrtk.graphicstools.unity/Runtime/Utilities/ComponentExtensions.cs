@@ -30,7 +30,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <typeparam name="T">Type of component to find.</typeparam>
         /// <param name="component">Component for which its game object's ancestors must be considered.</param>
         /// <param name="includeSelf">Indicates whether the specified game object should be included.</param>
-        /// <returns>The component of type <typeparamref name="T"/>. Null if it none was found.</returns>
+        /// <returns>The component of type <typeparamref name="T"/>. Null if none was found.</returns>
         public static T FindAncestorComponent<T>(this Component component, bool includeSelf = true) where T : Component
         {
             return component.transform.FindAncestorComponent<T>(includeSelf);
