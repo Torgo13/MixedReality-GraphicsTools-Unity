@@ -510,6 +510,10 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private IEnumerator UpdateRoutine()
         {
+#if OPTIMISATION
+            Camera mainCamera = null;
+#endif // OPTIMISATION
+            
             while (AnyLayersNeedUpdating())
             {
                 bool updateActiveFeatures = false;
@@ -521,7 +525,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         if (UseOnlyMainCamera)
                         {
-                            t.SetTargetCamera(Camera.main);
+                            if (mainCamera == null)
+                                mainCamera = Camera.main;
+                            
+                            t.SetTargetCamera(mainCamera);
                         }
 
                         t.UpdateFrame(rendererData, captureMethod == AcrylicMethod.CopyFramebuffer, updatePeriod, blendFrames, blendMaterial, autoUpdateBlurMap);

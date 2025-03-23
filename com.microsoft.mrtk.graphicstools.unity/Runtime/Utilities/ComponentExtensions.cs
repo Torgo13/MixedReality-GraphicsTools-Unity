@@ -13,11 +13,11 @@ namespace Microsoft.MixedReality.GraphicsTools
     public static class ComponentExtensions
     {
         /// <summary>
-        /// Ensure that a component of type <typeparamref name="T"/> exists on the game object.
+        /// Ensure that a component of type <typeparamref name="T"/> exists on the GameObject.
         /// If it doesn't exist, creates it.
         /// </summary>
         /// <typeparam name="T">Type of the component.</typeparam>
-        /// <param name="component">A component on the game object for which a component of type <typeparamref name="T"/> should exist.</param>
+        /// <param name="component">A component on the GameObject for which a component of type <typeparamref name="T"/> should exist.</param>
         /// <returns>The component that was retrieved or created.</returns>
         public static T EnsureComponent<T>(this Component component) where T : Component
         {
@@ -25,23 +25,36 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Find the first component of type <typeparamref name="T"/> in the ancestors of the game object of the specified component.
+        /// Find the first component of type <typeparamref name="T"/> in the ancestors of the GameObject of the specified component.
         /// </summary>
         /// <typeparam name="T">Type of component to find.</typeparam>
-        /// <param name="component">Component for which its game object's ancestors must be considered.</param>
-        /// <param name="includeSelf">Indicates whether the specified game object should be included.</param>
+        /// <param name="component">Component for which its GameObject's ancestors must be considered.</param>
+        /// <param name="includeSelf">Indicates whether the specified GameObject should be included.</param>
         /// <returns>The component of type <typeparamref name="T"/>. Null if none was found.</returns>
         public static T FindAncestorComponent<T>(this Component component, bool includeSelf = true) where T : Component
         {
-            return component.transform.FindAncestorComponent<T>(includeSelf);
+            var transform = component.transform;
+            
+            if (!includeSelf)
+                transform = transform.parent;
+            
+            while (transform != null)
+            {
+                if (transform.TryGetComponent<T>(out var ancestorComponent))
+                    return ancestorComponent;
+                
+                transform = transform.parent;
+            }
+            
+            return null;
         }
 
         /// <summary>
-        /// Ensure that a component of type <typeparamref name="T"/> exists on the game object.
+        /// Ensure that a component of type <typeparamref name="T"/> exists on the GameObject.
         /// If it doesn't exist, creates it.
         /// </summary>
         /// <typeparam name="T">Type of the component.</typeparam>
-        /// <param name="gameObject">Game object on which component should be.</param>
+        /// <param name="gameObject">GameObject on which the component should be.</param>
         /// <returns>The component that was retrieved or created.</returns>
         /// <remarks>
         /// This extension has to remain in this class as it is required by the <see cref="EnsureComponent{T}(Component)"/> method
@@ -53,10 +66,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         /// <summary>
-        /// Ensure that a component of type exists on the game object.
+        /// Ensure that a component of type exists on the GameObject.
         /// If it doesn't exist, creates it.
         /// </summary>
-        /// <param name="component">A component on the game object for which a component of type should exist.</param>
+        /// <param name="gameObject">GameObject on which the component should be.</param>
+        /// <param name="component">A component on the GameObject for which a component of type should exist.</param>
         /// <returns>The component that was retrieved or created.</returns>
         public static Component EnsureComponent(this GameObject gameObject, Type component)
         {
