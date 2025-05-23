@@ -17,9 +17,15 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     public class RoundedRectMask2D : RectMask2DFast
     {
+#if OPTIMISATION_IL2CPP
+        public const string RoundedKeyword = "_UI_CLIP_RECT_ROUNDED";
+        public const string RoundedIndependentKeyword = "_UI_CLIP_RECT_ROUNDED_INDEPENDENT";
+        public const string RadiiPropertyName = "_ClipRectRadii";
+#else
         public static readonly string RoundedKeyword = "_UI_CLIP_RECT_ROUNDED";
         public static readonly string RoundedIndependentKeyword = "_UI_CLIP_RECT_ROUNDED_INDEPENDENT";
         public static readonly string RadiiPropertyName = "_ClipRectRadii";
+#endif // OPTIMISATION_IL2CPP
 
         [Tooltip("False if the rounded rect has the same radii for all four corners, true if they are all different.")]
         [SerializeField]

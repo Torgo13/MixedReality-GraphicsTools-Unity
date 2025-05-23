@@ -32,7 +32,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset pipeline)
             {
-                var renderers = pipeline.m_RendererDataList;
+                var renderers = pipeline.RendererDataList;
                 if (rendererIndex < renderers.Length)
                 {
 #if UNITY_2021_2_OR_NEWER

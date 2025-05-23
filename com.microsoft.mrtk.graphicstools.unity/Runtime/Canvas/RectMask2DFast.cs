@@ -31,40 +31,25 @@ namespace Microsoft.MixedReality.GraphicsTools
         private List<RectMask2D> clippers = new List<RectMask2D>();
 
 #if OPTIMISATION
-        #region Reflection
+        private static readonly System.Linq.Expressions.ParameterExpression param
+            = System.Linq.Expressions.Expression.Parameter(typeof(object), "instance");
 
-        private static FieldInfo _clipTargets;
-        private static FieldInfo ClipTargets
-        {
-            get
-            {
-                if (_clipTargets == null)
-                {
-                    _clipTargets = typeof(RectMask2D).GetField("m_ClipTargets", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                }
-                
-                return _clipTargets;
-            }
-        }
+        private static readonly System.Func<object, HashSet<IClippable>> clipTargetsDelegate
+            = System.Linq.Expressions.Expression.Lambda<System.Func<object, HashSet<IClippable>>>(
+                System.Linq.Expressions.Expression.Convert(System.Linq.Expressions.Expression.Field(
+                System.Linq.Expressions.Expression.Convert(param, typeof(RectMask2D)), typeof(RectMask2D).GetField("m_ClipTargets",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)),
+                typeof(HashSet<IClippable>)), param).Compile();
 
-        private static FieldInfo _maskableTargets;
-        private static FieldInfo MaskableTargets
-        {
-            get
-            {
-                if (_maskableTargets == null)
-                {
-                    _maskableTargets = typeof(RectMask2D).GetField("m_MaskableTargets", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                }
-                
-                return _maskableTargets;
-            }
-        }
-
-        #endregion // Reflection
+        private static readonly System.Func<object, HashSet<MaskableGraphic>> maskableTargetsDelegate
+            = System.Linq.Expressions.Expression.Lambda<System.Func<object, HashSet<MaskableGraphic>>>(
+                System.Linq.Expressions.Expression.Convert(System.Linq.Expressions.Expression.Field(
+                System.Linq.Expressions.Expression.Convert(param, typeof(RectMask2D)), typeof(RectMask2D).GetField("m_MaskableTargets",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)),
+                typeof(HashSet<MaskableGraphic>)), param).Compile();
 #endif // OPTIMISATION
 
-#region MonoBehaviour Implementation
+        #region MonoBehaviour Implementation
 
         /// <inheritdoc />
         protected override void OnEnable()
@@ -265,8 +250,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // Many of the properties we need access to for clipping are not exposed. So, we have to do reflection to get access to them.
 #if OPTIMISATION
-            clipTargets = (HashSet<IClippable>)ClipTargets?.GetValue(this);
-            maskableTargets = (HashSet<MaskableGraphic>)MaskableTargets?.GetValue(this);
+            clipTargets = clipTargetsDelegate(this);
+            maskableTargets = maskableTargetsDelegate(this);
 #else
             BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
             clipTargets = (HashSet<IClippable>)typeof(RectMask2D).GetField("m_ClipTargets", bindFlags).GetValue(this);
