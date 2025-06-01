@@ -32,7 +32,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public static bool IsInstance(Material material)
         {
+#if OPTIMISATION_ORDINAL
+            return ((material != null) && material.name.Contains(InstancePostfix, StringComparison.Ordinal));
+#else
             return ((material != null) && material.name.Contains(InstancePostfix));
+#endif // OPTIMISATION_ORDINAL
         }
 
         /// <summary>
@@ -287,11 +291,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 return false;
             }
-#if SAFETY
-            for (int i = 0, aCount = a != null ? a.Count : 0; i < aCount; ++i)
+#if OPTIMISATION
+            for (int i = 0, aCount = a?.Count ?? 0; i < aCount; ++i)
 #else
             for (int i = 0; i < a?.Count; ++i)
-#endif // SAFETY
+#endif // OPTIMISATION
             {
                 if (a[i] != b[i])
                 {

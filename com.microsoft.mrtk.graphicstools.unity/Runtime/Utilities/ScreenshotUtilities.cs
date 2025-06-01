@@ -71,15 +71,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     if (camera == null)
                     {
-#if DEBUG
                         Debug.LogError("Failed to find any cameras to capture a screenshot from.");
-#endif // DEBUG
                         return false;
                     }
 
-#if DEBUG
                     Debug.LogWarning($"Capturing screenshot from a camera named \"{camera.name}\" because there is no camera tagged \"MainCamera\".");
-#endif // DEBUG
                 }
             }
 
@@ -109,6 +105,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 antiAliasing = 8
             };
+
+            if (!renderTexture.Create())
+                return false;
+
             renderCamera.targetTexture = renderTexture;
 
             // Render from the camera clone.
@@ -135,12 +135,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 UnityEngine.Object.Destroy(outputTexture);
                 UnityEngine.Object.Destroy(renderCamera.gameObject);
+                renderTexture.Release();
                 UnityEngine.Object.Destroy(renderTexture);
             }
 
-#if DEBUG
             Debug.LogFormat("Screenshot captured to: {0}", path);
-#endif // DEBUG
             return true;
         }
 

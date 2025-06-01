@@ -244,7 +244,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     {
                         var decompressedTexture = new Texture2D(pair.Texture.width, pair.Texture.height, GetUncompressedEquivalent(pair.Texture.format), true);
 #if GET_PIXEL_DATA
-                        decompressedTexture.SetPixelData<Color32>(pair.Texture.GetPixelData<Color32>(0), 0);
+                        decompressedTexture.SetPixelData(pair.Texture.GetPixelData<Color>(mipLevel: 0), mipLevel: 0);
 #else
                         decompressedTexture.SetPixels(pair.Texture.GetPixels());
 #endif // GET_PIXEL_DATA

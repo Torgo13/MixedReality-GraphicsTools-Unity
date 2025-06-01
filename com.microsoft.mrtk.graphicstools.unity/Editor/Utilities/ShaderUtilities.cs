@@ -422,11 +422,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string RemoveWhitespace(string input)
         {
-#if OPTIMISATION
-            return input.Where(c => !Char.IsWhiteSpace(c)).ToString();
-#else
             return new string(input.ToCharArray().Where(c => !Char.IsWhiteSpace(c)).ToArray());
-#endif // OPTIMISATION
         }
 
         /// <summary>
@@ -443,13 +439,13 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string GetHeaderName(string headerAttribute)
         {
-#if OPTIMISATION
+#if OPTIMISATION_ORDINAL
             int startPosition = headerAttribute.IndexOf('(', StringComparison.Ordinal) + 1;
             int wordLength = headerAttribute.IndexOf(")", startPosition, StringComparison.Ordinal) - startPosition;
 #else
             int startPosition = headerAttribute.IndexOf("(") + 1;
             int wordLength = headerAttribute.IndexOf(")", startPosition) - startPosition;
-#endif // OPTIMISATION
+#endif // OPTIMISATION_ORDINAL
 
             return headerAttribute.Substring(startPosition, wordLength);
         }

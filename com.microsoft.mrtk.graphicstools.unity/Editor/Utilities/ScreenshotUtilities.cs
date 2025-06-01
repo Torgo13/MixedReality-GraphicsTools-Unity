@@ -116,13 +116,13 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             var renderCamera = new GameObject().AddComponent<Camera>();
             renderCamera.CopyFrom(camera);
             renderCamera.orthographic = camera.orthographic;
-#if OPTIMISATION_TRANSFORM
+#if OPTIMISATION_UNITY
             camera.transform.GetPositionAndRotation(out var position, out var rotation);
             renderCamera.transform.SetPositionAndRotation(position, rotation);
 #else
             renderCamera.transform.position = camera.transform.position;
             renderCamera.transform.rotation = camera.transform.rotation;
-#endif // OPTIMISATION_TRANSFORM
+#endif // OPTIMISATION_UNITY
             renderCamera.clearFlags = transparentClearColor ? CameraClearFlags.Color : camera.clearFlags;
             renderCamera.backgroundColor = transparentClearColor ? new Color(0.0f, 0.0f, 0.0f, 0.0f) :
                                                                    new Color(camera.backgroundColor.r, camera.backgroundColor.g, camera.backgroundColor.b, 1.0f);

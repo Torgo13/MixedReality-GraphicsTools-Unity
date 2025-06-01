@@ -80,10 +80,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
             
-#if DEBUG
             Debug.Assert(_renderer != null || animator != null || graphic != null,
-                         "The FrontPlatePulse component must have a Renderer, CanvasMaterialAnimatorCanvasFrontplate, or Graphic component.");
-#endif // DEBUG
+                "The FrontPlatePulse component must have a Renderer, CanvasMaterialAnimatorCanvasFrontplate, or Graphic component.");
 
             isInitialized = true;
         }

@@ -98,9 +98,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
 #if OPTIMISATION
                     if (image.sprite != null)
-                    {
                         output = image.sprite.texture;
-                    }
 #else
                     output = (image.sprite != null) ? image.sprite.texture : null;
 #endif // OPTIMISATION
@@ -205,21 +203,24 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return;
             }
 
-#if OPTIMISATION
+#if OPTIMISATION_UNITY
             bool canvasFound = canvas != null;
             if (!canvasFound)
 #else
             if (canvas == null)
-#endif // OPTIMISATION
+#endif // OPTIMISATION_UNITY
             {
                 canvas = GetComponentInParent<Canvas>();
+
+#if OPTIMISATION_UNITY
                 canvasFound = canvas != null;
+#endif // OPTIMISATION_UNITY
 
                 rectNameID = Shader.PropertyToID("_BlurBackgroundRect");
                 textureID = Shader.PropertyToID("_blurTexture");
             }
 
-#if OPTIMISATION
+#if OPTIMISATION_UNITY
             if (canvasFound && transform is RectTransform rectTransform)
             {
                 var canvasRect = rectTransform.rect;
@@ -231,7 +232,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 var rectTransform = transform as RectTransform;
                 Vector3 minCorner = TransformToCanvas(rectTransform.rect.min);
                 Vector3 maxCorner = TransformToCanvas(rectTransform.rect.max);
-#endif // OPTIMISATION
+#endif // OPTIMISATION_UNITY
                 Vector4 rect = new Vector4(minCorner.x, minCorner.y, maxCorner.x, maxCorner.y);
 
                 if (materials != null)
@@ -275,10 +276,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (textureToBlur == null)
             {
-#if DEBUG
                 Debug.LogWarningFormat("Failed to find a texture to blur on {0} Image or RawImage components.", gameObject.name);
-#endif // DEBUG
-
                 return false;
             }
 
@@ -320,20 +318,15 @@ namespace Microsoft.MixedReality.GraphicsTools
             // Acquire the AcrylicLayerManager to copy settings from.
             if (AcrylicLayerManager.Instance == null)
             {
-#if DEBUG
                 Debug.LogWarning("An AcrylicLayerManager does not exist. The image texture will not be blurred.");
-#endif // DEBUG
-
                 return false;
             }
 
             if (AcrylicLayerManager.Instance.Layers.Count < layerIndex)
             {
-#if DEBUG
                 Debug.LogWarningFormat("The AcrylicLayerManager does not contain enough layers. Request layer {0} but contains {1} layers. The image texture will not be blurred.",
-                                       layerIndex,
-                                       AcrylicLayerManager.Instance.Layers.Count);
-#endif // DEBUG
+                    layerIndex,
+                    AcrylicLayerManager.Instance.Layers.Count);
 
                 return false;
             }

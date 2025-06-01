@@ -304,22 +304,22 @@ namespace Microsoft.MixedReality.GraphicsTools
             for (int i = 0; i <= wedges; i++)
             {
                 float wedgeAngle = (float)i / wedges * Mathf.PI * 0.5f;
-#if OPTIMISATION
+#if OPTIMISATION_MATHS
                 Vector3 dir = Mathf.Cos(wedgeAngle) * rx * xaxis + Mathf.Sin(wedgeAngle) * ry * yaxis;
                 Vector3 localCenter = center + dir * (radius - bevelRadius) - bevelRadius * rz * zdir;
 #else
                 Vector3 dir = (Mathf.Cos(wedgeAngle) * rx) * xaxis + (Mathf.Sin(wedgeAngle) * ry) * yaxis;
                 Vector3 localCenter = center + dir * (radius - bevelRadius) - zdir * bevelRadius * rz;
-#endif // OPTIMISATION
+#endif // OPTIMISATION_MATHS
                 for (int j = 0; j <= nbevel; j++)
                 {
-#if OPTIMISATION
+#if OPTIMISATION_MATHS
                     float bevelAngle = j / bevelAngleDivisor * Mathf.PI * 0.5f;
                     Vector3 p = localCenter + bevelRadius * (Mathf.Cos(bevelAngle) * dir + Mathf.Sin(bevelAngle) * rz * zdir);
 #else
                     float bevelAngle = (float)j / bevelAngleDivisor * Mathf.PI * 0.5f;
                     Vector3 p = localCenter + bevelRadius * (Mathf.Cos(bevelAngle) * dir + Mathf.Sin(bevelAngle) * zdir * rz);
-#endif // OPTIMISATION
+#endif // OPTIMISATION_MATHS
                     Vector3 n = (p - localCenter).normalized;
                     int ix = AddVertex(vh, p, n);
                     if (i > 0)

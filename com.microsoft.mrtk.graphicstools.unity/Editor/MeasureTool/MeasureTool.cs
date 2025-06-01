@@ -138,11 +138,11 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 {
                     SphereCollider sphereCollider = (SphereCollider)col;
 
-#if OPTIMISATION
+#if OPTIMISATION_MATHS
                     array = VerticesFromSize(sphereCollider.center, 2 * sphereCollider.radius * Vector3.one);
 #else
                     array = VerticesFromSize(sphereCollider.center, Vector3.one * sphereCollider.radius * 2);
-#endif // OPTIMISATION
+#endif // OPTIMISATION_MATHS
                     TransformPoints(gameObject, array);
                 }
                 else if (col.GetType() == typeof(BoxCollider))
@@ -225,7 +225,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         /// <param name="attachedTransform">Transform required to ensure handles rotate with cube</param>
         private void DrawCubeFromVectorArray(Vector3[] array, Transform attachedTransform)
         {
-#if OPTIMISATION
+#if OPTIMISATION_MATHS
             Vector3 zOffset = 10f * settings.Offset * Vector3.forward;
             Vector3 xOffset = 10f * settings.Offset * Vector3.right;
             Vector3 diagonalOffset = 10f * settings.Offset * (Vector3.right + Vector3.forward).normalized;
@@ -233,7 +233,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
             Vector3 zOffset = Vector3.forward * settings.Offset * 10f;
             Vector3 xOffset = Vector3.right * settings.Offset * 10f;
             Vector3 diagonalOffset = (Vector3.right + Vector3.forward).normalized * settings.Offset * 10f;
-#endif // OPTIMISATION
+#endif // OPTIMISATION_MATHS
 
             DrawLine(array[5], array[1]);
             DrawLine(array[1], array[7]);
@@ -252,7 +252,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
 
             if (attachedTransform != null)
             {
-#if OPTIMISATION
+#if OPTIMISATION_MATHS
                 zOffset = 10f * settings.Offset * attachedTransform.forward;
                 xOffset = 10f * settings.Offset * attachedTransform.right;
                 diagonalOffset = 10f * settings.Offset * (attachedTransform.right + attachedTransform.forward).normalized;
@@ -260,7 +260,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                 zOffset = attachedTransform.forward * settings.Offset * 10f;
                 xOffset = attachedTransform.right * settings.Offset * 10f;
                 diagonalOffset = (attachedTransform.right + attachedTransform.forward).normalized * settings.Offset * 10f;
-#endif // OPTIMISATION
+#endif // OPTIMISATION_MATHS
             }
 
             DrawHandle(array[4], array[0], -zOffset, DistanceInUnits(Vector3.Distance(array[4], array[0])), Color.red);

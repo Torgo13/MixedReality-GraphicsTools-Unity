@@ -33,6 +33,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <returns>The component of type <typeparamref name="T"/>. Null if none was found.</returns>
         public static T FindAncestorComponent<T>(this Component component, bool includeSelf = true) where T : Component
         {
+#if BUGFIX
             var transform = component.transform;
             
             if (!includeSelf)
@@ -47,6 +48,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
             
             return null;
+#else
+            return component.transform.FindAncestorComponent<T>(includeSelf);
+#endif // BUGFIX
         }
 
         /// <summary>
@@ -78,4 +82,81 @@ namespace Microsoft.MixedReality.GraphicsTools
             return foundComponent == null ? gameObject.AddComponent(component) : foundComponent;
         }
     }
+
+#if OPTIMISATION
+    public static class Debug
+    {
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void Log(object message)
+        {
+            UnityEngine.Debug.Log(message);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void LogFormat(string format, params object[] args)
+        {
+            UnityEngine.Debug.LogFormat(format, args);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void LogWarning(object message)
+        {
+            UnityEngine.Debug.LogWarning(message);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void LogWarning(object message, UnityEngine.Object context)
+        {
+            UnityEngine.Debug.LogWarning(message, context);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void LogWarningFormat(string format, params object[] args)
+        {
+            UnityEngine.Debug.LogWarningFormat(format, args);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void LogError(object message)
+        {
+            UnityEngine.Debug.LogError(message);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void LogErrorFormat(string format, params object[] args)
+        {
+            UnityEngine.Debug.LogErrorFormat(format, args);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void LogException(System.Exception exception)
+        {
+            UnityEngine.Debug.LogException(exception);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void Assert(bool condition)
+        {
+            UnityEngine.Debug.Assert(condition);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void Assert(bool condition, string format, params object[] args)
+        {
+            UnityEngine.Debug.AssertFormat(condition, format, args);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void AssertFormat(bool condition, string format, params object[] args)
+        {
+            UnityEngine.Debug.AssertFormat(condition, format, args);
+        }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void DrawLine(Vector3 start, Vector3 end, Color color)
+        {
+            UnityEngine.Debug.DrawLine(start, end, color);
+        }
+    }
+#endif // OPTIMISATION
 }

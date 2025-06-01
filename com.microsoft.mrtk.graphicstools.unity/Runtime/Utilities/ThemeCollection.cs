@@ -243,7 +243,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         type = currentType;
                     }
-                    else if(currentType != type)
+                    else if (currentType != type)
                     {
                         warning = $"Theme \"{GetThemeName(themeCollection.Themes[j], j)}\" asset index {i} is of mismatched type. Expected \"{type}\" and got \"{currentType}\".";
                         return false;

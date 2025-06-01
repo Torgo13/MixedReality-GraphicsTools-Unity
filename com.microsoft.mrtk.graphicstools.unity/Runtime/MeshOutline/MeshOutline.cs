@@ -85,18 +85,14 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return;
             }
             
-#if DEBUG
             Debug.AssertFormat(outlineMaterial.IsKeywordEnabled(vertexExtrusionKeyword),
-           "The material \"{0}\" does not have vertex extrusion enabled, an outline might not be rendered.", outlineMaterial.name);
-#endif // DEBUG
+                "The material \"{0}\" does not have vertex extrusion enabled, an outline might not be rendered.", outlineMaterial.name);
 
             if (UseStencilOutline)
             {
                 if (stencilWriteMaterial == null)
                 {
-#if DEBUG
                     Debug.LogError("ApplyOutlineMaterial failed due to missing stencil write material.");
-#endif // DEBUG
                     return;
                 }
 

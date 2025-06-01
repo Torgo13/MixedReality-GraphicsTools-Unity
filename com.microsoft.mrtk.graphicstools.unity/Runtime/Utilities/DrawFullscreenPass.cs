@@ -97,12 +97,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             CommandBufferPool.Release(cmd);
         }
 
-        /// <summary>
-        /// Unsure when this is called? This is the only resource I could find to dispose of RTHandles.
-        /// https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@14.0/manual/upgrade-guide-2022-1.html
-        /// </summary>
-#if OPTIMISATION_IDISPOSABLE
-        private void Dispose()
+#if BUGFIX
+        public void Dispose()
         {
             Dispose(true);
             System.GC.SuppressFinalize(this);
@@ -110,13 +106,16 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         protected virtual void Dispose(bool disposing)
 #else
+        /// <summary>
+        /// Unsure when this is called? This is the only resource I could find to dispose of RTHandles.
+        /// https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@14.0/manual/upgrade-guide-2022-1.html
+        /// </summary>
         private void Dispose()
-#endif // OPTIMISATION_IDISPOSABLE
+#endif // BUGFIX
         {
             source?.Release();
             destination?.Release();
         }
-
 #else
         private RenderTargetIdentifier source;
         private RenderTargetIdentifier destination;

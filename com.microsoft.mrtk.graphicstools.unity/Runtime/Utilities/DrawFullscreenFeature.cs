@@ -30,11 +30,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
             public Material BlitMaterial = null;
-#if OPTIMISATION
+#if OPTIMISATION_IL2CPP
             public const string BlitSourceTextureName = "_SourceTex";
 #else
             public string BlitSourceTextureName = "_SourceTex";
-#endif // OPTIMISATION
+#endif // OPTIMISATION_IL2CPP
             public int BlitMaterialPassIndex = -1;
             public BufferType SourceType = BufferType.CameraColor;
             public BufferType DestinationType = BufferType.CameraColor;
@@ -62,10 +62,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (settings.BlitMaterial == null)
             {
-#if DEBUG
                 Debug.LogWarningFormat($"{nameof(DrawFullscreenFeature)} is missing a blit material and will not be queued.");
-#endif // DEBUG
-
                 return;
             }
 
@@ -74,6 +71,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             renderer.EnqueuePass(blitPass);
         }
+
+#if BUGFIX
+        protected override void Dispose(bool disposing)
+        {
+            blitPass?.Dispose();
+        }
+#endif // BUGFIX
     }
 }
 #endif // GT_USE_URP

@@ -41,19 +41,15 @@ namespace Microsoft.MixedReality.GraphicsTools
                     return renderers[rendererIndex] as ForwardRendererData;
 #endif
                 }
-#if DEBUG
                 else
                 {
                     Debug.LogError($"GetRendererData failed because rendererIndex is out of range. {renderers.Length} renderer(s) exist but index {rendererIndex} requested.");
                 }
-#endif // DEBUG
             }
-#if DEBUG
             else
             {
                 Debug.LogWarning("GetRendererData failed because the current pipeline is not set or not a UniversalRenderPipelineAsset");
             }
-#endif // DEBUG
 
             return null;
         }
@@ -91,33 +87,25 @@ namespace Microsoft.MixedReality.GraphicsTools
                             return renderers[rendererIndex] as ForwardRendererData;
 #endif
                         }
-#if DEBUG
                         else
                         {
                             Debug.LogError($"GetRendererData failed because rendererIndex is out of range. {renderers.Length} renderer(s) exist but index {rendererIndex} requested.");
                         }
-#endif // DEBUG
                     }
-#if DEBUG
                     else
                     {
                         Debug.LogError("GetRendererData failed because Unity changed the internals of m_RendererDataList. Please file a bug!");
                     }
-#endif // DEBUG
                 }
-#if DEBUG
                 else
                 {
                     Debug.LogError("GetRendererData failed because Unity changed the internals of UniversalRenderPipelineAsset. Please file a bug!");
                 }
-#endif // DEBUG
             }
-#if DEBUG
             else
             {
                 Debug.LogWarning("GetRendererData failed because the current pipeline is not set or not a UniversalRenderPipelineAsset");
             }
-#endif // DEBUG
 
             return null;
         }

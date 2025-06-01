@@ -65,10 +65,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             { 
                 if (initialized)
                 {
-#if DEBUG
                     Debug.LogWarning("Failed to set the render index because the layer manager is already initialized.");
-#endif // DEBUG
-
                     return;
                 }
 
@@ -94,10 +91,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 if (initialized)
                 {
-#if DEBUG
                     Debug.LogWarning("Failed to set the filter method because the layer manager is already initialized.");
-#endif // DEBUG
-
                     return;
                 }
 
@@ -229,10 +223,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (instance != null && instance != this)
             {
-#if DEBUG
                 Debug.LogErrorFormat("An instance of the AcrylicLayerManager already exists on gameobject {0}", instance.name);
-#endif // DEBUG
-
                 return;
             }
 
@@ -510,66 +501,31 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private IEnumerator UpdateRoutine()
         {
-#if OPTIMISATION
+#if OPTIMISATION_UNITY
             Camera mainCamera = null;
-#endif // OPTIMISATION
-            
+#endif // OPTIMISATION_UNITY
+
             while (AnyLayersNeedUpdating())
             {
                 bool updateActiveFeatures = false;
 #if OPTIMISATION
                 for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
-                {
-                    AcrylicLayer t = layerData[i];
-                    if (t.activeCount > 0)
-                    {
-                        if (UseOnlyMainCamera)
-                        {
-                            if (mainCamera == null)
-                                mainCamera = Camera.main;
-                            
-                            t.SetTargetCamera(mainCamera);
-                        }
-
-                        t.UpdateFrame(rendererData, captureMethod == AcrylicMethod.CopyFramebuffer, updatePeriod, blendFrames, blendMaterial, autoUpdateBlurMap);
-                        if (captureMethod == AcrylicMethod.CopyFramebuffer)
-                        {
-                            bool inList = t.InFeaturesList(rendererData);
-                            if (t.CaptureNextFrame)
-                            {
-                                if (!inList)
-                                {
-                                    updateActiveFeatures = true;
-                                }
-
-                                if (updatePeriod == 1 && autoUpdateBlurMap)
-                                {
-                                    t.ForceCaptureNextFrame(); //needed if updatePeriod changed in editor
-                                }
-                            }
-                            else
-                            {
-                                if (inList)
-                                {
-                                    updateActiveFeatures = true;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (updateActiveFeatures)
-                {
-                    UpdateActiveLayers();
-                }
 #else
                 for (int i = 0; i < layerData.Count; i++)
+#endif // OPTIMISATION
                 {
                     if (layerData[i].activeCount > 0)
                     {
                         if (UseOnlyMainCamera)
                         {
+#if OPTIMISATION_UNITY
+                            if (mainCamera == null)
+                                mainCamera = Camera.main;
+
+                            layerData[i].SetTargetCamera(mainCamera);
+#else
                             layerData[i].SetTargetCamera(Camera.main);
+#endif // OPTIMISATION_UNITY
                         }
 
                         layerData[i].UpdateFrame(rendererData, captureMethod == AcrylicMethod.CopyFramebuffer, updatePeriod, blendFrames, blendMaterial, autoUpdateBlurMap);
@@ -590,7 +546,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 if (updateActiveFeatures) UpdateActiveLayers();
-#endif // OPTIMISATION
                 
                 yield return null;
             }

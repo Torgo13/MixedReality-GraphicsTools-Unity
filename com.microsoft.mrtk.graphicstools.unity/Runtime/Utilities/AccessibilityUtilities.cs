@@ -26,17 +26,10 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public static void SetTextColorInversion(Material textMaterial, bool Invert)
         {
-#if SAFETY
-            if (textMaterial == null)
-                return;
-#endif // SAFETY
-
             if (!StandardShaderUtility.IsUsingGraphicsToolsTextMeshProShader(textMaterial))
             {
-#if DEBUG
                 Debug.LogWarningFormat("Failed to set the text color inversion because the material isn't using the {0} shader.",
                                        StandardShaderUtility.GraphicsToolsTextMeshProShaderName);
-#endif // DEBUG
                 return;
             }
 
@@ -69,11 +62,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         public static void ToggleTextColorInversion(Material textMaterial)
         {
-#if OPTIMISATION
-            bool Invert = textMaterial && textMaterial.IsKeywordEnabled(InvertTextColorKeyword);
-#else
             bool Invert = textMaterial ? textMaterial.IsKeywordEnabled(InvertTextColorKeyword) : false;
-#endif // OPTIMISATION
 
             SetTextColorInversion(textMaterial, !Invert);
         }

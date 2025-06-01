@@ -72,8 +72,11 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 #endif // UNITY_EDITOR
 
+#if OPTIMISATION
+#else
         // Retained for breaking change purposes
         protected virtual void LateUpdate() { }
+#endif // OPTIMISATION
 
         /// <summary>
         /// Lights are updated in Application.onBeforeRender to ensure other behaviors have had a chance to move the lights.
@@ -86,6 +89,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             UpdateLights();
         }
 
-        #endregion MonoBehaviour Implementation
+#endregion MonoBehaviour Implementation
     }
 }

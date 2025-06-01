@@ -470,9 +470,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             if (source == null)
             {
-#if DEBUG
                 Debug.LogWarning("Null blur source texture.");
-#endif // DEBUG
                 return;
             }
 
@@ -493,7 +491,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 #if OPTIMISATION_LISTPOOL
                 using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var widths);
-                AcrylicBlurRenderPass.BlurWidths(ref widths, settings.blurPasses);
+                AcrylicBlurRenderPass.BlurWidths(widths, settings.blurPasses);
                 for (int i = 0, widthsCount = widths.Count; i < widthsCount; i++)
 #else
                 float[] widths = AcrylicBlurRenderPass.BlurWidths(settings.blurPasses);
@@ -619,39 +617,35 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
 #if OPTIMISATION
-        public static void InitRenderTexture(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name = "")
-        {
-            if (texture == null)
-            {
-                texture = RenderTexture.GetTemporary(newWidth, newHeight, depth, RenderTextureFormat.ARGB32);
-                if (name != null && name.Length > 0)
-                {
-                    texture.name = name;
-                }
-            }
-            else if (texture.width != newWidth || texture.height != newHeight)
-            {
-                RenderTexture.ReleaseTemporary(texture);
-                texture = RenderTexture.GetTemporary(newWidth, newHeight, depth, RenderTextureFormat.ARGB32);
-            }
-        }
+        public static void InitRenderTexture(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name)
 #else
         private static void InitRenderTexture(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name)
+#endif // OPTIMISATION
         {
             if (texture == null)
             {
+#if OPTIMISATION
+                texture = RenderTexture.GetTemporary(newWidth, newHeight, depth, RenderTextureFormat.ARGB32);
+                if (!string.IsNullOrEmpty(name))
+                    texture.name = name;
+#else
                 texture = new RenderTexture(newWidth, newHeight, depth, RenderTextureFormat.ARGB32);
                 texture.name = name;
+#endif // OPTIMISATION
             }
             else if (texture.width != newWidth || texture.height != newHeight)
             {
+#if OPTIMISATION
+                RenderTexture.ReleaseTemporary(texture);
+                texture = RenderTexture.GetTemporary(newWidth, newHeight, depth, RenderTextureFormat.ARGB32);
+#else
                 texture.Release();
                 texture.width = newWidth;
                 texture.height = newHeight;
                 texture.Create();
+#endif // OPTIMISATION
             }
         }
-#endif // OPTIMISATION
 
         private AcrylicBlurFeature CreateBlurFeature(string name, RenderPassEvent blurMapCreation, Material blurMaterial, Camera targetCamera)
         {
@@ -726,7 +720,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-        #endregion
+#endregion
     }
 }
 #endif // GT_USE_URP

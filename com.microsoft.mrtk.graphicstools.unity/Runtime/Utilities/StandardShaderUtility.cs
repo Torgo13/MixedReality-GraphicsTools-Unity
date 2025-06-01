@@ -180,13 +180,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // Extract the gradient structure.
                 const string prefix = "linear-gradient(";
                 const string postfix = ");";
-#if OPTIMISATION
+#if OPTIMISATION_ORDINAL
                 int start = cssGradient.IndexOf(prefix, StringComparison.Ordinal) + prefix.Length;
                 int end = cssGradient.IndexOf(postfix, start, StringComparison.Ordinal);
 #else
                 int start = cssGradient.IndexOf(prefix) + prefix.Length;
                 int end = cssGradient.IndexOf(postfix, start);
-#endif // OPTIMISATION
+#endif // OPTIMISATION_ORDINAL
                 string gradient = cssGradient.Substring(start, end - start);
 
                 string[] parameters = gradient.Split(',');

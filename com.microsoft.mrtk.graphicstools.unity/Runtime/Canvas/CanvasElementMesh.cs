@@ -246,14 +246,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     Vector3 rectPivot = new Vector3(0.5f, 0.5f, 0);
 
-#if OPTIMISATION
+#if OPTIMISATION_UNITY
                     var bounds = Mesh.bounds;
                     Vector3 meshCenter = bounds.center;
                     Vector3 meshSize = bounds.extents;
 #else
                     Vector3 meshCenter = Mesh.bounds.center;
                     Vector3 meshSize = Mesh.bounds.extents;
-#endif // OPTIMISATION
+#endif // OPTIMISATION_UNITY
 
                     float scaler = 0.5f / Mathf.Max(meshSize.x, meshSize.y);
                     

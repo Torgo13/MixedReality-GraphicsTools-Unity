@@ -36,6 +36,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         private AcrylicFilterDual blurFilter;
 
 #if OPTIMISATION_SHADERPARAMS
+        private readonly string profilerLabelRenderTarget1;
+        private readonly string profilerLabelRenderTarget2;
         private readonly int AcrylicInfo = Shader.PropertyToID("_AcrylicInfo");
         private readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
         private readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
@@ -63,8 +65,10 @@ namespace Microsoft.MixedReality.GraphicsTools
             blurFilter = _blurFilter;
 
 #if OPTIMISATION_SHADERPARAMS
-            Target1Identifier = Shader.PropertyToID(profilerLabel + "RenderTarget1");
-            Target2Identifier = Shader.PropertyToID(profilerLabel + "RenderTarget2");
+            profilerLabelRenderTarget1 = _profilerLabel + "RenderTarget1";
+            profilerLabelRenderTarget2 = _profilerLabel + "RenderTarget2";
+            Target1Identifier = Shader.PropertyToID(profilerLabelRenderTarget1);
+            Target2Identifier = Shader.PropertyToID(profilerLabelRenderTarget2);
 #endif // OPTIMISATION_SHADERPARAMS
         }
 
@@ -86,35 +90,23 @@ namespace Microsoft.MixedReality.GraphicsTools
             info.z = 1.0f;
             info.w = 1.0f;
 
-#if OPTIMISATION
-            RenderingUtils.ReAllocateIfNeeded(ref target1, cameraTextureDescriptor, name: profilerLabel + "RenderTarget1");
-            RenderingUtils.ReAllocateIfNeeded(ref target2, cameraTextureDescriptor, name: profilerLabel + "RenderTarget2");
+#if OPTIMISATION_SHADERPARAMS
+            ConfigureTempRenderTarget(ref target1, profilerLabelRenderTarget1, width, height, slices, cmd,
+                Target1Identifier, in cameraTextureDescriptor);
 
-            if (slices > 1)
-            {
-                cmd.GetTemporaryRTArray(Target1Identifier, width, height, slices, 0, FilterMode.Bilinear);
-                cmd.GetTemporaryRTArray(Target2Identifier, width, height, slices, 0, FilterMode.Bilinear);
-            }
-            else
-            {
-                cmd.GetTemporaryRT(Target1Identifier, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32);
-                cmd.GetTemporaryRT(Target2Identifier, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32);
-            }
-
-            ConfigureTarget(target1);
-            ConfigureTarget(target2);
+            ConfigureTempRenderTarget(ref target2, profilerLabelRenderTarget2, width, height, slices, cmd,
+                Target2Identifier, in cameraTextureDescriptor);
 #else
             ConfigureTempRenderTarget(ref target1, profilerLabel + "RenderTarget1", width, height, slices, cmd);
             ConfigureTempRenderTarget(ref target2, profilerLabel + "RenderTarget2", width, height, slices, cmd);
-#endif // OPTIMISATION
+#endif // OPTIMISATION_SHADERPARAMS
 
 #if BUGFIX
-#else
             if (providedTexture != null)
-            {
 #endif // BUGFIX
+            {
 #if OPTIMISATION
-                AcrylicLayer.InitRenderTexture(ref providedTexture, width, height, 0);
+                AcrylicLayer.InitRenderTexture(ref providedTexture, width, height, 0, string.Empty);
 #else
                 if (providedTexture == null)
                 {
@@ -137,12 +129,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     cmd.SetGlobalTexture(textureName, providedTexture);
                 }
-#if BUGFIX
-#else
             }
-#endif // BUGFIX
         }
 
+#if UNITY_2022_1_OR_NEWER
 #if OPTIMISATION_SHADERPARAMS
         private RenderTargetIdentifier GetIdentifier(RTHandle target)
         {
@@ -152,18 +142,17 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return Target2Identifier;
         }
 #else
-#if UNITY_2022_1_OR_NEWER
         private static RenderTargetIdentifier GetIdentifier(RTHandle target)
         {
             return Shader.PropertyToID(target.name);
         }
+#endif // OPTIMISATION_SHADERPARAMS
 #else
         private static RenderTargetIdentifier GetIdentifier(RenderTargetHandle target)
         {
             return target.Identifier();
         }
 #endif
-#endif // OPTIMISATION_SHADERPARAMS
 
 #if UNITY_6000_0_OR_NEWER
         [System.Obsolete]
@@ -282,6 +271,24 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
 #if UNITY_2022_1_OR_NEWER
+#if OPTIMISATION_SHADERPARAMS
+        private void ConfigureTempRenderTarget(ref RTHandle target, string id, int width, int height, int slices, CommandBuffer cmd,
+            int nameID, in RenderTextureDescriptor cameraTextureDescriptor)
+        {
+            _ = RenderingUtils.ReAllocateIfNeeded(ref target, cameraTextureDescriptor, name: id);
+
+            if (slices > 1)
+            {
+                cmd.GetTemporaryRTArray(nameID, width, height, slices, 0, FilterMode.Bilinear);
+            }
+            else
+            {
+                cmd.GetTemporaryRT(nameID, width, height, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32);
+            }
+
+            ConfigureTarget(target);
+        }
+#else
         private void ConfigureTempRenderTarget(ref RTHandle target, string id, int width, int height, int slices, CommandBuffer cmd)
         {
             target = RTHandles.Alloc(id, name: id);
@@ -297,6 +304,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             ConfigureTarget(target);
         }
+#endif // OPTIMISATION_SHADERPARAMS
 #else
         private void ConfigureTempRenderTarget(ref RenderTargetHandle target, string id, int width, int height, int slices, CommandBuffer cmd)
         {
@@ -340,7 +348,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
 #if OPTIMISATION_LISTPOOL
-        public static void BlurWidths(ref System.Collections.Generic.List<float> widths, int passes)
+        public static void BlurWidths(System.Collections.Generic.List<float> widths, int passes)
         {
             if (widths.Capacity < 10)
                 widths.Capacity = 10;

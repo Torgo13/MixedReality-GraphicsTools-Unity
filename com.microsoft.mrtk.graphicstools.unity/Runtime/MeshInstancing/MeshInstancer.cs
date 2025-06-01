@@ -325,12 +325,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void Destroy()
             {
-#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to double destroy a MeshInstancer instance."); return; }
-#else
-                if (Destroyed) { return; }
-#endif // DEBUG
-
                 meshInstancer.Destroy(this);
 
                 InstanceIndex = -1;
@@ -353,12 +348,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetFloat(int nameID, float value)
             {
-#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to SetFloat on a destroyed MeshInstancer instance."); return; }
-#else
-                if (Destroyed) { return; }
-#endif // DEBUG
-
                 meshInstancer.SetFloat(this, nameID, value);
             }
 
@@ -377,12 +367,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public float GetFloat(int nameID)
             {
-#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to GetFloat on a destroyed MeshInstancer instance."); return 0.0f; }
-#else
-                if (Destroyed) { return 0.0f; }
-#endif // DEBUG
-
                 return meshInstancer.GetFloat(this, nameID);
             }
 
@@ -401,12 +386,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetVector(int nameID, Vector4 value)
             {
-#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to SetVector on a destroyed MeshInstancer instance."); return; }
-#else
-                if (Destroyed) { return; }
-#endif // DEBUG
-
                 meshInstancer.SetVector(this, nameID, value);
             }
 
@@ -425,12 +405,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public Vector4 GetVector(int nameID)
             {
-#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to GetVector on a destroyed MeshInstancer instance."); return Vector4.zero; }
-#else
-                if (Destroyed) { return Vector4.zero; }
-#endif // DEBUG
-
                 return meshInstancer.GetVector(this, nameID);
             }
 
@@ -449,12 +424,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetMatrix(int nameID, Matrix4x4 value)
             {
-#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to SetMatrix on a destroyed MeshInstancer instance."); return; }
-#else
-                if (Destroyed) { return; }
-#endif // DEBUG
-
                 meshInstancer.SetMatrix(this, nameID, value);
             }
 
@@ -473,12 +443,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public Matrix4x4 GetMatrix(int nameID)
             {
-#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to v on a destroyed MeshInstancer instance."); return Matrix4x4.identity; }
-#else
-                if (Destroyed) { return Matrix4x4.identity; }
-#endif // DEBUG
-
                 return meshInstancer.GetMatrix(this, nameID);
             }
 
@@ -488,12 +453,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public void SetParallelUpdate(ParallelUpdate parallelUpdate)
             {
-#if DEBUG
                 if (Destroyed) { Debug.LogWarning("Attempting to set the ParallelUpdate method on a destroyed MeshInstancer instance."); return; }
-#else
-                if (Destroyed) { return; }
-#endif // DEBUG
-
                 meshInstancer.instanceBuckets[InstanceBucketIndex].ParallelUpdates[InstanceIndex] = parallelUpdate;
             }
         }
@@ -531,13 +491,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
-#if OPTIMISATION_LISTPOOL
-                    using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var list);
-                    Repeat(ref list, property.Value, UNITY_MAX_INSTANCE_COUNT);
-                    Properties.SetFloatArray(property.Key, list);
-#else
                     Properties.SetFloatArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
-#endif // OPTIMISATION_LISTPOOL
                 }
             }
 
@@ -545,13 +499,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
-#if OPTIMISATION_LISTPOOL
-                    using var _0 = UnityEngine.Pool.ListPool<Vector4>.Get(out var list);
-                    Repeat(ref list, property.Value, UNITY_MAX_INSTANCE_COUNT);
-                    Properties.SetVectorArray(property.Key, list);
-#else
                     Properties.SetVectorArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
-#endif // OPTIMISATION_LISTPOOL
                 }
             }
 
@@ -559,13 +507,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 foreach (var property in materialProperties)
                 {
-#if OPTIMISATION_LISTPOOL
-                    using var _0 = UnityEngine.Pool.ListPool<Matrix4x4>.Get(out var list);
-                    Repeat(ref list, property.Value, UNITY_MAX_INSTANCE_COUNT);
-                    Properties.SetMatrixArray(property.Key, list);
-#else
                     Properties.SetMatrixArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
-#endif // OPTIMISATION_LISTPOOL
                 }
             }
 
@@ -626,7 +568,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
 #if OPTIMISATION_LISTPOOL
-            private static void Repeat<T>(ref List<T> output, T element, int count)
+            private static void Repeat<T>(List<T> output, T element, int count)
             {
                 if (output.Capacity < count)
                     output.Capacity = count;
@@ -1129,10 +1071,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
-#endif // DEBUG
-
                 return false;
             }
 
@@ -1155,10 +1094,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
-#endif // DEBUG
-
                 return false;
             }
 
@@ -1181,10 +1117,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("RegisterMaterialProperty failed because {0} has already been registered.", nameID);
-#endif // DEBUG
-
                 return false;
             }
 
@@ -1204,10 +1137,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("SetFloat failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // DEBUG
-
                 return;
             }
 
@@ -1228,10 +1158,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!floatMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("GetFloat failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // DEBUG
-
                 return 0.0f;
             }
 
@@ -1251,10 +1178,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("SetVector failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // DEBUG
-
                 return;
             }
 
@@ -1275,10 +1199,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!vectorMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("GetVector failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // DEBUG
-
                 return Vector4.zero;
             }
 
@@ -1298,10 +1219,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("SetMatrix failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // DEBUG
-
                 return;
             }
 
@@ -1322,10 +1240,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (!matrixMaterialProperties.Exists(element => (element.Key == nameID)))
             {
-#if DEBUG
                 Debug.LogWarningFormat("GetMatrix failed because {0} is not a registered material property on the MeshInstancer.", nameID);
-#endif // DEBUG
-
                 return Matrix4x4.identity;
             }
 
