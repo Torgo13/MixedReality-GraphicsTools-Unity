@@ -102,6 +102,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif // OPTIMISATION_SHADERPARAMS
 
 #if BUGFIX
+#else
             if (providedTexture != null)
 #endif // BUGFIX
             {
