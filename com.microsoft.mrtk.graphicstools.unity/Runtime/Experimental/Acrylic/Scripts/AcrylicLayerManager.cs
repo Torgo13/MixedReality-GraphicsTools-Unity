@@ -274,6 +274,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                     StartUpdateRoutine();
                 }
             }
+
+#if CUSTOM_URP
+            if (rendererData != null)
+                rendererData.intermediateTextureMode = IntermediateTextureMode.Always;
+#endif // CUSTOM_URP
         }
 
         public void DisableLayer(int i)
@@ -289,6 +294,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                     UpdateActiveLayers();
                 }
             }
+
+#if CUSTOM_URP
+            if (rendererData != null)
+                rendererData.intermediateTextureMode = previousIntermediateTextureMode;
+#endif // CUSTOM_URP
         }
 
         public bool LayerVisible(int i)
@@ -346,7 +356,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                     // Previously, URP would force rendering to go through an intermediate renderer if the Renderer had any Renderer Features active. On some platforms, this has
                     // significant performance implications so we only want to enable this when we need it (which we do for magnification).
                     previousIntermediateTextureMode = rendererData.intermediateTextureMode;
+#if CUSTOM_URP
+#else
                     rendererData.intermediateTextureMode = IntermediateTextureMode.Always;
+#endif // CUSTOM_URP
                 }
 
                 CreateLayers();
@@ -457,7 +470,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             return false;
         }
 
-        #endregion
+#endregion
 
         #region Render to texture methods
 
