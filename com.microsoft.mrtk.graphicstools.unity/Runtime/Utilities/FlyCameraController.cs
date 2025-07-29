@@ -286,6 +286,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Turns WASD/stick controls into an input vector.
         /// </summary>
+#if OPTIMISATION_STATIC
+        static
+#endif // OPTIMISATION_STATIC
         private Vector3 GetInputTranslationDirection()
         {
             Vector3 direction = Vector3.zero;

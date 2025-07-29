@@ -13,6 +13,9 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// Forked from: https://github.com/Unity-Technologies/UniversalRenderingExamples/tree/master/Assets/Scripts/Runtime/RenderPasses
     /// </summary>
     class DrawFullscreenPass : ScriptableRenderPass
+#if OPTIMISATION_IDISPOSABLE
+        , System.IDisposable
+#endif // OPTIMISATION_IDISPOSABLE
     {
         ///<summary>
         /// Pass configuration settings.
@@ -100,7 +103,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if BUGFIX
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             System.GC.SuppressFinalize(this);
         }
 

@@ -354,6 +354,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             AddTriangle(vh, v00, v11, v01, reverse);
         }
 
+#if OPTIMISATION_STATIC
+        static
+#endif // OPTIMISATION_STATIC
         private void AddTriangle(VertexHelper vh, int i0, int i1, int i2, bool reverse)
         {
             if (reverse)

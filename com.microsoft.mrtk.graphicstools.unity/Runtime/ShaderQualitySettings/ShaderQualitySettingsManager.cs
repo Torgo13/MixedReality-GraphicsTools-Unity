@@ -87,6 +87,9 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
+#if OPTIMISATION_STATIC
+        static
+#endif // OPTIMISATION_STATIC
         private void UpdateQualityLevel()
         {
             switch (ShaderQualityLevelSetting)
