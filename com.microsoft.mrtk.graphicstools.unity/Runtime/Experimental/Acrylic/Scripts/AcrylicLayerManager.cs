@@ -61,15 +61,15 @@ namespace Microsoft.MixedReality.GraphicsTools
         public int RendererIndex
         {
             get { return rendererIndex; }
-            set 
-            { 
+            set
+            {
                 if (initialized)
                 {
                     Debug.LogWarning("Failed to set the render index because the layer manager is already initialized.");
                     return;
                 }
 
-                rendererIndex = value; 
+                rendererIndex = value;
             }
         }
 
@@ -155,7 +155,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         [SerializeField]
-        [Tooltip("Event called before manager initilizaion.")]
+        [Tooltip("Event called before manager initialisation.")]
         private UnityEvent onPreInitializeEvent;
 
         public UnityEvent OnPreInitializeEvent
@@ -516,6 +516,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
 #if OPTIMISATION_UNITY
             Camera mainCamera = null;
+            var mainCameraFound = false;
 #endif // OPTIMISATION_UNITY
 
             while (AnyLayersNeedUpdating())
@@ -532,8 +533,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                         if (UseOnlyMainCamera)
                         {
 #if OPTIMISATION_UNITY
-                            if (mainCamera == null)
+                            if (!mainCameraFound && mainCamera == null)
+                            {
                                 mainCamera = Camera.main;
+                                mainCameraFound = mainCamera != null;
+                            }
 
                             layerData[i].SetTargetCamera(mainCamera);
 #else
@@ -559,7 +563,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 if (updateActiveFeatures) UpdateActiveLayers();
-                
+
                 yield return null;
             }
 

@@ -241,7 +241,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             // Group all vertices that share the same location in space.
+#if OPTIMISATION_LISTPOOL
+            using var _0 = UnityEngine.Pool.DictionaryPool<Vector3, List<KeyValuePair<int, Vector3>>>
+                .Get(out var groupedVerticies);
+#else
             var groupedVerticies = new Dictionary<Vector3, List<KeyValuePair<int, Vector3>>>();
+#endif // OPTIMISATION_LISTPOOL
             for (int i = 0; i < vertices.Length; ++i)
             {
                 var vertex = vertices[i];

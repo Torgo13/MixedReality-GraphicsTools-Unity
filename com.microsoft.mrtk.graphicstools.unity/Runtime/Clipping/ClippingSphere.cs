@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>
-    /// Component to animate and visualize a sphere that can be used with 
+    /// Component to animate and visualize a sphere that can be used with
     /// per pixel based clipping.
     /// </summary>
     [ExecuteInEditMode]
@@ -23,7 +23,11 @@ namespace Microsoft.MixedReality.GraphicsTools
             get
             {
                 Vector3 radii = Radii;
+#if OPTIMISATION
+                return Mathf.Max(radii.x, Mathf.Max(radii.y, radii.z));
+#else
                 return Mathf.Max(radii.x, radii.y, radii.z);
+#endif // OPTIMISATION
             }
         }
 

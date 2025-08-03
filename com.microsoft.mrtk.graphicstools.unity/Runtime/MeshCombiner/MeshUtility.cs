@@ -157,14 +157,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 return false;
             }
-            
+
             var renderer = meshFilter.GetComponent<Renderer>();
             if (renderer is SkinnedMeshRenderer)
             {
                 // Don't merge skinned meshes.
                 return false;
             }
-                
+
             // Don't merge meshes from multiple LOD groups.
             if (renderer != null)
             {
@@ -187,7 +187,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                         }
 
                         // If this renderer is contained in a parent LOD group which is not being merged, ignore it.
+#if OPTIMISATION
+                        if (-1 != Array.IndexOf(lods[i].renderers, renderer))
+#else
                         if (Array.Exists(lods[i].renderers, element => element == renderer))
+#endif // OPTIMISATION
                         {
                             return false;
                         }
@@ -241,7 +245,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static uint GatherCombineData(MeshCombineSettings settings,
                                              List<CombineInstance> combineInstances,
                                              List<MeshCombineResult.MeshID> meshIDTable,
-                                             List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings, 
+                                             List<Dictionary<Texture2D, List<CombineInstance>>> textureToCombineInstanceMappings,
                                              ref Material defaultMaterial)
         {
             var meshID = 0;
@@ -490,8 +494,8 @@ namespace Microsoft.MixedReality.GraphicsTools
                     }
                     else
                     {
-                        // Unity's PackTextures method defaults to black for areas that do not contain texture data. Because Unity's material 
-                        // system defaults to a white texture for color textures (and a 'suitable' normal for normal textures) that do not have texture 
+                        // Unity's PackTextures method defaults to black for areas that do not contain texture data. Because Unity's material
+                        // system defaults to a white texture for color textures (and a 'suitable' normal for normal textures) that do not have texture
                         // specified, we need to fill in areas of the atlas with appropriate defaults.
                         pixels[(y * width) + x] = settings.OverridePaddingColor ? settings.PaddingColorOverride : MeshCombineSettings.TextureUsageColorDefault[(int)settings.Usage];
                     }
