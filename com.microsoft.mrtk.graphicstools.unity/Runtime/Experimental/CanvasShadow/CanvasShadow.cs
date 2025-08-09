@@ -66,7 +66,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 return;
 
             Vector3 shadowLocalPosition = _casterRectTransform.localPosition;
+#if OPTIMISATION_UNITY
+            shadowLocalPosition.z = -shadowLocalPosition.z + BackingOffset;
+#else
             shadowLocalPosition.z = -_casterRectTransform.localPosition.z + BackingOffset;
+#endif // OPTIMISATION_UNITY
             _shadowRectTransform.localPosition = shadowLocalPosition;
 
             _sizeDelta.Set(Spread, Spread);

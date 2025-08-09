@@ -94,10 +94,18 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (light)
                 {
+#if OPTIMISATION_UNITY
+                    var lightPosition = light.transform.position;
+                    hoverLightData[dataIndex] = new Vector4(lightPosition.x,
+                        lightPosition.y,
+                        lightPosition.z,
+                        1.0f);
+#else
                     hoverLightData[dataIndex] = new Vector4(light.transform.position.x,
                                                             light.transform.position.y,
                                                             light.transform.position.z,
                                                             1.0f);
+#endif // OPTIMISATION_UNITY
                     hoverLightData[dataIndex + 1] = new Vector4(light.Color.r,
                                                                 light.Color.g,
                                                                 light.Color.b,

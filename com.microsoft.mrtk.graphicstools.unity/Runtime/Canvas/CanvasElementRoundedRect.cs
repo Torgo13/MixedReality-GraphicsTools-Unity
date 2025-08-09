@@ -89,6 +89,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             var canvas = GetComponentInParent<Canvas>();
             if (canvas != null)
             {
+#if OPTIMISATION_UNITY
+                canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord3
+                    | AdditionalCanvasShaderChannels.TexCoord2
+                    | AdditionalCanvasShaderChannels.Normal
+                    | (SmoothEdges ? AdditionalCanvasShaderChannels.Tangent : AdditionalCanvasShaderChannels.None); // store normal of adjacent face as tangent
+#else
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord3;
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
@@ -97,6 +103,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     // store normal of adjacent face as tangent
                     canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Tangent;
                 }
+#endif // OPTIMISATION_UNITY
             }
         }
 
@@ -107,10 +114,19 @@ namespace Microsoft.MixedReality.GraphicsTools
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();
+#if OPTIMISATION_UNITY
+            var rect = rectTransform.rect;
+            var localScale = rectTransform.localScale;
+            var uv2 = new Vector2(rect.width * localScale.x,
+                rect.height * localScale.y);
+            var uv3 = new Vector2(radius / rect.height, 0.0f);
+            AddRoundedRect(vh, rect.min, rect.max, localScale, uv2, uv3, radius);
+#else
             var uv2 = new Vector2(rectTransform.rect.width * rectTransform.localScale.x,
                                     rectTransform.rect.height * rectTransform.localScale.y);
             var uv3 = new Vector2(radius / rectTransform.rect.height, 0.0f);
             AddRoundedRect(vh, rectTransform.rect.min, rectTransform.rect.max, rectTransform.localScale, uv2, uv3, radius);
+#endif // OPTIMISATION_UNITY
         }
 
         /// <summary>

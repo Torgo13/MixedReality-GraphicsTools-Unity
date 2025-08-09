@@ -355,8 +355,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (canvas != null)
             {
+#if OPTIMISATION_UNITY
+                canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal
+                    | AdditionalCanvasShaderChannels.Tangent;
+#else
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Tangent;
+#endif // OPTIMISATION_UNITY
             }
         }
     }

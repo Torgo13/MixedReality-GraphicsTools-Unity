@@ -30,8 +30,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (canvas != null)
             {
+#if OPTIMISATION_UNITY
+                canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2
+                    | AdditionalCanvasShaderChannels.TexCoord3;
+#else
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord3;
+#endif // OPTIMISATION_UNITY
             }
         }
 
@@ -44,8 +49,15 @@ namespace Microsoft.MixedReality.GraphicsTools
             var rectTransform = transform as RectTransform;
 
             // Pack the 2D xy scale into UV channel 2.
+#if OPTIMISATION_UNITY
+            var rect = rectTransform.rect;
+            var localScale = rectTransform.localScale;
+            var scale = new Vector2(rect.width * localScale.x,
+                rect.height * localScale.y);
+#else
             var scale = new Vector2(rectTransform.rect.width * rectTransform.localScale.x,
                                     rectTransform.rect.height * rectTransform.localScale.y);
+#endif // OPTIMISATION_UNITY
 
             // Pack the min scale into x, and a flag indicating this value comes from a ScaleMeshEffect into y into UV channel 3.
             var depth = new Vector2(Mathf.Min(scale.x, scale.y), -1.0f);

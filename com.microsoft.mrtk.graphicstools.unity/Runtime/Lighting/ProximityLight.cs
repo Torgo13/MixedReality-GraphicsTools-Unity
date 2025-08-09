@@ -245,11 +245,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (light)
                 {
-                    // Pass data into the Graphics Tools/Standard shaders. 
+                    // Pass data into the Graphics Tools/Standard shaders.
+#if OPTIMISATION_UNITY
+                    var lightPosition = light.transform.position;
+                    proximityLightData[dataIndex] = new Vector4(lightPosition.x,
+                        lightPosition.y,
+                        lightPosition.z,
+                        1.0f);
+#else
                     proximityLightData[dataIndex] = new Vector4(light.transform.position.x,
                                                                 light.transform.position.y,
                                                                 light.transform.position.z,
                                                                 1.0f);
+#endif // OPTIMISATION_UNITY
                     float pulseScaler = 1.0f + light.pulseTime;
                     proximityLightData[dataIndex + 1] = new Vector4(light.Settings.NearRadius * pulseScaler,
                                                                     1.0f / Mathf.Clamp(light.Settings.FarRadius * pulseScaler, 0.001f, 1.0f),
