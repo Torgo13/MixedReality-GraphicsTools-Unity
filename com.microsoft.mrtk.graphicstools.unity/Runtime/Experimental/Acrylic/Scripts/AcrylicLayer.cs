@@ -70,7 +70,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private static CommandBuffer cmd = null;
 
 #if OPTIMISATION_SHADERPARAMS
-        private struct ShaderPropertyId
+        private readonly struct ShaderPropertyId
         {
             public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
             public static readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");

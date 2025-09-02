@@ -31,22 +31,22 @@ namespace Microsoft.MixedReality.GraphicsTools
         private List<RectMask2D> clippers = new List<RectMask2D>();
 
 #if OPTIMISATION
+        private const BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+
         private static readonly System.Linq.Expressions.ParameterExpression param
-            = System.Linq.Expressions.Expression.Parameter(typeof(object), "instance");
+            = System.Linq.Expressions.Expression.Parameter(typeof(RectMask2DFast), "instance");
 
-        private static readonly System.Func<object, HashSet<IClippable>> clipTargetsDelegate
-            = System.Linq.Expressions.Expression.Lambda<System.Func<object, HashSet<IClippable>>>(
+        private static readonly System.Func<RectMask2DFast, HashSet<IClippable>> clipTargetsDelegate
+            = System.Linq.Expressions.Expression.Lambda<System.Func<RectMask2DFast, HashSet<IClippable>>>(
                 System.Linq.Expressions.Expression.Convert(System.Linq.Expressions.Expression.Field(
-                System.Linq.Expressions.Expression.Convert(param, typeof(RectMask2D)), typeof(RectMask2D).GetField("m_ClipTargets",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)),
-                typeof(HashSet<IClippable>)), param).Compile();
+                System.Linq.Expressions.Expression.Convert(param, typeof(RectMask2D)), typeof(RectMask2D)
+                .GetField("m_ClipTargets", bindFlags)), typeof(HashSet<IClippable>)), param).Compile();
 
-        private static readonly System.Func<object, HashSet<MaskableGraphic>> maskableTargetsDelegate
-            = System.Linq.Expressions.Expression.Lambda<System.Func<object, HashSet<MaskableGraphic>>>(
+        private static readonly System.Func<RectMask2DFast, HashSet<MaskableGraphic>> maskableTargetsDelegate
+            = System.Linq.Expressions.Expression.Lambda<System.Func<RectMask2DFast, HashSet<MaskableGraphic>>>(
                 System.Linq.Expressions.Expression.Convert(System.Linq.Expressions.Expression.Field(
-                System.Linq.Expressions.Expression.Convert(param, typeof(RectMask2D)), typeof(RectMask2D).GetField("m_MaskableTargets",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)),
-                typeof(HashSet<MaskableGraphic>)), param).Compile();
+                System.Linq.Expressions.Expression.Convert(param, typeof(RectMask2D)), typeof(RectMask2D)
+                .GetField("m_MaskableTargets", bindFlags)), typeof(HashSet<MaskableGraphic>)), param).Compile();
 #endif // OPTIMISATION
 
         #region MonoBehaviour Implementation

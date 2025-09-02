@@ -516,7 +516,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
 #if OPTIMISATION_UNITY
             Camera mainCamera = null;
-            var mainCameraFound = false;
+            bool mainCameraFound = false;
 #endif // OPTIMISATION_UNITY
 
             while (AnyLayersNeedUpdating())
