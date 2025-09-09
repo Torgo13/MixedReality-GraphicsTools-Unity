@@ -295,12 +295,12 @@ namespace Microsoft.MixedReality.GraphicsTools
                             if (settings.BakeMaterialColorIntoVertexColor)
                             {
                                 // Write the material color to all vertex colors.
-#if OPTIMISATION_UNITY
+#if OPTIMISATION_LISTPOOL
                                 var mesh = combineInstance.mesh;
                                 mesh.SetColors(Repeat(material.color, mesh.vertexCount));
 #else
                                 combineInstance.mesh.colors = Repeat(material.color, combineInstance.mesh.vertexCount).ToArray();
-#endif // OPTIMISATION_UNITY
+#endif // OPTIMISATION_LISTPOOL
                             }
 
                             var textureSettingIndex = 0;
@@ -399,7 +399,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION_LISTPOOL
                                     using var _0 = UnityEngine.Pool.ListPool<Vector2>.Get(out var uvs);
                                     combineInstance.mesh.GetUVs(sourceChannel, uvs);
-                                    var remappedUvs = new Unity.Collections.NativeArray<Vector2>(uvs.Count, Unity.Collections.Allocator.Temp);
+                                    var remappedUvs = new Unity.Collections.NativeArray<Vector2>(uvs.Count,
+                                        Unity.Collections.Allocator.Temp, Unity.Collections.NativeArrayOptions.UninitializedMemory);
 #else
                                     var uvs = new List<Vector2>();
                                     combineInstance.mesh.GetUVs(sourceChannel, uvs);
@@ -513,7 +514,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION_LISTPOOL
         private static Unity.Collections.NativeArray<T> Repeat<T>(T value, int count) where T : unmanaged
         {
-            var output = new Unity.Collections.NativeArray<T>(count, Unity.Collections.Allocator.Temp);
+            var output = new Unity.Collections.NativeArray<T>(count,
+                Unity.Collections.Allocator.Temp, Unity.Collections.NativeArrayOptions.UninitializedMemory);
 
             for (int i = 0; i < count; ++i)
             {

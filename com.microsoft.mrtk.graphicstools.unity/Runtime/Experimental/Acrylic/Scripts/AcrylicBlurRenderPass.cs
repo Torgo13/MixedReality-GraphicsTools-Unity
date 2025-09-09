@@ -38,9 +38,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION_SHADERPARAMS
         private readonly string profilerLabelRenderTarget1;
         private readonly string profilerLabelRenderTarget2;
-        private readonly int AcrylicInfo = Shader.PropertyToID("_AcrylicInfo");
-        private readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
-        private readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
         private readonly int Target1Identifier;
         private readonly int Target2Identifier;
 #endif // OPTIMISATION_SHADERPARAMS
@@ -107,7 +104,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif // BUGFIX
             {
 #if OPTIMISATION
-                AcrylicLayer.InitRenderTexture(ref providedTexture, width, height, 0, string.Empty);
+                AcrylicLayer.InitRenderTextureTemp(ref providedTexture, width, height, 0, string.Empty);
 #else
                 if (providedTexture == null)
                 {
@@ -137,10 +134,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION_SHADERPARAMS
         private RenderTargetIdentifier GetIdentifier(RTHandle target)
         {
-            if (target == target1)
-                return Target1Identifier;
-            else
-                return Target2Identifier;
+            return target == target1
+                ? Target1Identifier
+                : Target2Identifier;
         }
 #else
         private static RenderTargetIdentifier GetIdentifier(RTHandle target)
@@ -172,7 +168,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif
 
 #if OPTIMISATION_SHADERPARAMS
-            cmd.SetGlobalVector(AcrylicInfo, info);
+            cmd.SetGlobalVector(ShaderPropertyId.AcrylicInfo, info);
 #else
             cmd.SetGlobalVector("_AcrylicInfo", info);
 #endif // OPTIMISATION_SHADERPARAMS
@@ -184,7 +180,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             else if (downSample == 2)
             {
 #if OPTIMISATION_SHADERPARAMS
-                cmd.SetGlobalVector(AcrylicBlurOffset, Vector2.zero);
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, Vector4.zero);
 #else
                 cmd.SetGlobalVector("_AcrylicBlurOffset", Vector2.zero);
 #endif // OPTIMISATION_SHADERPARAMS
@@ -194,7 +190,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             else
             {
 #if OPTIMISATION_SHADERPARAMS
-                cmd.SetGlobalVector(AcrylicBlurOffset, 0.25f * pixelSize);
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, 0.25f * pixelSize);
 #else
                 cmd.SetGlobalVector("_AcrylicBlurOffset", 0.25f * pixelSize);
 #endif // OPTIMISATION_SHADERPARAMS
@@ -224,12 +220,16 @@ namespace Microsoft.MixedReality.GraphicsTools
             CommandBufferPool.Release(cmd);
         }
 
+#if OPTIMISATION_LISTPOOL
+        private void QueueBlurPasses(CommandBuffer cmd, Unity.Collections.NativeArray<float> widths)
+#else
         private void QueueBlurPasses(CommandBuffer cmd, float[] widths)
+#endif // OPTIMISATION_LISTPOOL
         {
             for (int i = 0; i < widths.Length; i++)
             {
 #if OPTIMISATION_SHADERPARAMS
-                cmd.SetGlobalVector(AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
 #else
                 cmd.SetGlobalVector("_AcrylicBlurOffset", (0.5f + widths[i]) * pixelSize);
 #endif // OPTIMISATION_SHADERPARAMS
@@ -256,7 +256,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             cmd.SetRenderTarget(target);
 
 #if OPTIMISATION_SHADERPARAMS
-            cmd.SetGlobalTexture(AcrylicBlurSource, source);
+            cmd.SetGlobalTexture(ShaderPropertyId.AcrylicBlurSource, source);
 #else
             cmd.SetGlobalTexture("_AcrylicBlurSource", source);
 #endif // OPTIMISATION_SHADERPARAMS
@@ -323,7 +323,71 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 #endif
 
+#if OPTIMISATION_LISTPOOL
+        public static Unity.Collections.NativeArray<float> BlurWidths(int passes)
+        {
+            Unity.Collections.NativeArray<float> widths;
 
+            switch (passes)
+            {
+                case 2:
+                    widths = new Unity.Collections.NativeArray<float>(2,
+                        Unity.Collections.Allocator.Temp);
+                    break;
+                case 3:
+                    widths = new Unity.Collections.NativeArray<float>(3,
+                        Unity.Collections.Allocator.Temp, Unity.Collections.NativeArrayOptions.UninitializedMemory);
+                    widths[0] = 0.0f;
+                    widths[1] = 1.0f;
+                    widths[2] = 1.0f;
+                    break;
+                case 4:
+                    widths = new Unity.Collections.NativeArray<float>(4,
+                        Unity.Collections.Allocator.Temp, Unity.Collections.NativeArrayOptions.UninitializedMemory);
+                    widths[0] = 0.0f;
+                    widths[1] = 1.0f;
+                    widths[2] = 1.0f;
+                    widths[3] = 2.0f;
+                    break;
+                case 5:
+                    widths = new Unity.Collections.NativeArray<float>(5,
+                        Unity.Collections.Allocator.Temp, Unity.Collections.NativeArrayOptions.UninitializedMemory);
+                    widths[0] = 0.0f;
+                    widths[1] = 1.0f;
+                    widths[2] = 2.0f;
+                    widths[3] = 2.0f;
+                    widths[4] = 3.0f;
+                    break;
+                case 6:
+                    widths = new Unity.Collections.NativeArray<float>(7,
+                        Unity.Collections.Allocator.Temp, Unity.Collections.NativeArrayOptions.UninitializedMemory);
+                    widths[0] = 0.0f;
+                    widths[1] = 1.0f;
+                    widths[2] = 2.0f;
+                    widths[3] = 3.0f;
+                    widths[4] = 4.0f;
+                    widths[5] = 4.0f;
+                    widths[6] = 5.0f;
+                    break;
+                default:
+                    widths = new Unity.Collections.NativeArray<float>(10,
+                        Unity.Collections.Allocator.Temp, Unity.Collections.NativeArrayOptions.UninitializedMemory);
+                    widths[0] = 0.0f;
+                    widths[1] = 1.0f;
+                    widths[2] = 2.0f;
+                    widths[3] = 3.0f;
+                    widths[4] = 4.0f;
+                    widths[5] = 5.0f;
+                    widths[6] = 7.0f;
+                    widths[7] = 8.0f;
+                    widths[8] = 9.0f;
+                    widths[9] = 10.0f;
+                    break;
+            }
+
+            return widths;
+        }
+#else
         public static float[] BlurWidths(int passes)
         {
             switch (passes)
@@ -345,61 +409,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 default:
                     return new float[] { 0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 7.0f, 8.0f, 9.0f, 10.0f };
-            }
-        }
-
-#if OPTIMISATION_LISTPOOL
-        public static void BlurWidths(System.Collections.Generic.List<float> widths, int passes)
-        {
-            if (widths.Capacity < 10)
-                widths.Capacity = 10;
-
-            switch (passes)
-            {
-                case 2:
-                    widths.Add(0.0f);
-                    widths.Add(0.0f);
-                    break;
-                case 3:
-                    widths.Add(0.0f);
-                    widths.Add(1.0f);
-                    widths.Add(1.0f);
-                    break;
-                case 4:
-                    widths.Add(0.0f);
-                    widths.Add(1.0f);
-                    widths.Add(1.0f);
-                    widths.Add(2.0f);
-                    break;
-
-                case 5:
-                    widths.Add(0.0f);
-                    widths.Add(1.0f);
-                    widths.Add(2.0f);
-                    widths.Add(2.0f);
-                    widths.Add(3.0f);
-                    break;
-                case 6:
-                    widths.Add(0.0f);
-                    widths.Add(1.0f);
-                    widths.Add(2.0f);
-                    widths.Add(3.0f);
-                    widths.Add(4.0f);
-                    widths.Add(4.0f);
-                    widths.Add(5.0f);
-                    break;
-                default:
-                    widths.Add(0.0f);
-                    widths.Add(1.0f);
-                    widths.Add(2.0f);
-                    widths.Add(3.0f);
-                    widths.Add(4.0f);
-                    widths.Add(5.0f);
-                    widths.Add(7.0f);
-                    widths.Add(8.0f);
-                    widths.Add(9.0f);
-                    widths.Add(10.0f);
-                    break;
             }
         }
 #endif // OPTIMISATION_LISTPOOL

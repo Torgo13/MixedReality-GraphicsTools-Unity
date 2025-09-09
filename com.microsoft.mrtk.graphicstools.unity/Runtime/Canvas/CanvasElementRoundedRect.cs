@@ -92,18 +92,18 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION_UNITY
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord3
                     | AdditionalCanvasShaderChannels.TexCoord2
-                    | AdditionalCanvasShaderChannels.Normal
-                    | (SmoothEdges ? AdditionalCanvasShaderChannels.Tangent : AdditionalCanvasShaderChannels.None); // store normal of adjacent face as tangent
+                    | AdditionalCanvasShaderChannels.Normal;
 #else
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord3;
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
+#endif // OPTIMISATION_UNITY
+
                 if (SmoothEdges)
                 {
                     // store normal of adjacent face as tangent
                     canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.Tangent;
                 }
-#endif // OPTIMISATION_UNITY
             }
         }
 

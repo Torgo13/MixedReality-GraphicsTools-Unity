@@ -249,9 +249,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION_UNITY
                     var lightPosition = light.transform.position;
                     proximityLightData[dataIndex] = new Vector4(lightPosition.x,
-                        lightPosition.y,
-                        lightPosition.z,
-                        1.0f);
+                                                                lightPosition.y,
+                                                                lightPosition.z,
+                                                                1.0f);
 #else
                     proximityLightData[dataIndex] = new Vector4(light.transform.position.x,
                                                                 light.transform.position.y,

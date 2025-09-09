@@ -69,16 +69,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static CommandBuffer cmd = null;
 
-#if OPTIMISATION_SHADERPARAMS
-        private readonly struct ShaderPropertyId
-        {
-            public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
-            public static readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
-            public static readonly int AcrylicBlendTexture = Shader.PropertyToID("_AcrylicBlendTexture");
-            public static readonly int AcrylicBlendFraction = Shader.PropertyToID("_AcrylicBlendFraction");
-        }
-#endif // OPTIMISATION_SHADERPARAMS
-
         #region Public methods
         public AcrylicLayer(Camera _targetCamera, Settings _settings, int _index, int _depthBits, bool _useDualBlur, Material _kawaseBlur, Material _dualBlur)
         {
@@ -366,11 +356,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                     float blend = Mathf.Clamp01((float)frameCount / blendFrames);
                     BlendLayer(blend, blendMaterial);
                 }
-#if OPTIMISATION
-                ++frameCount;
-#else
+
                 frameCount = (frameCount + 1);
-#endif // OPTIMISATION
+
                 if (autoUpdate)
                 {
                     frameCount = frameCount % updatePeriod;
@@ -490,13 +478,12 @@ namespace Microsoft.MixedReality.GraphicsTools
                 Vector2 pixelSize = new Vector2(1.0f / width, 1.0f / height);
 
 #if OPTIMISATION_LISTPOOL
-                using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var widths);
-                AcrylicBlurRenderPass.BlurWidths(widths, settings.blurPasses);
-                for (int i = 0, widthsCount = widths.Count; i < widthsCount; i++)
+                var widths = AcrylicBlurRenderPass.BlurWidths(settings.blurPasses);
 #else
                 float[] widths = AcrylicBlurRenderPass.BlurWidths(settings.blurPasses);
-                for (int i = 0; i < widths.Length; i++)
 #endif // OPTIMISATION_LISTPOOL
+
+                for (int i = 0; i < widths.Length; i++)
                 {
 #if OPTIMISATION_SHADERPARAMS
                     cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, (0.5f + widths[i]) * pixelSize);
@@ -622,11 +609,14 @@ namespace Microsoft.MixedReality.GraphicsTools
             InitRenderTexture(ref renderTarget2, newWidth, newHeight, depth, "RenderTarget2");
         }
 
-#if OPTIMISATION
-        public static void InitRenderTexture(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name)
-#else
-        private static void InitRenderTexture(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name)
+#if OPTIMISATION // public accessor
+        public static void InitRenderTextureTemp(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name)
+        {
+            InitRenderTexture(ref texture, newWidth, newHeight, depth, name);
+        }
 #endif // OPTIMISATION
+
+        private static void InitRenderTexture(ref RenderTexture texture, int newWidth, int newHeight, int depth, string name)
         {
             if (texture == null)
             {

@@ -55,6 +55,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         [Tooltip("Determines whether the Meshes should receive shadows.")]
 #if SPELLING
         public bool ReceiveShadows = false;
+        private bool RecieveShadows => ReceiveShadows;
 #else
         public bool RecieveShadows = false;
 #endif // SPELLING
@@ -285,13 +286,8 @@ namespace Microsoft.MixedReality.GraphicsTools
             /// </summary>
             public Matrix4x4 LocalTransformation
             {
-#if SPELLING
-                get { return meshInstancer.instanceBuckets[InstanceBucketIndex].Matrices[InstanceIndex]; }
-                set { meshInstancer.instanceBuckets[InstanceBucketIndex].Matrices[InstanceIndex] = value; }
-#else
                 get { return meshInstancer.instanceBuckets[InstanceBucketIndex].Matricies[InstanceIndex]; }
                 set { meshInstancer.instanceBuckets[InstanceBucketIndex].Matricies[InstanceIndex] = value; }
-#endif // SPELLING
             }
 
             /// <summary>
@@ -464,6 +460,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             public Instance[] Instances = new Instance[UNITY_MAX_INSTANCE_COUNT];
 #if SPELLING
             public Matrix4x4[] Matrices = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
+            public Matrix4x4[] Matricies => Matrices;
 #else
             public Matrix4x4[] Matricies = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
 #endif // SPELLING
@@ -519,11 +516,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     ParallelUpdates[i]?.Invoke(deltaTime, Instances[i]);
 
                     // Calculate the final transformation matrix.
-#if SPELLING
-                    matrixScratchBuffer[i] = localToWorld * Matrices[i];
-#else
                     matrixScratchBuffer[i] = localToWorld * Matricies[i];
-#endif // SPELLING
                 }
             }
 
@@ -540,11 +533,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     ParallelUpdates[i]?.Invoke(deltaTime, Instances[i]);
 
                     // Calculate the final transformation matrix.
-#if SPELLING
-                    matrixScratchBuffer[i] = localToWorld * Matrices[i];
-#else
                     matrixScratchBuffer[i] = localToWorld * Matricies[i];
-#endif // SPELLING
 
                     // Perform a ray cast against the current instance. First do a coarse test against a sphere then a fine test against the OOBB.
                     // TODO - [Cameron-Micka] accelerate this with spatial partitioning?
@@ -698,11 +687,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             foreach (var bucket in instanceBuckets)
             {
                 // Draw each instance bucket.
-#if SPELLING
-                bucket.Draw(InstanceMesh, InstanceSubMeshIndex, InstanceMaterial, ShadowCastingMode, ReceiveShadows);
-#else
                 bucket.Draw(InstanceMesh, InstanceSubMeshIndex, InstanceMaterial, ShadowCastingMode, RecieveShadows);
-#endif // SPELLING
 
                 // Collect the aggregate raycast hits.
                 if (RaycastInstances)
@@ -915,11 +900,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 else if (InstanceMaterial)
                 {
                     // Using Graphics.DrawMeshInstanced instead of Gizmos.DrawMesh because Gizmos.DrawMesh requires that a mesh has normals.
-#if SPELLING
-                    Graphics.DrawMeshInstanced(InstanceMesh, InstanceSubMeshIndex, InstanceMaterial, new Matrix4x4[1] { Gizmos.matrix }, 1, null, ShadowCastingMode, ReceiveShadows);
-#else
                     Graphics.DrawMeshInstanced(InstanceMesh, InstanceSubMeshIndex, InstanceMaterial, new Matrix4x4[1] { Gizmos.matrix }, 1, null, ShadowCastingMode, RecieveShadows);
-#endif // SPELLING
                 }
 
                 if (RaycastInstances)
@@ -966,11 +947,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             InstanceBucket bucket = instanceBuckets[instanceBucketIndex];
             bucket.Instances[instanceIndex] = new Instance(instanceIndex, instanceBucketIndex, null, this);
-#if SPELLING
-            bucket.Matrices[instanceIndex] = (instantiateInWorldSpace) ? transform.worldToLocalMatrix * transformation : transformation;
-#else
             bucket.Matricies[instanceIndex] = (instantiateInWorldSpace) ? transform.worldToLocalMatrix * transformation : transformation;
-#endif // SPELLING
 
             ++InstanceCount;
 
@@ -1275,11 +1252,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             if (newInstanceCount != instance.InstanceIndex)
             {
                 // Update the transformation and instance reference.
-#if SPELLING
-                bucket.Matrices[instance.InstanceIndex] = bucket.Matrices[newInstanceCount];
-#else
                 bucket.Matricies[instance.InstanceIndex] = bucket.Matricies[newInstanceCount];
-#endif // SPELLING
                 bucket.Instances[instance.InstanceIndex] = new Instance(instance.InstanceIndex, 
                                                                         bucket.Instances[newInstanceCount].InstanceBucketIndex, 
                                                                         bucket.Instances[newInstanceCount].UserData, 
@@ -1345,11 +1318,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             for (int i = 0; i < instanceBuckets.Count; ++i)
             {
-#if SPELLING
-                if (instanceBuckets[i].InstanceCount < instanceBuckets[i].Matrices.Length)
-#else
                 if (instanceBuckets[i].InstanceCount < instanceBuckets[i].Matricies.Length)
-#endif // SPELLING
                 {
                     return i;
                 }

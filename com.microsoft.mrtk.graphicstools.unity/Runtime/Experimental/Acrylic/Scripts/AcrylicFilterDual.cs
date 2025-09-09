@@ -27,12 +27,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private const int blurOffset = 1;
 
-#if OPTIMISATION_SHADERPARAMS
-        public readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
-        public readonly int AcrylicHalfPixel = Shader.PropertyToID("_AcrylicHalfPixel");
-        public readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
-#endif // OPTIMISATION_SHADERPARAMS
-
         public AcrylicFilterDual(Material _material)
         {
             filterMaterial = _material;
@@ -75,7 +69,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
 #if OPTIMISATION_SHADERPARAMS
-            cmd.SetGlobalVector(AcrylicBlurOffset, Vector2.one * blurOffset);
+            cmd.SetGlobalVector(ShaderPropertyId.AcrylicBlurOffset, Vector2.one * blurOffset);
 #else
             cmd.SetGlobalVector("_AcrylicBlurOffset", Vector2.one * blurOffset);
 #endif // OPTIMISATION_SHADERPARAMS
@@ -87,7 +81,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif // OPTIMISATION
             {
 #if OPTIMISATION_SHADERPARAMS
-                cmd.SetGlobalVector(AcrylicHalfPixel, new Vector2(0.5f / buffers[i].width, 0.5f / buffers[i].height));
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicHalfPixel, new Vector4(0.5f / buffers[i].width, 0.5f / buffers[i].height));
 #else
                 cmd.SetGlobalVector("_AcrylicHalfPixel", new Vector2(0.5f / buffers[i].width, 0.5f / buffers[i].height));
 #endif // OPTIMISATION_SHADERPARAMS
@@ -100,7 +94,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 RenderTexture to = (i == 0) ? image : buffers[i - 1];
 #if OPTIMISATION_SHADERPARAMS
-                cmd.SetGlobalVector(AcrylicHalfPixel, new Vector2(0.5f / to.width, 0.5f / to.height));
+                cmd.SetGlobalVector(ShaderPropertyId.AcrylicHalfPixel, new Vector4(0.5f / to.width, 0.5f / to.height));
 #else
                 cmd.SetGlobalVector("_AcrylicHalfPixel", new Vector2(0.5f / to.width, 0.5f / to.height));
 #endif // OPTIMISATION_SHADERPARAMS
@@ -155,8 +149,9 @@ namespace Microsoft.MixedReality.GraphicsTools
         private void LocalBlit(CommandBuffer cmd, RenderTexture source, RenderTexture target, Material material, int pass)
         {
             cmd.SetRenderTarget(target);
+
 #if OPTIMISATION_SHADERPARAMS
-            cmd.SetGlobalTexture(AcrylicBlurSource, source);
+            cmd.SetGlobalTexture(ShaderPropertyId.AcrylicBlurSource, source);
 #else
             cmd.SetGlobalTexture("_AcrylicBlurSource", source);
 #endif // OPTIMISATION_SHADERPARAMS

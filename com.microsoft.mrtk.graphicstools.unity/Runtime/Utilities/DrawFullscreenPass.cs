@@ -100,7 +100,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             CommandBufferPool.Release(cmd);
         }
 
-#if BUGFIX
+#if OPTIMISATION_IDISPOSABLE
         public void Dispose()
         {
             Dispose(disposing: true);
@@ -114,7 +114,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@14.0/manual/upgrade-guide-2022-1.html
         /// </summary>
         private void Dispose()
-#endif // BUGFIX
+#endif // OPTIMISATION_IDISPOSABLE
         {
             source?.Release();
             destination?.Release();

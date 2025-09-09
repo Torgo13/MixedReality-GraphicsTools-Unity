@@ -285,7 +285,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             int height = textureToBlur.height;
 
 #if OPTIMISATION
-            AcrylicLayer.InitRenderTexture(ref source, width, height, 0, gameObject.name);
+            AcrylicLayer.InitRenderTextureTemp(ref source, width, height, 0, gameObject.name);
 #else
             if (source == null)
             {

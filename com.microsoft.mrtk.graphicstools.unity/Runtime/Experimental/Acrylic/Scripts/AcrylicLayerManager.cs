@@ -277,7 +277,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 #if CUSTOM_URP
             if (rendererData != null)
+            {
                 rendererData.intermediateTextureMode = IntermediateTextureMode.Always;
+            }
 #endif // CUSTOM_URP
         }
 
@@ -297,7 +299,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 #if CUSTOM_URP
             if (rendererData != null)
+            {
                 rendererData.intermediateTextureMode = previousIntermediateTextureMode;
+            }
 #endif // CUSTOM_URP
         }
 

@@ -9,6 +9,27 @@ using UnityEngine.UI;
 
 namespace Microsoft.MixedReality.GraphicsTools
 {
+#if OPTIMISATION_SHADERPARAMS
+    static class ShaderPropertyId
+    {
+        public static readonly int AcrylicBlurOffset = Shader.PropertyToID("_AcrylicBlurOffset");
+        public static readonly int AcrylicBlurSource = Shader.PropertyToID("_AcrylicBlurSource");
+
+        #region AcrylicBlurRenderPass
+        public static readonly int AcrylicInfo = Shader.PropertyToID("_AcrylicInfo");
+        #endregion // AcrylicBlurRenderPass
+
+        #region AcrylicFilterDual
+        public static readonly int AcrylicHalfPixel = Shader.PropertyToID("_AcrylicHalfPixel");
+        #endregion // AcrylicFilterDual
+
+        #region AcrylicLayer
+        public static readonly int AcrylicBlendTexture = Shader.PropertyToID("_AcrylicBlendTexture");
+        public static readonly int AcrylicBlendFraction = Shader.PropertyToID("_AcrylicBlendFraction");
+        #endregion // AcrylicLayer
+    }
+#endif // OPTIMISATION_SHADERPARAMS
+
     /// <summary>
     /// Helper component that automatically enables/disables the specified acrylic layer when an object is enabled/disabled
     /// (notifying the acrylic layer manager and updating the object's material).  Attach to any object that uses an acrylic material.
@@ -56,7 +77,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#endregion
+        #endregion
 
         #region public methods
 

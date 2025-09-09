@@ -213,6 +213,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Parse rgba format.
                         if (parameters[i].Contains("rgba("))
                         {
+#if OPTIMISATION_STATIC
+                            static
+#endif // OPTIMISATION_STATIC
                             float NormalizeColorChannel(float channel)
                             {
                                 if (channel > 1.0f)

@@ -4,6 +4,10 @@
 #if GT_USE_URP
 
 #if CUSTOM_URP
+#if UNITY_2021_2_OR_NEWER
+#else
+using UniversalRendererData = UnityEngine.Rendering.Universal.ForwardRendererData;
+#endif // UNITY_2021_2_OR_NEWER
 #else
 using System.Reflection;
 #endif // CUSTOM_URP
@@ -24,22 +28,14 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// The universal render pipeline can have multiple renderers, this method returns the 
         /// ScriptableRendererData (features and settings) for a renderer at a given index.
         /// </summary>
-#if UNITY_2021_2_OR_NEWER
         public static UniversalRendererData GetRendererData(int rendererIndex)
-#else
-        public static ForwardRendererData GetRendererData(int rendererIndex)
-#endif
         {
             if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset pipeline)
             {
                 var renderers = pipeline.RendererDataList;
                 if (rendererIndex < renderers.Length)
                 {
-#if UNITY_2021_2_OR_NEWER
                     return renderers[rendererIndex] as UniversalRendererData;
-#else
-                    return renderers[rendererIndex] as ForwardRendererData;
-#endif
                 }
                 else
                 {

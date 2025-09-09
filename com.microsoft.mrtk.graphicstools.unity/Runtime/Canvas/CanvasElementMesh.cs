@@ -259,7 +259,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                     
 #if OPTIMISATION
                     var capacity = uiVerticies.Count + vertices.Count;
-                    if (capacity > uiVerticies.Capacity)
+                    if (uiVerticies.Capacity < capacity)
                         uiVerticies.Capacity = capacity;
 #endif // OPTIMISATION
 
