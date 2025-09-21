@@ -519,11 +519,19 @@ namespace Microsoft.MixedReality.GraphicsTools
             InitRenderTexture(ref blendSource[blendSourceIndex], input.width, input.height, 0, "BlendSource");
             InitCommandBuffer();
             cmd.Clear();
+#if UNITY_2022_3_OR_NEWER
+            Blitter.BlitTexture(cmd, input, blendSource[blendSourceIndex], default, pass: 0);
+#else
             cmd.Blit(input, blendSource[blendSourceIndex]);
+#endif // UNITY_2022_3_OR_NEWER
             if (both)
             {
                 InitRenderTexture(ref blendSource[1 - blendSourceIndex], input.width, input.height, 0, "BlendSource");
+#if UNITY_2022_3_OR_NEWER
+                Blitter.BlitTexture(cmd, input, blendSource[1 - blendSourceIndex], default, pass: 0);
+#else
                 cmd.Blit(input, blendSource[1 - blendSourceIndex]);
+#endif // UNITY_2022_3_OR_NEWER
             }
 
             Graphics.ExecuteCommandBuffer(cmd);
@@ -557,7 +565,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                 cmd.SetGlobalFloat("_AcrylicBlendFraction", blend);
 #endif // OPTIMISATION_SHADERPARAMS
 
+#if UNITY_2022_3_OR_NEWER
+                Blitter.BlitTexture(cmd, blendSource[src0], blendTarget, default, pass: 0);
+#else
                 cmd.Blit(blendSource[src0], blendTarget, blendMaterial);
+#endif // UNITY_2022_3_OR_NEWER
                 Graphics.ExecuteCommandBuffer(cmd);
                 Shader.SetGlobalTexture(settings.blurTextureName, blendTarget);
             }

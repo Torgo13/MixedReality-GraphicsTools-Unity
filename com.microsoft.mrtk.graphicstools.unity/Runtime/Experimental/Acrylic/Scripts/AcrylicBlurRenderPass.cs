@@ -175,7 +175,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (downSample == 1)
             {
+#if UNITY_2022_3_OR_NEWER
+                Blitter.BlitTexture(cmd, colorTargetHandle, handle, default, pass: 0);
+#else
                 cmd.Blit(colorTargetHandle, handle);
+#endif // UNITY_2022_3_OR_NEWER
             }
             else if (downSample == 2)
             {
