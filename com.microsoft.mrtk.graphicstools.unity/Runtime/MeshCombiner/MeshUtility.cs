@@ -309,12 +309,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                             {
                                 // Map textures to CombineInstances
                                 var texture = material.GetTexture(textureSetting.TextureProperty) as Texture2D;
-#if SAFETY
-                                if (texture == null)
-                                    texture = MeshCombineSettings.GetTextureUsageDefault(textureSetting.Usage);
-#else
                                 texture = texture ?? MeshCombineSettings.GetTextureUsageDefault(textureSetting.Usage);
-#endif // SAFETY
                                 if (textureToCombineInstanceMappings[textureSettingIndex].TryGetValue(texture, out List<CombineInstance> combineInstanceMappings))
                                 {
                                     combineInstanceMappings.Add(combineInstance);

@@ -526,11 +526,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             while (AnyLayersNeedUpdating())
             {
                 bool updateActiveFeatures = false;
-#if OPTIMISATION
-                for (int i = 0, layerDataCount = layerData.Count; i < layerDataCount; i++)
-#else
                 for (int i = 0; i < layerData.Count; i++)
-#endif // OPTIMISATION
                 {
                     if (layerData[i].activeCount > 0)
                     {

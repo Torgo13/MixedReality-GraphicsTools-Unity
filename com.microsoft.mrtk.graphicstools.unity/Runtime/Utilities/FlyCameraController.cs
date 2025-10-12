@@ -114,11 +114,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void Update()
         {
-#if ENABLE_VR && ENABLE_XR_MODULE
             if (!XRDeviceIsPresent() && Application.isFocused)
-#else
-            if (Application.isFocused)
-#endif // ENABLE_VR && ENABLE_XR_MODULE
             {
                 // Lock cursor when right mouse button pressed.
 #if USE_INPUT_SYSTEM
@@ -194,11 +190,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private void OnGUI()
         {
-#if ENABLE_VR && ENABLE_XR_MODULE
             if (!XRDeviceIsPresent() && showControlsText)
-#else
-            if (showControlsText)
-#endif // ENABLE_VR && ENABLE_XR_MODULE
             {
 #if USE_INPUT_SYSTEM
                 bool gamepadPresent = Gamepad.current != null;
@@ -223,12 +215,12 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#if ENABLE_VR && ENABLE_XR_MODULE
         /// <summary>
         /// Returns true if an XR device is connected and running. For example a VR headset.
         /// </summary>
         private bool XRDeviceIsPresent()
         {
+#if ENABLE_VR && ENABLE_XR_MODULE
             foreach (var xrDisplay in xrDisplaySubsystems)
             {
                 if (xrDisplay != null && xrDisplay.running)
@@ -236,10 +228,10 @@ namespace Microsoft.MixedReality.GraphicsTools
                     return true;
                 }
             }
+#endif // ENABLE_VR && ENABLE_XR_MODULE
 
             return false;
         }
-#endif // ENABLE_VR && ENABLE_XR_MODULE
 
         /// <summary>
         /// Turns mouse/stick controls into an input vector.

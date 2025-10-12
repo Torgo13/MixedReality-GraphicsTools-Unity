@@ -102,12 +102,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
 #if OPTIMISATION_IDISPOSABLE
         public void Dispose()
-        {
-            Dispose(disposing: true);
-            System.GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
 #else
         /// <summary>
         /// Unsure when this is called? This is the only resource I could find to dispose of RTHandles.

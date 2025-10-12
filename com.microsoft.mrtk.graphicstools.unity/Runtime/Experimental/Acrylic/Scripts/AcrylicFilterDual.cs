@@ -36,17 +36,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             buffers = new List<RenderTexture>();
         }
 
-#if OPTIMISATION_IDISPOSABLE
         public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-#else
-        public void Dispose()
-#endif // OPTIMISATION_IDISPOSABLE
         {
             FreeBuffers();
         }

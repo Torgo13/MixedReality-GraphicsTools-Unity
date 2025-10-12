@@ -110,17 +110,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 #endif // LEGACY_ACRYLIC
 
-#if OPTIMISATION_IDISPOSABLE
         public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-#else
-        public void Dispose()
-#endif // OPTIMISATION_IDISPOSABLE
         {
             if (blur != null)
             {
