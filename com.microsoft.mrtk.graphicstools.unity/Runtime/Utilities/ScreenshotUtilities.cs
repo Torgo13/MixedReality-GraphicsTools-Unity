@@ -67,7 +67,11 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 if (camera == null)
                 {
+#if UNITY_6000_3_OR_NEWER
+                    camera = UnityEngine.Object.FindFirstObjectByType<Camera>();
+#else
                     camera = UnityEngine.Object.FindObjectOfType<Camera>();
+#endif // UNITY_6000_3_OR_NEWER
 
                     if (camera == null)
                     {

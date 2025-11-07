@@ -86,7 +86,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                     if (materialRef.RefCount == 0)
 #endif // SAFETY
                     {
+#if UNITY_6000_3_OR_NEWER
+                        if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(material.GetEntityId(), out string guid, out long _) && !new GUID(guid).Empty())
+#else
                         if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(material.GetInstanceID(), out string guid, out long _) && !new GUID(guid).Empty())
+#endif // UNITY_6000_3_OR_NEWER
                         {
                             // Restore to the original material snapshot.
                             material.CopyPropertiesFromMaterial(materialRef.Snapshot);
