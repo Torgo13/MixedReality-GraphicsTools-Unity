@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if URP_COMPATIBILITY_MODE
+#else
+#undef GT_USE_URP
+#endif // URP_COMPATIBILITY_MODE
+
 #if GT_USE_URP
 using UnityEditor;
 using UnityEngine;

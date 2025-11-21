@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if URP_COMPATIBILITY_MODE
 #if GT_USE_URP
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -36,3 +37,4 @@ namespace Microsoft.MixedReality.GraphicsTools
     }
 }
 #endif // GT_USE_URP
+#endif // URP_COMPATIBILITY_MODE
