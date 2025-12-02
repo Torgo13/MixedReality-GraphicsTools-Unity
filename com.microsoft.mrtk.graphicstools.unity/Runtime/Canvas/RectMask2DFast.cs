@@ -31,6 +31,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         private List<RectMask2D> clippers = new List<RectMask2D>();
 
 #if OPTIMISATION
+#if USING_REFLECTION
         private static readonly System.Func<RectMask2DFast, HashSet<IClippable>> GetClipTargets = ClipTargetsDelegate();
         private static System.Func<RectMask2DFast, HashSet<IClippable>> ClipTargetsDelegate()
         {
@@ -52,6 +53,38 @@ namespace Microsoft.MixedReality.GraphicsTools
                 System.Linq.Expressions.Expression.Convert(param, typeof(RectMask2D)), typeof(RectMask2D)
                 .GetField("m_MaskableTargets", bindFlags)!), typeof(HashSet<MaskableGraphic>)), param).Compile();
         }
+#else
+        /// <summary>
+        /// This is a helper class to allow the binding code to manipulate the internal fields of
+        /// <see cref="RectMask2D"/>. The field order below must not be changed.
+        /// </summary>
+        [UnityEngine.Scripting.Preserve]
+        internal class RectMask2DPrivateFieldAccess : UnityEngine.EventSystems.UIBehaviour, IClipper, ICanvasRaycastFilter
+        {
+            internal RectangularVertexClipper m_VertexClipper;
+            internal RectTransform m_RectTransform;
+            internal HashSet<MaskableGraphic> m_MaskableTargets;
+            internal HashSet<IClippable> m_ClipTargets;
+            internal bool m_ShouldRecalculateClipRects;
+            internal List<RectMask2D> m_Clippers;
+            internal Rect m_LastClipRectCanvasSpace;
+            internal bool m_ForceClip;
+            internal Vector4 m_Padding;
+            internal Vector2Int m_Softness;
+            internal Canvas m_Canvas;
+            internal Vector3[] m_Corners;
+
+            public void PerformClipping()
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public bool IsRaycastLocationValid(Vector2 sp, Camera eventCamera)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+#endif // USING_REFLECTION
 #endif // OPTIMISATION
 
         #region MonoBehaviour Implementation
@@ -255,8 +288,16 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             // Many of the properties we need access to for clipping are not exposed. So, we have to do reflection to get access to them.
 #if OPTIMISATION
+#if USING_REFLECTION
             clipTargets = GetClipTargets(this);
             maskableTargets = GetMaskableTargets(this);
+#else
+            var rectMask2D = (RectMask2D)this;
+            var rectMask2DAccess = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.As<RectMask2D, RectMask2DPrivateFieldAccess>(ref rectMask2D);
+
+            clipTargets = rectMask2DAccess.m_ClipTargets;
+            maskableTargets = rectMask2DAccess.m_MaskableTargets;
+#endif // USING_REFLECTION
 #else
             BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
             clipTargets = (HashSet<IClippable>)typeof(RectMask2D).GetField("m_ClipTargets", bindFlags).GetValue(this);
