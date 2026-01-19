@@ -10,6 +10,9 @@ using UnityEngine.Pool;
 #endif
 using UnityEngine.UI;
 
+#pragma warning disable CS0108 // Member hides inherited member; missing new keyword
+#pragma warning disable CS0649 // Member is never assigned to, and will always have its default value
+
 namespace Microsoft.MixedReality.GraphicsTools
 {
     /// <summary>

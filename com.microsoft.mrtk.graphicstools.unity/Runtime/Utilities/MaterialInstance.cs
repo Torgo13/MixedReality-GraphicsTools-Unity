@@ -33,7 +33,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         public static bool IsInstance(Material material)
         {
 #if OPTIMISATION_ORDINAL
-            return ((material != null) && material.name.Contains(InstancePostfix, StringComparison.Ordinal));
+            return ((material != null) && material.name.EndsWith(InstancePostfix, StringComparison.Ordinal));
 #else
             return ((material != null) && material.name.Contains(InstancePostfix));
 #endif // OPTIMISATION_ORDINAL

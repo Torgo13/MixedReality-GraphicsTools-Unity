@@ -43,16 +43,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 // Ensure this material represents an asset.
                 if (AssetDatabase.Contains(material))
                 {
-#if OPTIMISATION_DICTIONARY
-                    if (materialsToRestore.TryGetValue(material, out MaterialSnapshot value))
-                    {
-                        ++value.RefCount;
-                    }
-                    else
-                    {
-                        materialsToRestore.Add(material, new MaterialSnapshot(new Material(material)));
-                    }
-#else
                     if (!materialsToRestore.ContainsKey(material))
                     {
                         materialsToRestore.Add(material, new MaterialSnapshot(new Material(material)));
@@ -61,7 +51,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         ++materialsToRestore[material].RefCount;
                     }
-#endif // OPTIMISATION_DICTIONARY
                 }
             }
 #endif

@@ -94,7 +94,11 @@ Shader "Hidden/Graphics Tools/DebugMipColor"
                 #pragma fragment PixelStage
     
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#if UNITY_VERSION >= 202300 // Unity 6 (2023)+
+                #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/DebugMipmapStreaming.hlsl"
+#else
                 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Debug.hlsl"
+#endif // UNITY_VERSION >= 202300 // Unity 6 (2023)+
     
                 struct Attributes
                 {
