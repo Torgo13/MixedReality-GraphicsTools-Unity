@@ -1,6 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+#if defined(SHADER_API_MOBILE)
+#define MATERIAL_QUALITY_LOW
+#else
+#if defined(SHADER_HINT_NICE_QUALITY)
+#define MATERIAL_QUALITY_HIGH
+#else
+#define MATERIAL_QUALITY_MEDIUM
+#endif // defined(SHADER_HINT_NICE_QUALITY)
+#endif // defined(SHADER_API_MOBILE)
+
 #if defined(MATERIAL_QUALITY_LOW)
 #include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/UnlitGBufferPass.hlsl"
 #else 

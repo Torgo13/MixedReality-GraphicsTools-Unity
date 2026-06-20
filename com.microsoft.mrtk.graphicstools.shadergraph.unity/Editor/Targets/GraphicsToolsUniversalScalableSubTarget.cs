@@ -920,7 +920,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 { CoreKeywordDescriptors.LightLayers },
                 { CoreKeywordDescriptors.DebugDisplay },
                 { CoreKeywordDescriptors.LightCookies },
+#if UNITY_6000_3_OR_NEWER
+                { CoreKeywordDescriptors.ClusterLightLoop },
+#else
                 { CoreKeywordDescriptors.ForwardPlus },
+#endif // UNITY_6000_3_OR_NEWER
             };
 
             public static readonly KeywordCollection GBuffer = new KeywordCollection
@@ -949,7 +953,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             const string kShadows = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl";
             const string kMetaInput = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl";
             const string kForwardPass = "Packages/com.microsoft.mrtk.graphicstools.shadergraph.unity/Editor/Includes/ScalableForwardPass.hlsl";
+#if UNITY_6000_3_OR_NEWER
+            const string kGBuffer = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/GBufferOutput.hlsl";
+#else
             const string kGBuffer = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl";
+#endif // UNITY_6000_3_OR_NEWER
             const string kPBRGBufferPass = "Packages/com.microsoft.mrtk.graphicstools.shadergraph.unity/Editor/Includes/ScalableGBufferPass.hlsl";
             const string kLightingMetaPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/LightingMetaPass.hlsl";
             // TODO : Replace 2D for Simple one
@@ -1939,7 +1947,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             const string kShadows = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl";
             const string kMetaInput = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl";
             const string kForwardPass = "Packages/com.microsoft.mrtk.graphicstools.shadergraph.unity/Editor/Includes/ScalableForwardPass.hlsl";
+#if UNITY_6000_3_OR_NEWER
+            const string kGBuffer = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/GBufferOutput.hlsl";
+#else
             const string kGBuffer = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl";
+#endif // UNITY_6000_3_OR_NEWER
             const string kPBRGBufferPass = "Packages/com.microsoft.mrtk.graphicstools.shadergraph.unity/Editor/Includes/ScalableGBufferPass.hlsl";
             const string kLightingMetaPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/LightingMetaPass.hlsl";
             const string k2DPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBR2DPass.hlsl";

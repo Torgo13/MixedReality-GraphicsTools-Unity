@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #if OPTIMISATION
+using CSharpCodeProvider = System.CodeDom.Compiler.CodeDomProvider;
 #else
 using Microsoft.CSharp;
 #endif // OPTIMISATION
@@ -16,6 +17,44 @@ using UnityEngine.Rendering;
 
 namespace Microsoft.MixedReality.GraphicsTools.Editor
 {
+#if UNITY_6000_0_OR_NEWER
+    internal static class ShaderUtil
+    {
+        public enum ShaderPropertyType
+        {
+            Color,
+            Vector,
+            Float,
+            Range,
+            Texture,
+            Int,
+
+            TexEnv = Texture,
+        }
+
+        public static int GetPropertyCount(Shader shader)
+            => shader.GetPropertyCount();
+
+        public static string GetPropertyName(Shader shader, int propertyIndex)
+            => shader.GetPropertyName(propertyIndex);
+
+        public static ShaderPropertyType GetPropertyType(Shader shader, int propertyIndex)
+            => (ShaderPropertyType)shader.GetPropertyType(propertyIndex);
+
+        public static float GetRangeLimits(Shader shader, int propertyIndex, int index)
+        {
+            return index switch
+            {
+                0 => shader.GetPropertyDefaultFloatValue(propertyIndex),
+                _ => shader.GetPropertyRangeLimits(propertyIndex)[index - 1]
+            };
+        }
+
+        public static TextureDimension GetTexDim(Shader shader, int propertyIndex)
+            => shader.GetPropertyTextureDimension(propertyIndex);
+    }
+#endif // UNITY_6000_0_OR_NEWER
+
     /// <summary>
     /// General utility methods to help with shader development and usage.
     /// </summary>
@@ -94,25 +133,13 @@ namespace Microsoft.MixedReality.GraphicsTools
             string fromMaterial = string.Empty;
             string toMaterial = string.Empty;
             string targetShaderName = string.Format(TargetShaderNameBody, Environment.NewLine, shader.name);
-#if UNITY_6000_0_OR_NEWER
-            int count = shader.GetPropertyCount();
-#else
             int count = ShaderUtil.GetPropertyCount(shader);
-#endif // UNITY_6000_0_OR_NEWER
 
             for (int i = 0; i < count; ++i)
             {
-#if UNITY_6000_0_OR_NEWER
-                string name = shader.GetPropertyName(i);
-#else
                 string name = ShaderUtil.GetPropertyName(shader, i);
-#endif // UNITY_6000_0_OR_NEWER
                 string nameID = string.Format(PropertyID, name);
-#if UNITY_6000_0_OR_NEWER
-                ShaderPropertyType type = shader.GetPropertyType(i);
-#else
                 ShaderUtil.ShaderPropertyType type = ShaderUtil.GetPropertyType(shader, i);
-#endif // UNITY_6000_0_OR_NEWER
                 string[] propertyAttributes = shader.GetPropertyAttributes(i);
 
                 string headerAttribute = Array.Find(propertyAttributes, IsHeaderAttribute);
@@ -123,17 +150,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
 
                 // Textures.
-#if UNITY_6000_0_OR_NEWER
-                if (type == ShaderPropertyType.Texture)
-#else
                 if (type == ShaderUtil.ShaderPropertyType.TexEnv)
-#endif // UNITY_6000_0_OR_NEWER
                 {
-#if UNITY_6000_0_OR_NEWER
-                    TextureDimension dimension = shader.GetPropertyTextureDimension(i);
-#else
                     TextureDimension dimension = ShaderUtil.GetTexDim(shader, i);
-#endif // UNITY_6000_0_OR_NEWER
                     string typeName = TextureDimensionToTypeName(dimension);
                     properties += Environment.NewLine;
                     properties += string.Format(PropertyBody, typeName, name, "null");
@@ -143,25 +162,13 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     fromMaterial += Environment.NewLine;
                     fromMaterial += string.Format(FromMaterialBodyCast, name, ShaderPropertyTypeToGettor(type), nameID, typeName);
+
                     toMaterial += Environment.NewLine;
                     toMaterial += string.Format(ToMaterialBodyCast, ShaderPropertyTypeToSettor(type), nameID, name, typeName);
                 }
                 else  // All other types. Colors, floats, vectors, etc.
                 {
                     string defaultValue, minValue = null, maxValue = null;
-#if UNITY_6000_0_OR_NEWER
-                    if (type == ShaderPropertyType.Float)
-                    {
-                        defaultValue = shader.GetPropertyDefaultFloatValue(i) + FloatPostfix;
-                    }
-                    else if (type == ShaderPropertyType.Range)
-                    {
-                        defaultValue = shader.GetPropertyDefaultFloatValue(i) + FloatPostfix;
-                        Vector2 range = shader.GetPropertyRangeLimits(i);
-                        minValue = range.x + FloatPostfix;
-                        maxValue = range.y + FloatPostfix;
-                    }
-#else
                     if (type == ShaderUtil.ShaderPropertyType.Float)
                     {
                         defaultValue = ShaderUtil.GetRangeLimits(shader, i, 0).ToString() + FloatPostfix;
@@ -172,7 +179,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                         minValue = ShaderUtil.GetRangeLimits(shader, i, 1).ToString() + FloatPostfix;
                         maxValue = ShaderUtil.GetRangeLimits(shader, i, 2) + FloatPostfix;
                     }
-#endif // UNITY_6000_0_OR_NEWER
                     else
                     {
                         defaultValue = ShaderPropertyTypeToDefault(type);
@@ -194,6 +200,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                     fromMaterial += Environment.NewLine;
                     fromMaterial += string.Format(FromMaterialBody, name, ShaderPropertyTypeToGettor(type), nameID);
+
                     toMaterial += Environment.NewLine;
                     toMaterial += string.Format(ToMaterialBody, ShaderPropertyTypeToSettor(type), nameID, name);
                 }
@@ -202,9 +209,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             try
             {
                 // Save a new component out as a C# class.
-#if OPTIMISATION
-                const
-#endif // OPTIMISATION
                 string version = "0.1.0";
                 string assetPath = AssetDatabase.GetAssetPath(shader);
 
@@ -266,11 +270,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             foreach (UnityEngine.Object selection in Selection.objects)
             {
-#if OPTIMISATION
-                if (selection is Shader)
-#else
                 if (selection.GetType() == typeof(Shader))
-#endif // OPTIMISATION
                 {
                     return true;
                 }
@@ -347,92 +347,53 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// ShaderPropertyType to C# type conversion.
         /// </summary>
-#if UNITY_6000_0_OR_NEWER
-        private static string ShaderPropertyTypeToTypeName(ShaderPropertyType type)
-#else
         private static string ShaderPropertyTypeToTypeName(ShaderUtil.ShaderPropertyType type)
-#endif // UNITY_6000_0_OR_NEWER
         {
             switch (type)
             {
-#if UNITY_6000_0_OR_NEWER
-                case ShaderPropertyType.Color: return "Color";
-                case ShaderPropertyType.Vector: return "Vector4";
-                default:
-                case ShaderPropertyType.Float:
-                case ShaderPropertyType.Range: return "float";
-                case ShaderPropertyType.Texture: return "Texture";
-#else
                 case ShaderUtil.ShaderPropertyType.Color: return "Color";
                 case ShaderUtil.ShaderPropertyType.Vector: return "Vector4";
                 default:
                 case ShaderUtil.ShaderPropertyType.Float:
                 case ShaderUtil.ShaderPropertyType.Range: return "float";
                 case ShaderUtil.ShaderPropertyType.TexEnv: return "Texture";
-#endif // UNITY_6000_0_OR_NEWER
             }
         }
 
         /// <summary>
         /// ShaderPropertyType to Unity material getter method.
         /// </summary>
-#if UNITY_6000_0_OR_NEWER
-        private static string ShaderPropertyTypeToGettor(ShaderPropertyType type)
-#else
         private static string ShaderPropertyTypeToGettor(ShaderUtil.ShaderPropertyType type)
-#endif // UNITY_6000_0_OR_NEWER
         {
             switch (type)
             {
-#if UNITY_6000_0_OR_NEWER
-                case ShaderPropertyType.Color: return "GetColor";
-                case ShaderPropertyType.Vector: return "GetVector";
-                default:
-                case ShaderPropertyType.Float:
-                case ShaderPropertyType.Range: return "GetFloat";
-                case ShaderPropertyType.Texture: return "GetTexture";
-#else
                 case ShaderUtil.ShaderPropertyType.Color: return "GetColor";
                 case ShaderUtil.ShaderPropertyType.Vector: return "GetVector";
                 default:
                 case ShaderUtil.ShaderPropertyType.Float:
                 case ShaderUtil.ShaderPropertyType.Range: return "GetFloat";
                 case ShaderUtil.ShaderPropertyType.TexEnv: return "GetTexture";
-#endif // UNITY_6000_0_OR_NEWER
             }
         }
 
         /// <summary>
         /// ShaderPropertyType to Unity material setter method.
         /// </summary>
-#if UNITY_6000_0_OR_NEWER
-        private static string ShaderPropertyTypeToSettor(ShaderPropertyType type)
-#else
         private static string ShaderPropertyTypeToSettor(ShaderUtil.ShaderPropertyType type)
-#endif // UNITY_6000_0_OR_NEWER
         {
             switch (type)
             {
-#if UNITY_6000_0_OR_NEWER
-                case ShaderPropertyType.Color: return "SetColor";
-                case ShaderPropertyType.Vector: return "SetVector";
-                default:
-                case ShaderPropertyType.Float:
-                case ShaderPropertyType.Range: return "SetFloat";
-                case ShaderPropertyType.Texture: return "SetTexture";
-#else
                 case ShaderUtil.ShaderPropertyType.Color: return "SetColor";
                 case ShaderUtil.ShaderPropertyType.Vector: return "SetVector";
                 default:
                 case ShaderUtil.ShaderPropertyType.Float:
                 case ShaderUtil.ShaderPropertyType.Range: return "SetFloat";
                 case ShaderUtil.ShaderPropertyType.TexEnv: return "SetTexture";
-#endif // UNITY_6000_0_OR_NEWER
             }
         }
 
         /// <summary>
-        /// TextureDimension to C# type conversion. 
+        /// TextureDimension to C# type conversion.
         /// </summary>
         private static string TextureDimensionToTypeName(TextureDimension dimension)
         {
@@ -450,29 +411,16 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// ShaderPropertyType to default C# type value.
         /// </summary>
-#if UNITY_6000_0_OR_NEWER
-        private static string ShaderPropertyTypeToDefault(ShaderPropertyType type)
-#else
         private static string ShaderPropertyTypeToDefault(ShaderUtil.ShaderPropertyType type)
-#endif // UNITY_6000_0_OR_NEWER
         {
             switch (type)
             {
-#if UNITY_6000_0_OR_NEWER
-                case ShaderPropertyType.Color: return "Color.white";
-                case ShaderPropertyType.Vector: return "Vector4.zero";
-                default:
-                case ShaderPropertyType.Float:
-                case ShaderPropertyType.Range: return "0.0f";
-                case ShaderPropertyType.Texture: return "null";
-#else
                 case ShaderUtil.ShaderPropertyType.Color: return "Color.white";
                 case ShaderUtil.ShaderPropertyType.Vector: return "Vector4.zero";
                 default:
                 case ShaderUtil.ShaderPropertyType.Float:
                 case ShaderUtil.ShaderPropertyType.Range: return "0.0f";
                 case ShaderUtil.ShaderPropertyType.TexEnv: return "null";
-#endif // UNITY_6000_0_OR_NEWER
             }
         }
 
@@ -481,11 +429,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string SanitizeIdentifier(string input)
         {
-#if OPTIMISATION
-            bool isValid = System.CodeDom.Compiler.CodeDomProvider.CreateProvider("C#").IsValidIdentifier(input);
-#else
             bool isValid = CSharpCodeProvider.CreateProvider("C#").IsValidIdentifier(input);
-#endif // OPTIMISATION
 
             if (!isValid)
             {
@@ -525,13 +469,8 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         private static string GetHeaderName(string headerAttribute)
         {
-#if OPTIMISATION_ORDINAL
-            int startPosition = headerAttribute.IndexOf('(', StringComparison.Ordinal) + 1;
-            int wordLength = headerAttribute.IndexOf(")", startPosition, StringComparison.Ordinal) - startPosition;
-#else
             int startPosition = headerAttribute.IndexOf("(") + 1;
             int wordLength = headerAttribute.IndexOf(")", startPosition) - startPosition;
-#endif // OPTIMISATION_ORDINAL
 
             return headerAttribute.Substring(startPosition, wordLength);
         }

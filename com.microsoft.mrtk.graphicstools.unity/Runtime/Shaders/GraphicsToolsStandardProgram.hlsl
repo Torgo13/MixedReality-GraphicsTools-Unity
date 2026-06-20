@@ -543,11 +543,11 @@ half4 PixelStage(Varyings input, bool facing : SV_IsFrontFace) : SV_Target
 #if defined(_IRIDESCENCE)
     half4 gradientColor = half4(input.gradient, 1.0h);
 #elif defined(_GRADIENT_FOUR_POINT)
-    #if defined(_BLUR_TEXTURE) || defined(_BLUR_TEXTURE_2)
+    #if defined(_BLUR_TEXTURE) || defined(_BLUR_TEXTURE_2) // Apply gradient to screen coordinates
         half4 gradientColor = GTFourPointGradient(_GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, input.uvScreen.xy / input.uvScreen.w);
     #else
         half4 gradientColor = GTFourPointGradient(_GradientColor1, _GradientColor2, _GradientColor3, _GradientColor4, input.uv);
-    #endif
+    #endif // defined(_BLUR_TEXTURE) || defined(_BLUR_TEXTURE_2)
 #elif defined(_GRADIENT_LINEAR)
     half4 gradientColor = GTLinearGradient(_GradientColor0, _GradientColor1, _GradientColor2, _GradientColor3, _GradientAlpha, _GradientAlphaTime, input.gradient);
 #endif

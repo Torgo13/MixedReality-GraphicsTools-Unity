@@ -225,8 +225,8 @@ CBUFFER_END
         half st, ct, cp;
         sincos(theta, st, ct);
         sincos(phi, LightDirY, cp);
-        LightDirX = cp*ct;
-        LightDirZ = cp*st;
+        LightDirX = cp * ct;
+        LightDirZ = cp * st;
     }
     //BLOCK_END SunDir
 

@@ -241,7 +241,7 @@ CBUFFER_END
         float a = Degrees*3.14159/180.0;
         float sa, ca;
         sincos(a, sa, ca);
-        Dir = ca*DirX+sa*DirY;
+        Dir = ca * DirX + sa * DirY;
     }
     //BLOCK_END PickDir
 

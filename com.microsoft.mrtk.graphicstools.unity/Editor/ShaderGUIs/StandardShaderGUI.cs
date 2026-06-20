@@ -461,10 +461,10 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
         {
             // Cache old shader properties with potentially different names than the new shader.
             float? smoothness = GetFloatProperty(material, "_Glossiness");
-#if CUSTOM_URP
+#if BUGFIX
             float? metallic = GetFloatProperty(material, "_Metallic");
             float? alphaClip = GetFloatProperty(material, "_AlphaClip");
-#endif // CUSTOM_URP
+#endif // BUGFIX
             float? diffuse = GetFloatProperty(material, "_UseDiffuse");
             float? specularHighlights = GetFloatProperty(material, "_SpecularHighlights");
             float? normalMap = null;
@@ -495,7 +495,7 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     rimLighting = GetFloatProperty(material, "_UseRimLighting");
                     textureScaleOffset = GetVectorProperty(material, "_TextureScaleOffset");
                 }
-#if CUSTOM_URP
+#if BUGFIX
                 else if (oldShader.name.Contains("Universal Render Pipeline/Lit", StringComparison.Ordinal)
                     || oldShader.name.Contains("Universal Render Pipeline/Unlit", StringComparison.Ordinal)
                     || oldShader.name.Contains("Universal Render Pipeline/Simple Lit", StringComparison.Ordinal)
@@ -510,17 +510,17 @@ namespace Microsoft.MixedReality.GraphicsTools.Editor
                     metallic = GetFloatProperty(material, "_Metallic");
                     alphaClip = GetFloatProperty(material, "_AlphaClip");
                 }
-#endif // CUSTOM_URP
+#endif // BUGFIX
             }
 
             base.AssignNewShaderToMaterial(material, oldShader, newShader);
 
             // Apply old shader properties to the new shader.
             SetShaderFeatureActive(material, null, "_Smoothness", smoothness);
-#if CUSTOM_URP
+#if BUGFIX
             SetShaderFeatureActive(material, null, "_Metallic", metallic);
             SetShaderFeatureActive(material, null, "_AlphaClip", alphaClip);
-#endif // CUSTOM_URP
+#endif // BUGFIX
 
             if (!newShaderIsStandardCanvas)
             {

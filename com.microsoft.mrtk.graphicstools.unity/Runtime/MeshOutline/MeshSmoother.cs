@@ -116,17 +116,19 @@ namespace Microsoft.MixedReality.GraphicsTools
             using var _0 = UnityEngine.Pool.ListPool<Vector3>.Get(out var vertices);
             using var _1 = UnityEngine.Pool.ListPool<Vector3>.Get(out var normals);
             using var _2 = UnityEngine.Pool.ListPool<Vector3>.Get(out var smoothNormals);
+            using var _3 = UnityEngine.Pool.DictionaryPool<Vector3, List<KeyValuePair<int, Vector3>>>
+                .Get(out var groupedVertices);
             mesh.GetVertices(vertices);
             mesh.GetNormals(normals);
             await Awaitable.BackgroundThreadAsync();
             if (ct.IsCancellationRequested)
                 return;
 
-            CalculateSmoothNormals(vertices, normals, smoothNormals);
+            CalculateSmoothNormals(vertices, normals, groupedVertices, smoothNormals);
 
             // Once the async task is complete, apply the smoothed normals to the mesh on the main thread.
             await Awaitable.MainThreadAsync();
-            if (ct.IsCancellationRequested)
+            if (ct.IsCancellationRequested || mesh == null)
                 return;
 
             mesh.SetUVs(smoothNormalUVChannel, smoothNormals);
@@ -282,34 +284,38 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <param name="vertices">A list of vertices that represent a mesh.</param>
         /// <param name="normals">A list of normals that correspond to each vertex passed in via the vertices param.</param>
         /// <returns>A list of normals which are smoothed, or averaged, based on share vertex position.</returns>
-#if OPTIMISATION
+#if OPTIMISATION_LISTPOOL
         private static List<Vector3> CalculateSmoothNormals(Vector3[] vertices, Vector3[] normals)
         {
             var v = UnityEngine.Pool.ListPool<Vector3>.Get();
             var n = UnityEngine.Pool.ListPool<Vector3>.Get();
+            var groupedVertices
+                = UnityEngine.Pool.DictionaryPool<Vector3, List<KeyValuePair<int, Vector3>>>.Get();
+            
             v.AddRange(vertices);
             n.AddRange(normals);
             var smoothNormals = new List<Vector3>(normals.Length);
-            CalculateSmoothNormals(v, n, smoothNormals);
+            CalculateSmoothNormals(v, n, groupedVertices, smoothNormals);
+            
+            UnityEngine.Pool.DictionaryPool<Vector3, List<KeyValuePair<int, Vector3>>>.Release(groupedVertices);
             UnityEngine.Pool.ListPool<Vector3>.Release(n);
             UnityEngine.Pool.ListPool<Vector3>.Release(v);
+            
             return smoothNormals;
         }
 
         /// <inheritdoc cref="CalculateSmoothNormals(Vector3[], Vector3[])"/>
         private static void CalculateSmoothNormals(List<Vector3> vertices, List<Vector3> normals,
+            Dictionary<Vector3, List<KeyValuePair<int, Vector3>>> groupedVerticies,
             List<Vector3> smoothNormals)
 #else
         private static List<Vector3> CalculateSmoothNormals(Vector3[] vertices, Vector3[] normals)
-#endif // OPTIMISATION
+#endif // OPTIMISATION_LISTPOOL
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             // Group all vertices that share the same location in space.
 #if OPTIMISATION_LISTPOOL
-            using var _0 = UnityEngine.Pool.DictionaryPool<Vector3, List<KeyValuePair<int, Vector3>>>
-                .Get(out var groupedVerticies);
-
             int verticesLength = vertices.Count;
             for (int i = 0; i < verticesLength; ++i)
 #else

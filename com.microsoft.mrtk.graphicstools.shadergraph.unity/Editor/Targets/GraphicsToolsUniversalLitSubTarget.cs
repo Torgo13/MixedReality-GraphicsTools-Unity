@@ -1,6 +1,6 @@
-// Copyright © 2020 Unity Technologies ApS
+// Copyright ¬© 2020 Unity Technologies ApS
 // Licensed under the Unity Companion License for Unity-dependent projects--see Unity Companion License.
-// Unless expressly provided otherwise, the Software under this license is made available strictly on an ìAS ISî BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
+// Unless expressly provided otherwise, the Software under this license is made available strictly on an ‚ÄúAS IS‚Äù BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
 
 // Graphics Tools Additions
 // - Changed UniversalLitSubTarget to GraphicsToolsUniversalLitSubTarget
@@ -523,8 +523,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 WorkflowMode workflowMode,
                 bool complexLit,
                 bool blendModePreserveSpecular,
-                bool overrideBlendAlpha, 
-                Blend alphaSrc, 
+                bool overrideBlendAlpha,
+                Blend alphaSrc,
                 Blend alphaDst,
                 BlockFieldDescriptor[] vertexBlocks,
                 BlockFieldDescriptor[] pixelBlocks,
@@ -921,7 +921,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 { CoreKeywordDescriptors.LightLayers },
                 { CoreKeywordDescriptors.DebugDisplay },
                 { CoreKeywordDescriptors.LightCookies },
+#if UNITY_6000_3_OR_NEWER
+                { CoreKeywordDescriptors.ClusterLightLoop },
+#else
                 { CoreKeywordDescriptors.ForwardPlus },
+#endif // UNITY_6000_3_OR_NEWER
             };
 
             public static readonly KeywordCollection GBuffer = new KeywordCollection
@@ -950,7 +954,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             const string kShadows = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl";
             const string kMetaInput = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl";
             const string kForwardPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBRForwardPass.hlsl";
+#if UNITY_6000_3_OR_NEWER
+            const string kGBuffer = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/GBufferOutput.hlsl";
+#else
             const string kGBuffer = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl";
+#endif // UNITY_6000_3_OR_NEWER
             const string kPBRGBufferPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBRGBufferPass.hlsl";
             const string kLightingMetaPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/LightingMetaPass.hlsl";
             const string k2DPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBR2DPass.hlsl";
@@ -1940,7 +1948,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             const string kShadows = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl";
             const string kMetaInput = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl";
             const string kForwardPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBRForwardPass.hlsl";
+#if UNITY_6000_3_OR_NEWER
+            const string kGBuffer = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/GBufferOutput.hlsl";
+#else
             const string kGBuffer = "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl";
+#endif // UNITY_6000_3_OR_NEWER
             const string kPBRGBufferPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBRGBufferPass.hlsl";
             const string kLightingMetaPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/LightingMetaPass.hlsl";
             const string k2DPass = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/PBR2DPass.hlsl";
