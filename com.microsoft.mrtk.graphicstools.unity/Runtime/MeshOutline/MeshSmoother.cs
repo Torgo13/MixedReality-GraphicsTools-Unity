@@ -87,6 +87,51 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         /// <returns>A task which will complete once normal smoothing is finished.</returns>
 #if !UNITY_WEBGL
+#if UNITY_6000_0_OR_NEWER
+        public void SmoothNormalsAsync()
+        {
+            // No need to do any smoothing if this mesh has already been processed.
+            if (AcquirePreprocessedMesh(out Mesh mesh))
+                return;
+
+#if DEBUG
+            try
+            {
+                _ = SmoothNormalsAwaitableAsync(mesh, destroyCancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+#else
+            _ = SmoothNormalsAwaitableAsync(mesh, destroyCancellationToken);
+#endif // DEBUG
+        }
+
+        /// <inheritdoc cref="SmoothNormalsAsync"/>
+        public async Awaitable SmoothNormalsAwaitableAsync(Mesh mesh,
+            System.Threading.CancellationToken ct)
+        {
+            // Create a copy of the vertices and normals and apply the smoothing in an async task.
+            using var _0 = UnityEngine.Pool.ListPool<Vector3>.Get(out var vertices);
+            using var _1 = UnityEngine.Pool.ListPool<Vector3>.Get(out var normals);
+            using var _2 = UnityEngine.Pool.ListPool<Vector3>.Get(out var smoothNormals);
+            mesh.GetVertices(vertices);
+            mesh.GetNormals(normals);
+            await Awaitable.BackgroundThreadAsync();
+            if (ct.IsCancellationRequested)
+                return;
+
+            CalculateSmoothNormals(vertices, normals, smoothNormals);
+
+            // Once the async task is complete, apply the smoothed normals to the mesh on the main thread.
+            await Awaitable.MainThreadAsync();
+            if (ct.IsCancellationRequested)
+                return;
+
+            mesh.SetUVs(smoothNormalUVChannel, smoothNormals);
+        }
+#else
         public Task SmoothNormalsAsync()
         {
             UnityEngine.Mesh mesh;
@@ -108,6 +153,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 mesh.SetUVs(smoothNormalUVChannel, i.Result);
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
+#endif // UNITY_6000_0_OR_NEWER
 #endif
 
         #region MonoBehaviour Implementation
@@ -236,7 +282,26 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <param name="vertices">A list of vertices that represent a mesh.</param>
         /// <param name="normals">A list of normals that correspond to each vertex passed in via the vertices param.</param>
         /// <returns>A list of normals which are smoothed, or averaged, based on share vertex position.</returns>
+#if OPTIMISATION
         private static List<Vector3> CalculateSmoothNormals(Vector3[] vertices, Vector3[] normals)
+        {
+            var v = UnityEngine.Pool.ListPool<Vector3>.Get();
+            var n = UnityEngine.Pool.ListPool<Vector3>.Get();
+            v.AddRange(vertices);
+            n.AddRange(normals);
+            var smoothNormals = new List<Vector3>(normals.Length);
+            CalculateSmoothNormals(v, n, smoothNormals);
+            UnityEngine.Pool.ListPool<Vector3>.Release(n);
+            UnityEngine.Pool.ListPool<Vector3>.Release(v);
+            return smoothNormals;
+        }
+
+        /// <inheritdoc cref="CalculateSmoothNormals(Vector3[], Vector3[])"/>
+        private static void CalculateSmoothNormals(List<Vector3> vertices, List<Vector3> normals,
+            List<Vector3> smoothNormals)
+#else
+        private static List<Vector3> CalculateSmoothNormals(Vector3[] vertices, Vector3[] normals)
+#endif // OPTIMISATION
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -244,10 +309,14 @@ namespace Microsoft.MixedReality.GraphicsTools
 #if OPTIMISATION_LISTPOOL
             using var _0 = UnityEngine.Pool.DictionaryPool<Vector3, List<KeyValuePair<int, Vector3>>>
                 .Get(out var groupedVerticies);
+
+            int verticesLength = vertices.Count;
+            for (int i = 0; i < verticesLength; ++i)
 #else
             var groupedVerticies = new Dictionary<Vector3, List<KeyValuePair<int, Vector3>>>();
-#endif // OPTIMISATION_LISTPOOL
+
             for (int i = 0; i < vertices.Length; ++i)
+#endif // OPTIMISATION_LISTPOOL
             {
                 var vertex = vertices[i];
                 List<KeyValuePair<int, Vector3>> group;
@@ -261,10 +330,17 @@ namespace Microsoft.MixedReality.GraphicsTools
                 group.Add(new KeyValuePair<int, Vector3>(i, vertex));
             }
 
+#if OPTIMISATION_LISTPOOL
+            smoothNormals.AddRange(normals);
+
+            // If we don't hit the degenerate case of each vertex is its own group (no vertices shared a location), average the normals of each group.
+            if (groupedVerticies.Count != verticesLength)
+#else
             var smoothNormals = new List<Vector3>(normals);
 
             // If we don't hit the degenerate case of each vertex is its own group (no vertices shared a location), average the normals of each group.
             if (groupedVerticies.Count != vertices.Length)
+#endif // OPTIMISATION_LISTPOOL
             {
                 foreach (var group in groupedVerticies)
                 {
@@ -290,8 +366,13 @@ namespace Microsoft.MixedReality.GraphicsTools
                 }
             }
 
+#if OPTIMISATION_LISTPOOL
+            Debug.LogFormat("CalculateSmoothNormals took {0} ms on {1} vertices.", watch.ElapsedMilliseconds, verticesLength);
+#else
             Debug.LogFormat("CalculateSmoothNormals took {0} ms on {1} vertices.", watch.ElapsedMilliseconds, vertices.Length);
+
             return smoothNormals;
+#endif // OPTIMISATION_LISTPOOL
         }
     }
 }

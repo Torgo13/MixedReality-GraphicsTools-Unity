@@ -580,9 +580,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         #region private methods
 
-#if OPTIMISATION_STATIC
-        static
-#endif // OPTIMISATION_STATIC
         private void InitCommandBuffer()
         {
             if (cmd == null)
@@ -592,9 +589,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#if OPTIMISATION_STATIC
-        static
-#endif // OPTIMISATION_STATIC
         private int PowerOf2(int i)
         {
             int powerOf2 = 1;

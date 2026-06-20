@@ -14,11 +14,12 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// <summary>
         /// Shader keyword used by the "Graphics Tools/Text Mesh Pro" to conditionally invert text.
         /// </summary>
-        private static readonly string InvertTextColorKeyword = "_INVERT_TEXT_COLOR";
-
 #if OPTIMISATION_SHADERPARAMS
+        private const string InvertTextColorKeyword = "_INVERT_TEXT_COLOR";
         private static readonly int _SrcBlend = Shader.PropertyToID("_SrcBlend");
         private static readonly int _DstBlend = Shader.PropertyToID("_DstBlend");
+#else
+        private static readonly string InvertTextColorKeyword = "_INVERT_TEXT_COLOR";
 #endif // OPTIMISATION_SHADERPARAMS
 
         /// <summary>

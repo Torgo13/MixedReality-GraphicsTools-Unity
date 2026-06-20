@@ -124,9 +124,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#if OPTIMISATION_STATIC
-        static
-#endif // OPTIMISATION_STATIC
         private void SetMaterialState(Material m, string keyword, bool enable)
         {
             if (enable)

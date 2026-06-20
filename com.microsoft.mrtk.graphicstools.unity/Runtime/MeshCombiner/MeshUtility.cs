@@ -128,7 +128,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                             normalTexture = new Texture2D(dimension, dimension);
                             var normal = TextureUsageColorDefault[(int)usage];
 #if OPTIMISATION_LISTPOOL
-                            normalTexture.SetPixelData(Repeat(new Color(1.0f, normal.g, 1.0f, normal.r), dimension * dimension), mipLevel: 0);
+                            normalTexture.SetPixelData(Repeat(new Color32(byte.MaxValue, (byte)(normal.g * byte.MaxValue), byte.MaxValue, (byte)(normal.r * byte.MaxValue)), dimension * dimension), mipLevel: 0);
 #else
                             normalTexture.SetPixels(Repeat(new Color(1.0f, normal.g, 1.0f, normal.r), dimension * dimension).ToArray());
 #endif // OPTIMISATION_LISTPOOL
@@ -443,8 +443,8 @@ namespace Microsoft.MixedReality.GraphicsTools
 
         private static void PostprocessTexture(Texture2D texture, Rect[] usedRects, MeshCombineSettings.TextureSetting settings)
         {
-#if OPTIMISATION
-            var pixels = texture.GetRawTextureData<Color>();
+#if OPTIMISATION // Texture2D atlas is created with TextureFormat.RGBA32
+            var pixels = texture.GetRawTextureData<Color32>();
 #else
             var pixels = texture.GetPixels();
 #endif // OPTIMISATION
@@ -474,7 +474,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                             // Apply Unity's UnpackNormalDXT5nm method to go from DXTnm to RGB.
 #if OPTIMISATION
                             int index = y * width + x;
-                            var c = pixels[index];
+                            Color c = pixels[index];
                             c.r = c.a;
                             var dot = c.r * c.r + c.g * c.g;
                             c.b = (float)Math.Sqrt(1.0 - Mathf.Clamp01(dot)) * 0.5f + 0.5f;
@@ -512,10 +512,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             var output = new Unity.Collections.NativeArray<T>(count,
                 Unity.Collections.Allocator.Temp, Unity.Collections.NativeArrayOptions.UninitializedMemory);
 
-            for (int i = 0; i < count; ++i)
-            {
-                output[i] = value;
-            }
+            output.AsSpan().Fill(value);
 
             return output;
         }

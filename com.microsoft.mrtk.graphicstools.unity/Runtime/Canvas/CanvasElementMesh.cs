@@ -256,9 +256,9 @@ namespace Microsoft.MixedReality.GraphicsTools
 #endif // OPTIMISATION_UNITY
 
                     float scaler = 0.5f / Mathf.Max(meshSize.x, meshSize.y);
-                    
-#if OPTIMISATION
-                    var capacity = uiVerticies.Count + vertices.Count;
+
+#if OPTIMISATION // uiVerticies has been cleared so uiVerticies.Count is 0
+                    var capacity = vertices.Count;
                     if (uiVerticies.Capacity < capacity)
                         uiVerticies.Capacity = capacity;
 #endif // OPTIMISATION

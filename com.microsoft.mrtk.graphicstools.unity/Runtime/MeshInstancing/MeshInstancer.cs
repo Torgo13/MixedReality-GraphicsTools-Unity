@@ -54,6 +54,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         /// </summary>
         [Tooltip("Determines whether the Meshes should receive shadows.")]
 #if SPELLING
+        [UnityEngine.Serialization.FormerlySerializedAs("RecieveShadows")]
         public bool ReceiveShadows = false;
         private bool RecieveShadows => ReceiveShadows;
 #else
@@ -459,6 +460,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             public int InstanceCount = 0;
             public Instance[] Instances = new Instance[UNITY_MAX_INSTANCE_COUNT];
 #if SPELLING
+            [UnityEngine.Serialization.FormerlySerializedAs("Matricies")]
             public Matrix4x4[] Matrices = new Matrix4x4[UNITY_MAX_INSTANCE_COUNT];
             public Matrix4x4[] Matricies => Matrices;
 #else
@@ -486,26 +488,53 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             public void RegisterMaterialPropertiesFloat(List<KeyValuePair<int, float>> materialProperties)
             {
+#if OPTIMISATION_LISTPOOL
+                using var _0 = UnityEngine.Pool.ListPool<float>.Get(out var properties);
+                foreach (var property in materialProperties)
+                {
+                    properties.Clear();
+                    Properties.SetFloatArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT, properties));
+                }
+#else
                 foreach (var property in materialProperties)
                 {
                     Properties.SetFloatArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
                 }
+#endif // OPTIMISATION_LISTPOOL
             }
 
             public void RegisterMaterialPropertiesVector(List<KeyValuePair<int, Vector4>> materialProperties)
             {
+#if OPTIMISATION_LISTPOOL
+                using var _0 = UnityEngine.Pool.ListPool<Vector4>.Get(out var properties);
+                foreach (var property in materialProperties)
+                {
+                    properties.Clear();
+                    Properties.SetVectorArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT, properties));
+                }
+#else
                 foreach (var property in materialProperties)
                 {
                     Properties.SetVectorArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
                 }
+#endif // OPTIMISATION_LISTPOOL
             }
 
             public void RegisterMaterialPropertiesMatrix(List<KeyValuePair<int, Matrix4x4>> materialProperties)
             {
+#if OPTIMISATION_LISTPOOL
+                using var _0 = UnityEngine.Pool.ListPool<Matrix4x4>.Get(out var properties);
+                foreach (var property in materialProperties)
+                {
+                    properties.Clear();
+                    Properties.SetMatrixArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT, properties));
+                }
+#else
                 foreach (var property in materialProperties)
                 {
                     Properties.SetMatrixArray(property.Key, Repeat(property.Value, UNITY_MAX_INSTANCE_COUNT));
                 }
+#endif // OPTIMISATION_LISTPOOL
             }
 
             public void UpdateJob(float deltaTime, Matrix4x4 localToWorld, int firstIndex, int lastIndex)
@@ -557,18 +586,27 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
 
 #if OPTIMISATION_LISTPOOL
-            private static void Repeat<T>(List<T> output, T element, int count)
+            private static List<T> Repeat<T>(T element, int count,
+                List<T> output = null)
             {
-                if (output.Capacity < count)
-                    output.Capacity = count;
+                if (output == null)
+                {
+                    output = new List<T>(count);
+                }
+                else
+                {
+                    if (output.Capacity < count)
+                        output.Capacity = count;
+                }
 
                 for (int i = 0; i < count; ++i)
                 {
                     output.Add(element);
                 }
-            }
-#endif // OPTIMISATION_LISTPOOL
 
+                return output;
+            }
+#else
             private static T[] Repeat<T>(T element, int count)
             {
                 var output = new T[count];
@@ -580,6 +618,7 @@ namespace Microsoft.MixedReality.GraphicsTools
 
                 return output;
             }
+#endif // OPTIMISATION_LISTPOOL
 
             private static bool RaycastSphere(Ray ray, Vector3 center, float radius)
             {

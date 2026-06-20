@@ -2,16 +2,7 @@
 // Licensed under the MIT License.
 
 #if GT_USE_URP
-
-#if CUSTOM_URP
-#if UNITY_2021_2_OR_NEWER
-#else
-using UniversalRendererData = UnityEngine.Rendering.Universal.ForwardRendererData;
-#endif // UNITY_2021_2_OR_NEWER
-#else
 using System.Reflection;
-#endif // CUSTOM_URP
-
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -23,35 +14,8 @@ namespace Microsoft.MixedReality.GraphicsTools
     /// </summary>
     public static class URPUtility
     {
-#if CUSTOM_URP
         /// <summary>
-        /// The universal render pipeline can have multiple renderers, this method returns the 
-        /// ScriptableRendererData (features and settings) for a renderer at a given index.
-        /// </summary>
-        public static UniversalRendererData GetRendererData(int rendererIndex)
-        {
-            if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset pipeline)
-            {
-                var renderers = pipeline.RendererDataList;
-                if (rendererIndex < renderers.Length)
-                {
-                    return renderers[rendererIndex] as UniversalRendererData;
-                }
-                else
-                {
-                    Debug.LogError($"GetRendererData failed because rendererIndex is out of range. {renderers.Length} renderer(s) exist but index {rendererIndex} requested.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("GetRendererData failed because the current pipeline is not set or not a UniversalRenderPipelineAsset");
-            }
-
-            return null;
-        }
-#else
-        /// <summary>
-        /// The universal render pipeline can have multiple renderers, this method returns the 
+        /// The universal render pipeline can have multiple renders, this method returns the 
         /// ScriptableRendererData (features and settings) for a renderer at a given index.
         /// 
         /// Note, this data is not public so our only resort is brittle reflection to access 
@@ -67,6 +31,19 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             if (pipeline != null)
             {
+#if UNITY_6000_3_OR_NEWER
+                var renderers = pipeline.rendererDataList;
+                if (rendererIndex < renderers.Length)
+                {
+                    return renderers[rendererIndex] as UniversalRendererData;
+                }
+#if DEBUG
+                else
+                {
+                    Debug.LogError($"GetRendererData failed because rendererIndex is out of range. {renderers.Length} renderer(s) exist but index {rendererIndex} requested.");
+                }
+#endif // DEBUG
+#else
                 var propertyInfo = pipeline.GetType().GetField("m_RendererDataList", BindingFlags.Instance | BindingFlags.NonPublic);
 
                 if (propertyInfo != null)
@@ -97,6 +74,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     Debug.LogError("GetRendererData failed because Unity changed the internals of UniversalRenderPipelineAsset. Please file a bug!");
                 }
+#endif // UNITY_6000_3_OR_NEWER
             }
             else
             {
@@ -105,7 +83,6 @@ namespace Microsoft.MixedReality.GraphicsTools
 
             return null;
         }
-#endif // CUSTOM_URP
     }
 }
 #endif // GT_USE_URP

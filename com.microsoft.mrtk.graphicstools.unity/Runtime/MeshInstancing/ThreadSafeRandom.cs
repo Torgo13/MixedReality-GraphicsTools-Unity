@@ -29,20 +29,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             }
         }
 
-#if CUSTOM_URP
-        /// <summary>
-        /// Returns a random double within [0.0..1.0] (range is inclusive) (Read Only).
-        /// </summary>
-        public static double doubleValue
-        {
-            get
-            {
-                Initialize();
-                return local.NextDouble();
-            }
-        }
-#endif // CUSTOM_URP
-
         /// <summary>
         /// Returns a random int within [minInclusive..maxInclusive] (range is inclusive).
         /// </summary>
@@ -59,16 +45,6 @@ namespace Microsoft.MixedReality.GraphicsTools
         {
             return value * (max - min) + min;
         }
-
-#if CUSTOM_URP
-        /// <summary>
-        /// Returns a random double within [minInclusive..maxInclusive] (range is inclusive).
-        /// </summary>
-        public static double Range(double min, double max)
-        {
-            return doubleValue * (max - min) + min;
-        }
-#endif // CUSTOM_URP
 
         /// <summary>
         /// Returns a random point inside or on a circle with radius 1.0 (Read Only).

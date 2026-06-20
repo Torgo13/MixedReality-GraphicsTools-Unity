@@ -306,7 +306,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 float wedgeAngle = (float)i / wedges * Mathf.PI * 0.5f;
                 Vector3 dir = (Mathf.Cos(wedgeAngle) * rx) * xaxis + (Mathf.Sin(wedgeAngle) * ry) * yaxis;
 #if OPTIMISATION_MATHS
-                Vector3 localCenter = center + dir * (radius - bevelRadius) - bevelRadius * rz * zdir;
+                Vector3 localCenter = center + dir * (radius - bevelRadius) - zdir * (bevelRadius * rz);
 #else
                 Vector3 localCenter = center + dir * (radius - bevelRadius) - zdir * bevelRadius * rz;
 #endif // OPTIMISATION_MATHS
@@ -352,9 +352,6 @@ namespace Microsoft.MixedReality.GraphicsTools
             AddTriangle(vh, v00, v11, v01, reverse);
         }
 
-#if OPTIMISATION_STATIC
-        static
-#endif // OPTIMISATION_STATIC
         private void AddTriangle(VertexHelper vh, int i0, int i1, int i2, bool reverse)
         {
             if (reverse)

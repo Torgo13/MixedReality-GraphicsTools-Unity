@@ -273,9 +273,7 @@ half3 GTIridescence(float tangentDotIncident, sampler2D spectrumMap, float thres
 #endif
 
     float2 XY = uv - float2(0.5, 0.5);
-    float sa, ca;
-    sincos(angle, sa, ca);
-    float s = (ca * XY.x - sa * XY.y) / ca;
+    float s = mad(-tan(angle), XY.y, XY.x);
     return (left.rgb + s * (right.rgb - left.rgb)) * intensity;
 }
 

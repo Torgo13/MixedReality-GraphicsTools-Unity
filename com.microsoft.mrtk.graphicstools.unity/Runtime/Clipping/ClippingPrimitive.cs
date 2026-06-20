@@ -35,7 +35,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                     {
                         throw new InvalidOperationException("Cannot change material applied to after renderers have been added.");
                     }
-
                     applyToSharedMaterial = value;
                 }
             }
@@ -183,10 +182,6 @@ namespace Microsoft.MixedReality.GraphicsTools
                 {
                     materialInstance.ReleaseMaterial(this, autoDestroyMaterial);
                 }
-
-                // Reset the material property block.
-                materialPropertyBlock.Clear();
-                _renderer.SetPropertyBlock(materialPropertyBlock);
             }
         }
 

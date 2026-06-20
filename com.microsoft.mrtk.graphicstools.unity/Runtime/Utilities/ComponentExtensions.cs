@@ -129,7 +129,7 @@ namespace Microsoft.MixedReality.GraphicsTools
         }
 
         [System.Diagnostics.Conditional("DEBUG")]
-        public static void LogException(System.Exception exception)
+        public static void LogException(Exception exception)
         {
             UnityEngine.Debug.LogException(exception);
         }

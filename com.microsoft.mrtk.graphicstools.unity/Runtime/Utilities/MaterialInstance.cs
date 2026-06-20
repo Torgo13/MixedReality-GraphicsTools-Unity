@@ -291,6 +291,7 @@ namespace Microsoft.MixedReality.GraphicsTools
             {
                 return false;
             }
+
 #if OPTIMISATION
             for (int i = 0, aCount = a?.Count ?? 0; i < aCount; ++i)
 #else

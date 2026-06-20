@@ -69,6 +69,7 @@ namespace Microsoft.MixedReality.GraphicsTools
                 if (materialsToRestore.TryGetValue(material, out materialRef))
                 {
                     --materialRef.RefCount;
+
 #if SAFETY
                     if (materialRef.RefCount <= 0)
 #else

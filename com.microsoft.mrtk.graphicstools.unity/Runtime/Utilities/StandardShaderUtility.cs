@@ -213,9 +213,9 @@ namespace Microsoft.MixedReality.GraphicsTools
                         // Parse rgba format.
                         if (parameters[i].Contains("rgba("))
                         {
-#if OPTIMISATION_STATIC
+#if OPTIMISATION
                             static
-#endif // OPTIMISATION_STATIC
+#endif // OPTIMISATION
                             float NormalizeColorChannel(float channel)
                             {
                                 if (channel > 1.0f)
@@ -243,7 +243,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                                 blue = NormalizeColorChannel(blue);
                             }
 
+#if OPTIMISATION
+                            string[] colorKey = parameters[i + 3].Split(") ", StringSplitOptions.RemoveEmptyEntries);
+#else
                             string[] colorKey = parameters[i + 3].Split(new string[] { ") " }, StringSplitOptions.RemoveEmptyEntries);
+#endif // OPTIMISATION
 
                             if (float.TryParse(colorKey[0], out alpha))
                             {
@@ -267,7 +271,11 @@ namespace Microsoft.MixedReality.GraphicsTools
                         }
                         else // Parse hex/name format.
                         {
+#if OPTIMISATION
+                            string[] colors = parameters[i].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+#else
                             string[] colors = parameters[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+#endif // OPTIMISATION
                             Color color;
 
                             if (ColorUtility.TryParseHtmlString(colors[0], out color))
